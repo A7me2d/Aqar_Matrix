@@ -10,6 +10,31 @@
   const E = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const T = (m) => { try { if (typeof toast === "function") toast(m); } catch {} };
   const N = (n) => Number(n || 0).toLocaleString("en-US");
+  const employee = new Map(), employeeQueue = new Set();
+  let employeeBusy = 0;
+  function employeeBadge(n) {
+    const hit = employee.get(n), r = hit && hit.until > Date.now() ? hit.result : null;
+    if (!r && !employeeQueue.has(n) && !(hit && hit.loading)) {
+      employeeQueue.add(n);
+      setTimeout(drainEmployees, 0);
+    }
+    const value = r && r.ok && r.phone ? r.phone : n;
+    const isPhone = value !== n || !!(r && r.ok && r.phone);
+    const note = !r ? "جاري جلب الداتا…" : !r.ok ? "تعذر جلب الداتا" : !r.phone ? "معندوش داتا" : "";
+    return `<span class="fbid-contact" data-employee-id="${E(n)}"><button type="button" class="fbid" data-fbnum="${E(value)}" data-phone="${isPhone ? "1" : "0"}" dir="ltr" title="${isPhone ? "رقم التليفون" : "آيدي فيسبوك"} — دوس للنسخ" aria-label="نسخ ${isPhone ? "رقم التليفون" : "آيدي فيسبوك"} ${E(value)}">${E(value)}</button>${note ? ` <span class="fbid-note" dir="rtl" role="status">${note}</span>` : ""}</span>`;
+  }
+  function drainEmployees() {
+    while (employeeBusy < 3 && employeeQueue.size) {
+      const n = employeeQueue.values().next().value;
+      employeeQueue.delete(n); employee.set(n, { loading: true }); employeeBusy++;
+      Promise.resolve().then(() => chrome.runtime.sendMessage({ type: "employeePhone", id: n }))
+        .then((r) => finish(r || { ok: false }), () => finish({ ok: false }));
+      function finish(result) {
+        employee.set(n, { result, until: Date.now() + (!result.ok ? 60000 : result.phone ? 3600000 : 300000) });
+        employeeBusy--; refreshSoon(); drainEmployees();
+      }
+    }
+  }
 
   // ===== مين هو الشخص؟ → { num } (رقم جاهز) أو { handle } (يوزر محتاج تحويل) أو null (مفيش فيسبوك: واتساب/إنستجرام/من غير حساب) =====
   function raw(x) {
@@ -29,7 +54,7 @@
   // ===== الشارة فوق الكارت =====
   function chipInner(r) {
     const n = numOf(r);
-    if (n) return `<button type="button" class="fbid" data-fbnum="${E(n)}" dir="ltr" title="آيدي فيسبوك — دوس للنسخ" aria-label="نسخ آيدي فيسبوك ${E(n)}">${E(n)}</button>`;
+    if (n) return employeeBadge(n);
     if (isDead(r.handle)) return `<span class="fbid miss" data-fbh="${E(r.handle)}" title="مفيش آيدي رقم ظاهر للحساب ده (الحساب خاص أو اتمسح)">—</span>`;
     return `<span class="fbid pend" data-fbh="${E(r.handle)}" title="بيتحوّل لآيدي رقم…" role="status" aria-label="بيتحوّل لآيدي رقم"><i></i><i></i><i></i></span>`;
   }
@@ -95,7 +120,7 @@
     const t = ev.target && ev.target.closest ? ev.target.closest("[data-fbnum],[data-fbcopy]") : null;
     if (!t) return;
     ev.stopPropagation(); ev.preventDefault();
-    if (t.hasAttribute("data-fbnum")) { const n = t.getAttribute("data-fbnum"); copyText(n).then((ok) => { T(ok ? "📋 اتنسخ الآيدي " + n : "⚠ المتصفح منع النسخ"); if (ok) { t.classList.add("done"); setTimeout(() => t.classList.remove("done"), 900); } }); return; }
+    if (t.hasAttribute("data-fbnum")) { const n = t.getAttribute("data-fbnum"); copyText(n).then((ok) => { T(ok ? "📋 اتنسخ " + (t.getAttribute("data-phone") === "1" ? "رقم التليفون " : "الآيدي ") + n : "⚠ المتصفح منع النسخ"); if (ok) { t.classList.add("done"); setTimeout(() => t.classList.remove("done"), 900); } }); return; }
     const [name, k] = String(t.getAttribute("data-fbcopy")).split("|"), s = S.sec[name]; if (!s) return;
     const gs = k === "all" ? s.groups : [s.groups[+k]].filter(Boolean), nums = new Set(); let pend = 0;
     gs.forEach((g) => { const st = stats(g); st.nums.forEach((n) => nums.add(n)); pend += st.pend; });
@@ -110,6 +135,9 @@
       const h = el.getAttribute("data-fbh"), r = { handle: h };
       if (C.isNum(S.cache[h])) { el.outerHTML = chipInner(r); }
       else if (isDead(h) && !el.classList.contains("miss")) el.outerHTML = chipInner(r);
+    });
+    document.querySelectorAll("[data-employee-id]").forEach((el) => {
+      el.outerHTML = employeeBadge(el.getAttribute("data-employee-id"));
     });
     Object.values(S.sec).forEach(paintBar);
   }

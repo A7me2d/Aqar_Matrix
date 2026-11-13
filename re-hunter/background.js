@@ -2,6 +2,7 @@
 // كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential.
 importScripts("classify.js", "ownmark.js", "match.js", "ai.js", "role.js", "realness.js", "leads.js", "report.js", "sync.js", "alerts.js", "ocr.js", "pub.js", "wasend.js", "wacloud.js", "qualify.js", "xs.js", "funnel.js", "fbid-core.js");
 PH.ancReady(); // ⚡ كاش التحليل الدائم بيتحمّل من الأول
+importScripts("employee-phone.js");
 globalThis.__PH_DIRECT = true; // الخلفية هي اللي بتكتب مباشرة
 
 // ===== 🔒 طابور الكتابة: كل تعديل على الطلبات/التعليقات بيتعمل واحد ورا التاني =====
@@ -1554,6 +1555,7 @@ function onMsg(msg, sender, sendResponse) {
   // 🆔 آيدي فيسبوك الرقمي: اللوحة بتبعت اليوزرات اللي ظاهرة (أولوية) والخلفية بتحوّلهم واحد ورا التاني بهدوء
   if (msg.type === "fbidWant") { fbidWant(msg.handles || [], { urgent: msg.urgent !== false, retry: !!msg.retry }).then((n) => sendResponse({ ok: true, queued: n, st: fbidSt() })).catch((e) => sendResponse({ ok: false, error: String(e.message || e) })); return true; }
   if (msg.type === "fbidStatus") { sendResponse({ ok: true, st: fbidSt() }); return false; }
+  if (msg.type === "employeePhone") { EMPLOYEEPHONE.lookup(msg.id).then(sendResponse, () => sendResponse({ ok: false })); return true; }
   if (msg.type === "kvMerge") {
     kvQueued(async () => {
       if (!KV_OK.has(msg.key)) throw new Error("key");

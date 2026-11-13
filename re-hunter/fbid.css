@@ -17,6 +17,7 @@ button.fbid.done{background:color-mix(in srgb,#16a34a 22%,transparent);border-co
 .fbid-row{display:flex;justify-content:flex-start;align-items:center;order:-3;flex:0 0 auto;padding:10px 0 6px}
 .card>.fbid-row{margin-inline:20px!important}
 .fbid-in{display:inline-flex;vertical-align:middle;margin-inline-start:6px}
+.fbid-contact{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;max-width:100%}
 .fbid-in .fbid{padding:1px 8px;font-size:11.5px}
 .pair-side>.fbid-row{padding:0 0 6px;margin:0!important}
 .fr>.fbid-row,.fr-n .fbid-in{order:0}

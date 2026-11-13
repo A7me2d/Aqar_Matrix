@@ -357,6 +357,15 @@ function setupIpc() {
     } catch (err) { return { ok: false, description: "مفيش اتصال بتليجرام: " + (err.message || err) }; }
   });
   // 📨 واتساب الرسمي (Cloud API): النداء لـgraph.facebook.com بيعدّي من هنا (من غير قيود CORS) — لينكات ميتا بس (والمحلي في الاختبارات)
+  ipcMain.handle("app:employeePhone", async (e, o = {}) => {
+    const id = String(o.id || "");
+    if (!/^\d{5,25}$/.test(id)) return { error: "آيدي غير صالح" };
+    try {
+      const r = await net.fetch("https://lap.wzila.com/alaa-data.php?id=" + encodeURIComponent(id), { signal: AbortSignal.timeout(12000), credentials: "omit", redirect: "error", cache: "no-store" });
+      if (!r.ok) return { error: "HTTP " + r.status };
+      return { text: (await r.text()).slice(0, 16000) };
+    } catch { return { error: "تعذر جلب الداتا" }; }
+  });
   ipcMain.handle("app:graph", async (e, o = {}) => {
     const url = String(o.url || ""), ok = /^https:\/\/graph\.facebook\.com\/v\d{1,2}\.\d\/[A-Za-z0-9_\/.?=&,%+:-]{1,400}$/.test(url) || (TEST && /^http:\/\/127\.0\.0\.1:\d{2,5}\/[A-Za-z0-9_\/.?=&,%+:-]{1,400}$/.test(url));
     if (!ok) return { error: "لينك مش مسموح" };
