@@ -10,6 +10,18 @@
   const E = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const T = (m) => { try { if (typeof toast === "function") toast(m); } catch {} };
   const N = (n) => Number(n || 0).toLocaleString("en-US");
+  const conversionErrors = new Map();
+  function conversionNote(h) {
+    if (conversionErrors.has(h)) return conversionErrors.get(h);
+    const why = S.st && S.st.why;
+    if (why === "login") return "محتاج تسجيل دخول فيسبوك داخل البرنامج";
+    if (why === "checkpoint") return "فيسبوك طالب تأكيد الهوية داخل البرنامج";
+    if (why === "rate") return "التحويل متوقف مؤقتًا من فيسبوك";
+    if (S.miss[h]) return "تعذر تحويل الحساب لآيدي رقمي";
+    const asked = S.asked.get(h);
+    if (asked && Date.now() - asked > 60000) return "التحويل لم يكتمل — راجع اتصال البرنامج بفيسبوك";
+    return "";
+  }
   const employee = new Map(), employeeQueue = new Set();
   let employeeBusy = 0;
   function employeeBadge(n) {
@@ -56,7 +68,9 @@
     const n = numOf(r);
     if (n) return employeeBadge(n);
     if (isDead(r.handle)) return `<span class="fbid miss" data-fbh="${E(r.handle)}" title="مفيش آيدي رقم ظاهر للحساب ده (الحساب خاص أو اتمسح)">—</span>`;
-    return `<span class="fbid pend" data-fbh="${E(r.handle)}" title="بيتحوّل لآيدي رقم…" role="status" aria-label="بيتحوّل لآيدي رقم"><i></i><i></i><i></i></span>`;
+    const note = conversionNote(r.handle);
+    if (note) return `<span class="fbid miss" data-fbh="${E(r.handle)}" dir="rtl" role="status">${E(note)}</span>`;
+    return `<span class="fbid waiting" data-fbh="${E(r.handle)}" dir="rtl" role="status">في انتظار حالة التحويل</span>`;
   }
   // opt.inline = جوه سطر (من غير صف لوحده)
   function chip(x, opt) {
@@ -74,7 +88,18 @@
   function flush() {
     S.t = 0; const hs = [...S.q].slice(0, 500); hs.forEach((h) => { S.q.delete(h); S.asked.set(h, Date.now()); });
     if (S.asked.size > 20000) [...S.asked.keys()].slice(0, 10000).forEach((k) => S.asked.delete(k));
-    try { const p = chrome.runtime.sendMessage({ type: "fbidWant", handles: hs, urgent: true }); if (p && p.catch) p.catch(() => {}); } catch {}
+    let timer;
+    const failed = () => { hs.forEach((h) => conversionErrors.set(h, "خلفية البرنامج لم ترد — اقفل البرنامج وافتحه تاني")); refreshSoon(); };
+    Promise.race([
+      Promise.resolve().then(() => chrome.runtime.sendMessage({ type: "fbidWant", handles: hs, urgent: true })),
+      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), 12000); }),
+    ]).then((r) => {
+      if (!r || !r.ok) return failed();
+      hs.forEach((h) => conversionErrors.delete(h));
+      if (r.st) S.st = r.st;
+      refreshSoon();
+      setTimeout(refreshSoon, 61000);
+    }, failed).finally(() => clearTimeout(timer));
     if (S.q.size) S.t = setTimeout(flush, 350);
   }
 
@@ -107,7 +132,8 @@
       : why === "rate" ? `<span class="fbid-note">⏸ فيسبوك طلب استراحة — بيكمّل لوحده بعد شوية</span>` : "";
     const btn = (k, label, n) => `<button type="button" class="btn sm fbid-copy" data-fbcopy="${E(s.name)}|${k}" ${n ? "" : "disabled"} title="بينسخ كل آيديات «${E(label)}» اللي في القسم (مش اللي ظاهر بس) — كل رقم في سطر">📋 نسخ ${E(label)} <b>${N(n)}</b></button>`;
     const btns = multi ? gs.map((o, i) => btn(String(i), o.g.label || "", o.st.nums.length)).join("") + btn("all", "الكل", all.size) : btn("all", "كل الآيديات", all.size);
-    s.bar.innerHTML = `<span class="fbid-t">🆔 آيدي فيسبوك</span>${btns}${pend ? `<span class="fbid-pend"><span class="fbid pend sm"><i></i><i></i><i></i></span> ${N(pend)} بيتحوّلوا لرقم</span>` : ""}${w}`;
+    const stalled = gs.some(({ g }) => g.items.some((x) => { const r = raw(x); return r && !numOf(r) && !!conversionNote(r.handle); }));
+    s.bar.innerHTML = `<span class="fbid-t">🆔 آيدي فيسبوك</span>${btns}${pend ? `<span class="fbid-pend">${stalled ? "⚠ " : ""}${N(pend)} ${stalled ? "آيدي لم يكتمل تحويلهم — راجع الحالة فوق الكارت" : "حساب في انتظار نتيجة التحويل"}</span>` : ""}${w}`;
     s.bar.hidden = !all.size && !pend;
   }
 
@@ -124,8 +150,8 @@
     const [name, k] = String(t.getAttribute("data-fbcopy")).split("|"), s = S.sec[name]; if (!s) return;
     const gs = k === "all" ? s.groups : [s.groups[+k]].filter(Boolean), nums = new Set(); let pend = 0;
     gs.forEach((g) => { const st = stats(g); st.nums.forEach((n) => nums.add(n)); pend += st.pend; });
-    if (!nums.size) { T("مفيش آيديات جاهزة لسه" + (pend ? " — " + N(pend) + " بيتحوّلوا" : "")); return; }
-    copyText([...nums].join("\n")).then((ok) => T(ok ? `📋 اتنسخ ${N(nums.size)} آيدي (كل رقم في سطر)` + (pend ? ` — ولسه ${N(pend)} بيتحوّلوا، انسخ تاني بعد شوية` : "") : "⚠ المتصفح منع النسخ"));
+    if (!nums.size) { T("مفيش آيديات جاهزة لسه" + (pend ? " — " + N(pend) + " حساب لسه من غير آيدي رقمي" : "")); return; }
+    copyText([...nums].join("\n")).then((ok) => T(ok ? `📋 اتنسخ ${N(nums.size)} آيدي (كل رقم في سطر)` + (pend ? ` — ولسه ${N(pend)} حساب من غير آيدي رقمي` : "") : "⚠ المتصفح منع النسخ"));
   }, true);
 
   // ===== تحديث لايف أول ما الرقم يوصل =====
@@ -133,8 +159,8 @@
     S.rt = 0;
     document.querySelectorAll(".fbid[data-fbh]").forEach((el) => {
       const h = el.getAttribute("data-fbh"), r = { handle: h };
-      if (C.isNum(S.cache[h])) { el.outerHTML = chipInner(r); }
-      else if (isDead(h) && !el.classList.contains("miss")) el.outerHTML = chipInner(r);
+      const html = chipInner(r);
+      if (el.outerHTML !== html) el.outerHTML = html;
     });
     document.querySelectorAll("[data-employee-id]").forEach((el) => {
       el.outerHTML = employeeBadge(el.getAttribute("data-employee-id"));
