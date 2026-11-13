@@ -1,0 +1,93 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+   كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. */
+/* 📥 الواردين والقياس (10.80.53) — كله على متغيّرات الثيم (--surface/--text/--brand/--border…) فبيتلوّن ويتشكّل مع الـ20 ستايل تلقائي */
+:is(#fnlRoot,#todayPlan) .fn-tabs,:is(#fnlRoot,#todayPlan) .fn-chips,:is(#fnlRoot,#todayPlan) .fn-ranges,:is(#fnlRoot,#todayPlan) .fn-acts,:is(#fnlRoot,#todayPlan) .fn-todo{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+:is(#fnlRoot,#todayPlan) .fn-tabs{margin:2px 0 14px}
+:is(#fnlRoot,#todayPlan) .fn-bar-t{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 12px}
+:is(#fnlRoot,#todayPlan) .fn-q{flex:1 1 200px;min-width:160px;border:1px solid var(--border);background:var(--field,var(--surface));color:var(--text);border-radius:999px;padding:7px 14px;font:inherit}
+:is(#fnlRoot,#todayPlan) .fn-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:12px}
+:is(#fnlRoot,#todayPlan) .fn-card{display:flex;flex-direction:column;gap:9px;border-inline-start:4px solid var(--st,var(--brand))}
+:is(#fnlRoot,#todayPlan) .fn-card.st-new{--st:#e2a100}:is(#fnlRoot,#todayPlan) .fn-card.st-contacted{--st:#2f7fe0}:is(#fnlRoot,#todayPlan) .fn-card.st-viewing{--st:#8a55d8}:is(#fnlRoot,#todayPlan) .fn-card.st-won{--st:#19a35a}:is(#fnlRoot,#todayPlan) .fn-card.st-lost{--st:#8a8f98;opacity:.78}
+:is(#fnlRoot,#todayPlan) .fn-h{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+:is(#fnlRoot,#todayPlan) .fn-h b{font-size:1.05em}
+:is(#fnlRoot,#todayPlan) .fn-h code,:is(#fnlRoot,#todayPlan) .fn-url{font:600 12px/1.3 ui-monospace,Consolas,monospace;background:color-mix(in srgb,var(--text) 7%,transparent);border-radius:6px;padding:2px 7px;letter-spacing:.02em}
+:is(#fnlRoot,#todayPlan) .fn-ago{margin-inline-start:auto;font-size:.85em}
+:is(#fnlRoot,#todayPlan) .fn-chip{display:inline-flex;gap:4px;align-items:center;border:1px solid var(--border);border-radius:999px;padding:2px 10px;font-size:.86em;background:color-mix(in srgb,var(--brand) 9%,transparent)}
+:is(#fnlRoot,#todayPlan) .fn-chip.off{background:transparent;opacity:.75}
+:is(#fnlRoot,#todayPlan) .fn-chip small{opacity:.7}
+:is(#fnlRoot,#todayPlan) .fn-who{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+:is(#fnlRoot,#todayPlan) .fn-num{font-weight:700;letter-spacing:.02em}
+:is(#fnlRoot,#todayPlan) .fn-msg{background:color-mix(in srgb,var(--text) 5%,transparent);border-radius:10px;padding:7px 11px;font-size:.92em;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+:is(#fnlRoot,#todayPlan) .fn-sts{display:flex;flex-wrap:wrap;gap:6px}
+:is(#fnlRoot,#todayPlan) .fn-st{flex:1 1 auto;text-align:center;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:3px 8px;font:inherit;font-size:.82em;cursor:pointer;white-space:nowrap}
+:is(#fnlRoot,#todayPlan) .fn-st:hover{border-color:var(--brand)}
+:is(#fnlRoot,#todayPlan) .fn-st.on{background:var(--st,var(--brand));border-color:var(--st,var(--brand));color:#fff}
+:is(#fnlRoot,#todayPlan) .fn-card.st-new .fn-st.on{color:#1d1500}
+:is(#fnlRoot,#todayPlan) .fn-foot{display:flex;gap:8px;align-items:center}
+:is(#fnlRoot,#todayPlan) input.fn-note{flex:1;min-width:0;border:1px solid var(--border);background:var(--field,var(--surface));color:var(--text);border-radius:10px;padding:6px 10px;font:inherit;font-size:.92em}
+:is(#fnlRoot,#todayPlan) .fn-hint{font-size:.88em;margin-top:8px;line-height:1.6}
+:is(#fnlRoot,#todayPlan) .fn-add{margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
+:is(#fnlRoot,#todayPlan) .fn-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+:is(#fnlRoot,#todayPlan) .fn-row label,:is(#fnlRoot,#todayPlan) .fn-chk{display:flex;flex-direction:column;gap:4px;font-size:.92em;flex:1 1 210px}
+:is(#fnlRoot,#todayPlan) .fn-chk{flex-direction:row;align-items:center;gap:8px;margin-top:10px}
+:is(#fnlRoot,#todayPlan) .fn-row input,:is(#fnlRoot,#todayPlan) .fn-row select{border:1px solid var(--border);background:var(--field,var(--surface));color:var(--text);border-radius:10px;padding:7px 10px;font:inherit}
+:is(#fnlRoot,#todayPlan) .fn-gen{margin-bottom:12px}
+:is(#fnlRoot,#todayPlan) .fn-gen .sub{margin:2px 0 8px;font-size:.92em}
+:is(#fnlRoot,#todayPlan) .fn-ta{width:100%;box-sizing:border-box;min-height:170px;border:1px solid var(--border);background:var(--field,var(--surface));color:var(--text);border-radius:12px;padding:10px 12px;font:inherit;line-height:1.7;resize:vertical;margin-bottom:8px}
+:is(#fnlRoot,#todayPlan) .fn-warn{color:#c24a1d;font-weight:700}
+:is(#fnlRoot,#todayPlan) .fn-ok{border-color:#19a35a!important;color:#0e7c42!important}
+:is(#fnlRoot,#todayPlan) .fn-today{margin-bottom:12px}
+:is(#fnlRoot,#todayPlan) .fn-td{border:1px dashed var(--border);border-radius:999px;padding:3px 12px}
+:is(#fnlRoot,#todayPlan) .fn-td.ok{border-style:solid;border-color:#19a35a;background:color-mix(in srgb,#19a35a 12%,transparent)}
+:is(#fnlRoot,#todayPlan) .fn-ranges{margin:0 0 12px}
+:is(#fnlRoot,#todayPlan) .panel{margin-bottom:12px}
+:is(#fnlRoot,#todayPlan) .fn-bar{display:grid;grid-template-columns:130px 1fr 54px 90px;gap:10px;align-items:center;margin:7px 0}
+:is(#fnlRoot,#todayPlan) .fn-bl{font-size:.92em}
+:is(#fnlRoot,#todayPlan) .fn-bt{height:14px;border-radius:999px;background:color-mix(in srgb,var(--text) 8%,transparent);overflow:hidden}
+:is(#fnlRoot,#todayPlan) .fn-bt i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--brand),color-mix(in srgb,var(--brand) 55%,#fff))}
+:is(#fnlRoot,#todayPlan) .fn-bar b{text-align:end}
+:is(#fnlRoot,#todayPlan) .fn-bar small{opacity:.7}
+:is(#fnlRoot,#todayPlan) .fn-adv{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-radius:12px;margin:6px 0;background:color-mix(in srgb,var(--text) 5%,transparent);line-height:1.6}
+:is(#fnlRoot,#todayPlan) .fn-adv.good{background:color-mix(in srgb,#19a35a 13%,transparent)}
+:is(#fnlRoot,#todayPlan) .fn-adv.warn{background:color-mix(in srgb,#e2a100 17%,transparent)}
+:is(#fnlRoot,#todayPlan) .fn-hrs{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;height:120px;align-items:end;direction:ltr}
+:is(#fnlRoot,#todayPlan) .fn-hc{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:3px}
+:is(#fnlRoot,#todayPlan) .fn-hc i{display:block;width:100%;min-height:2px;border-radius:4px 4px 0 0;background:var(--brand);opacity:.85}
+:is(#fnlRoot,#todayPlan) .fn-hc small{height:12px;font-size:10px;opacity:.7}
+:is(#fnlRoot,#todayPlan) .fn-qrbox{display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin-top:12px}
+:is(#fnlRoot,#todayPlan) .fn-qr{width:230px;max-width:100%;background:#fff;border-radius:14px;padding:8px;box-shadow:0 1px 0 var(--border),0 6px 18px rgba(0,0,0,.12)}
+:is(#fnlRoot,#todayPlan) .fn-qr svg{display:block;width:100%;height:auto}
+:is(#fnlRoot,#todayPlan) .fn-qrinfo{flex:1 1 260px;display:flex;flex-direction:column;gap:8px;min-width:0}
+:is(#fnlRoot,#todayPlan) .fn-url{display:block;overflow-wrap:anywhere;word-break:break-all;font-size:11.5px;line-height:1.5}
+@media (max-width:640px){:is(#fnlRoot,#todayPlan) .fn-bar{grid-template-columns:96px 1fr 44px;}:is(#fnlRoot,#todayPlan) .fn-bar small{display:none}:is(#fnlRoot,#todayPlan) .fn-list{grid-template-columns:1fr}}
+
+/* ✉ رسايل جاهزة */
+:is(#fnlRoot,#todayPlan) .fn-ta{width:100%;box-sizing:border-box;border:1px solid var(--border);background:var(--field,var(--surface));color:var(--text);border-radius:10px;padding:9px 11px;font:inherit;line-height:1.75;resize:vertical;min-height:110px}
+:is(#fnlRoot,#todayPlan) .fn-mc .fn-acts{justify-content:flex-start}
+:is(#fnlRoot,#todayPlan) .fn-sent{color:#1a8f4b;font-size:.85em;font-weight:700}
+:is(#fnlRoot,#todayPlan) .fn-row input{min-width:0}
+
+/* 📅 النهارده + 🏷 قيّم أرضك (10.80.55) */
+:is(#fnlRoot,#todayPlan) .fn-card.t-reply{--st:#d6336c}:is(#fnlRoot,#todayPlan) .fn-card.t-follow{--st:#e08a00}:is(#fnlRoot,#todayPlan) .fn-card.t-deal{--st:#2f7fe0}:is(#fnlRoot,#todayPlan) .fn-card.t-pair{--st:#19a35a}:is(#fnlRoot,#todayPlan) .fn-card.t-cold{--st:#8a8f98;opacity:.86}
+:is(#fnlRoot,#todayPlan) .fn-pt{font-weight:800;color:var(--st);white-space:nowrap}
+:is(#fnlRoot,#todayPlan) .fn-late{border:1px solid #c24a1d;color:#c24a1d;border-radius:999px;padding:1px 9px;font-size:.8em;font-weight:700}
+:is(#fnlRoot,#todayPlan) .fn-prog{height:10px;border-radius:999px;background:color-mix(in srgb,var(--text) 9%,transparent);overflow:hidden;margin:6px 0 4px}
+:is(#fnlRoot,#todayPlan) .fn-prog i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#19a35a,color-mix(in srgb,#19a35a 55%,#fff))}
+:is(#fnlRoot,#todayPlan) .fn-plan{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,430px),1fr));gap:12px;margin-bottom:12px}
+:is(#fnlRoot,#todayPlan) .fn-plan .fn-card{margin:0}
+:is(#fnlRoot,#todayPlan) .fn-sec{margin:14px 2px 8px;font-weight:800}
+:is(#fnlRoot,#todayPlan) .fn-evt{width:100%;border-collapse:collapse;font-size:.92em}
+:is(#fnlRoot,#todayPlan) .fn-evt th,:is(#fnlRoot,#todayPlan) .fn-evt td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:start}
+:is(#fnlRoot,#todayPlan) .fn-evo{margin-top:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--brand) 8%,transparent);line-height:1.7;min-height:2.6em}
+:is(#fnlRoot,#todayPlan) .fn-evo b{font-size:1.15em}
+@media (max-width:640px){:is(#fnlRoot,#todayPlan) .fn-plan{grid-template-columns:1fr}}
+
+/* 🤖 تحليل السعر (10.80.56) */
+:is(#fnlRoot,#todayPlan) .fn-ai{border:1px dashed var(--border);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:color-mix(in srgb,var(--brand) 5%,transparent)}
+:is(#fnlRoot,#todayPlan) .fn-ai-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+:is(#fnlRoot,#todayPlan) .fn-ai-r{border-top:1px solid var(--border);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+:is(#fnlRoot,#todayPlan) .fn-ai-n{line-height:1.8}
+:is(#fnlRoot,#todayPlan) .fn-ai-p{margin:0;line-height:1.75}
+:is(#fnlRoot,#todayPlan) .fn-ai-t{font-weight:700;margin-top:2px}
+:is(#fnlRoot,#todayPlan) .fn-ai-l{margin:2px 0 0;padding-inline-start:20px;line-height:1.75}
+:is(#fnlRoot,#todayPlan) .fn-ai .btn[disabled]{opacity:.55;cursor:not-allowed}

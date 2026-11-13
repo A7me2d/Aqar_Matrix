@@ -1,0 +1,6 @@
+vendor/wppconnect-wa.js  —  @wppconnect/wa-js v4.7.2
+Copyright 2021 WPPConnect Team, licensed under the Apache License, Version 2.0 (see WPPCONNECT-LICENSE.txt).
+Source: https://github.com/wppconnect-team/wa-js  (file dist/wppconnect-wa.js, unmodified).
+It runs inside the web.whatsapp.com page (MAIN world) and is used by Aqar Matrix only to send interactive WhatsApp
+messages (quick-reply buttons, lists, polls, events) and to read the replies the customer taps.
+Network: wabtn-cfg.js sets WPPConfig so the library does NOT contact analytics or link-preview servers.

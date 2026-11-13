@@ -1,0 +1,968 @@
+<!doctype html>
+<!-- © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+     كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aqar Matrix — منصة العقارات</title>
+<link rel="icon" href="icons/48.png">
+<link rel="stylesheet" href="cairo.css">
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="ui42.css">
+<link rel="stylesheet" href="icons54.css">
+<link rel="stylesheet" href="icons56.css">
+<link rel="stylesheet" href="ui56.css">
+<link rel="stylesheet" href="ui58.css">
+<link rel="stylesheet" href="assist.css">
+<link rel="stylesheet" href="ui62.css">
+<link rel="stylesheet" href="ui64.css">
+<link rel="stylesheet" href="edifice.css">
+<link rel="stylesheet" href="pickman.css">
+<link rel="stylesheet" href="atlas.css">
+<link rel="stylesheet" href="magnet.css">
+<link rel="stylesheet" href="spread.css">
+<link rel="stylesheet" href="styles52.css">
+<link rel="stylesheet" href="funnel.css">
+<link rel="stylesheet" href="forms.css">
+<link rel="stylesheet" href="fbid.css">
+<script src="sbboot.js"></script>
+<script src="keep.js"></script>
+<script src="sgv-data.js"></script>
+<script src="styles52-data.js"></script>
+</head>
+<body class="ui38 ui42 ui56 ui58">
+<header class="topbar" id="side">
+  <div id="liveBar" class="live-bar" hidden></div>
+  <div class="tb-row">
+    <div class="side-brand"><span class="alogo" role="img" aria-label="Aqar Matrix"></span><div><b>Aqar Matrix</b><span>المؤسس Alaa Matrix</span></div></div>
+    <div class="tb-date" id="tbDate"></div>
+    <div class="tb-tools">
+      <div class="catchips" id="catChips" title="أنواع العقارات اللي بتتسحب وتتعرض"></div>
+      <button class="areapill" id="areaPill" title="منطقتك — دوس عشان تغيّرها">📍 بني سويف</button>
+      <span class="autopill" id="autoPill" title="التحديث التلقائي"></span>
+      <button class="btn tb-btn" id="newDay" title="يحفظ كل داتا النهارده في ملف أرشيف ويبدأ صفحة جديدة">🌅 يوم جديد</button>
+      <div class="thm-wrap">
+        <button class="btn tb-btn sg-only" id="sgDens" title="عرض مضغوط (أكتر نتايج في الشاشة)">☰</button>
+        <button class="btn tb-btn thm-btn" id="modeBtn" title="فاتح / غامق">🌙</button>
+        <button class="btn tb-btn thm-btn sg-only" id="styBtn" title="الستايلات: 20 ستايل بألوان وأيقونات وزراير وكروت مختلفة">🎭 <span class="lb">ستايل</span></button>
+        <div class="sx-pop" id="styPop" hidden>
+          <div class="sx-head"><h4>🎭 الستايلات <small data-sxcount>20 ستايل</small></h4><div class="sx-acts"><button type="button" data-sx-rand title="ستايل عشوائي">🎲 عشوائي</button><button type="button" data-sx-col title="استخدم ألوان الستايل أو لونك المختار">🎨 ألوان الستايل</button><button type="button" data-style-reset title="رجّع الشكل الأصلي «الصرح»">↩ الأصلي</button></div></div>
+          <div class="sx-grid" data-styles></div>
+        </div>
+        <button class="btn tb-btn thm-btn" id="thmBtn" title="الشكل واللون والوضع وحجم الكلام وصفحة البداية">🎨 <span class="lb">الشكل</span></button>
+        <div class="thm-pop" id="thmPop" hidden>
+          <div class="sg-only lk-sec"><h4>🧩 الشكل <small>6 أشكال — نفس الأقسام والتفاصيل</small></h4><div class="lk-row" data-looks></div></div>
+          <div class="sg-only sgv-sec"><h4>🎨 الألوان <small>24 لون</small></h4><div class="sgv-dots" data-sgvs></div><p class="sgv-cap" data-sgvcap aria-live="polite"></p></div>
+          <h4>🔠 حجم الكلام والأيقونات</h4><div class="thm-scales" data-scales></div>
+          <h4>الوضع</h4><div class="thm-modes" data-modes></div>
+          <div class="sg-only sb-sec"><h4>📑 الشريط <small>طيّ / فتح — Ctrl+B</small></h4><div class="thm-modes" data-sbmodes></div></div>
+          <div class="sg-only"><h4>صفحة البداية</h4><div class="thm-modes" data-landing></div></div>
+        </div>
+      </div>
+      <button class="btn primary savebtn" id="saveAll" title="Ctrl+S">💾 حفظ</button>
+    </div>
+  </div>
+  <nav class="nav" id="nav">
+    <button data-view="home" class="nav-home"><i>🏠</i><span>الرئيسية</span></button>
+    <span class="nav-cap">الأساسي</span>
+    <button data-view="posts" class="on"><i>📋</i><span>الطلبات والعروض</span><em class="pill" id="navPosts">0</em></button>
+    <button data-view="matches"><i>🤝</i><span>التطابق</span><em class="pill match" id="navMatches">0</em><em class="pill hot" id="navMatchesNew" hidden>0</em></button>
+    <button data-view="leads"><i>🛒</i><span>المشترين</span><em class="pill buy" id="navLeads">0</em></button>
+    <button data-view="listings"><i>🎯</i><span>هاتلي مشتري</span><em class="pill" id="navListings">0</em></button>
+    <span class="nav-sep"></span>
+    <span class="nav-cap">تسويق ووصول</span>
+    <button data-view="pick"><i>⭐</i><span>رشّحلي</span><em class="pill hot" id="navMagnet" hidden>0</em></button>
+    <button data-view="atlas"><i>🗺</i><span>الأطلس</span></button>
+    <button data-view="sellers"><i>🏷</i><span>البائعين</span><em class="pill sell" id="navSellers">0</em></button>
+    <button data-view="publish"><i>📣</i><span>نشر فيس بوك</span><em class="pill" id="navPub" hidden>0</em></button>
+    <button data-view="spread"><i>🌐</i><span>الانتشار</span></button>
+    <button data-view="funnel"><i>📥</i><span>الواردين والقياس</span><em class="pill match" id="navFunnel" hidden>0</em></button>
+    <button data-view="wasend"><i>📨</i><span>بوت واتساب</span><em class="pill" id="navWa" hidden>0</em></button>
+    <span class="nav-sep"></span>
+    <span class="nav-cap">أدوات مساعدة</span>
+    <button data-view="extract"><i>👥</i><span>استخراج</span></button>
+    <span class="nav-sep"></span>
+    <span class="nav-cap">المتابعة</span>
+    <button data-view="pipe"><i>💼</i><span>الصفقات</span><em class="pill match" id="navPipe" hidden>0</em></button>
+    <button data-view="today"><i>☀️</i><span>النهارده</span><em class="pill hot" id="navToday" hidden>0</em></button>
+    <button data-view="saved"><i>🔔</i><span>دوّرلي على</span><em class="pill hot" id="navSaved" hidden>0</em></button>
+    <button data-view="stats"><i>📈</i><span>نبض السوق</span></button>
+    <span class="nav-sep"></span>
+    <span class="nav-cap" id="navToolsCap">أدواتي</span>
+    <span id="navTools" style="display:contents"></span>
+    <button data-view="aitools"><i>🧩</i><span>كل أدواتي</span><em class="pill hot" id="navToolsN" hidden>0</em></button>
+    <span class="nav-sep"></span>
+    <button data-view="settings"><i>⚙️</i><span>الإعدادات</span></button>
+  </nav>
+</header>
+<div class="app-main">
+<div id="welcome" class="welcome" hidden role="status">
+  <div class="w-body"><b class="w-hi" id="wHi">أهلاً وسهلاً بيك يا بوص علاء</b><p class="w-line" id="wLine" title="دوس لجملة تانية"></p><small class="w-sig" id="wSig"></small></div>
+  <button class="w-x" id="wClose" type="button" aria-label="إغلاق" title="إغلاق">✕</button>
+</div>
+<section class="hero" id="hero"></section>
+
+<!-- ===== الرئيسية (اللافتة) ===== -->
+<section class="view" id="v-home" hidden><main class="wrap" id="homeBody"></main></section>
+
+<!-- ===== النهارده ===== -->
+<section class="view" id="v-today" hidden>
+  <main class="wrap">
+    <div class="intro">
+      <b>☀️ النهارده</b>
+      <span class="muted">شغل اليوم كله في صفحة واحدة: ردود الواردين ومتابعاتك والصفقات الواقفة، وبعدها العملاء المهتمين الجداد وأكبر اللقطات. نفس الملخص بيوصلك إشعار كل يوم الصبح.</span>
+    </div>
+    <div id="healthBar"></div>
+    <div id="todayPlan"></div>
+    <section class="tsec"><h3>🌍 السوق آخر 24 ساعة</h3></section>
+    <div class="kpis" id="todayKpis"></div>
+    <div class="c-top" id="todayCats" style="margin-bottom:12px"></div>
+    <div class="filters today-q"><input type="search" id="tq" class="list-q" placeholder="🔍 دوّر في متابعات النهارده والعملاء واللقطات (اسم / رقم / حي / كلام)" autocomplete="off"></div>
+    <div id="todayBody"></div>
+    <div class="row-actions" style="margin-top:12px"><button class="btn" id="sendReport">📨 ابعتلي إشعار التقرير دلوقتي</button><span class="muted" id="reportLine"></span></div>
+  </main>
+</section>
+
+<!-- ===== العملاء المهتمين ===== -->
+<section class="view" id="v-leads" hidden>
+  <div class="bar">
+    <div class="wrap">
+      <div class="intro">
+        <b>🛒 المشترين المحتملين</b>
+        <span class="muted">أي حد نزّل طلب شراء (أو كتب أي صيغة بتقول إنه عايز يشتري)، أو اتفاعل على عروض أراضي أو فلل أو شقق بتعليقات شراء زي «بكام» و«التفاصيل» و«معاينة» و«معايا كاش». كل شخص في كارت واحد ومعاه البوستات اللي اتفاعل عليها، والدرجة بتعلى كل ما اتفاعل أكتر وفي جروبات أكتر وكان أحدث. السماسرة والبياعين بيتشالوا لوحدهم.</span>
+      </div>
+      <div class="ai-bar" id="lAiBar"></div>
+      <div class="cls-sign" id="lClsSign"></div>
+      <div class="kpis" id="leadKpis"></div>
+      <div class="real-card" id="lReal"></div>
+      <div class="real-card qual-card" id="lQual"></div>
+      <div class="tabs" id="lCatTabs"></div>
+      <div class="tabs" id="lKindTabs"></div>
+      <div class="muted calib" id="lCalib"></div>
+      <div class="tabs" id="lLvlTabs"></div>
+      <button class="btn mob-only" id="lFiltersBtn">🔎 البحث والفلاتر</button>
+      <div class="filters mob-hide">
+        <input type="search" id="lq" placeholder="🔍 دوّر بالاسم أو الرقم أو الكلام">
+        <select id="lRegion"></select>
+        <select id="lSrc"><option value="">كل المصادر</option><option value="wa">🟢 واتساب</option><option value="fb">🔵 فيسبوك</option></select>
+        <select id="lDays">
+          <option value="7">🕒 اتفاعل آخر 7 أيام</option><option value="30" selected>🕒 اتفاعل آخر 30 يوم</option>
+          <option value="90">🕒 آخر 3 شهور</option><option value="0">🕒 أي وقت</option>
+        </select>
+        <select id="lMoney">
+          <option value="">💰 كل الميزانيات</option><option value="rich">💰 معاه فلوس (كويسة + عالية)</option>
+          <option value="high">💎 ميزانية عالية بس</option><option value="known">ميزانيته معروفة</option><option value="unknown">ميزانيته مش واضحة</option>
+        </select>
+        <select id="lOwner"></select>
+        <select id="lStage">
+          <option value="active">📌 كل النشطين</option><option value="due">⏰ متابعات النهارده</option><option value="new">🆕 جديد (لسه ما كلمتوش)</option>
+          <option value="contacted">كلمته</option><option value="viewing">معاينة</option><option value="negotiating">تفاوض</option>
+          <option value="won">اتقفل ✅</option><option value="lost">مش مهتم</option><option value="all">الكل</option>
+        </select>
+        <select id="lSort"><option value="score">الأكتر اهتمامًا الأول</option><option value="ai">🧠 رأي الذكاء الاصطناعي</option><option value="recent">الأحدث نشاطًا</option><option value="posts">الأكتر تكرارًا</option><option value="real">🎯 الأكتر احتمال مشتري حقيقي</option></select>
+        <div class="checks">
+          <label><input type="checkbox" id="lOnlyBS"> <span class="areaLbl">📍 منطقتي بس</span></label>
+          <label><input type="checkbox" id="lMultiPost"> مكرر في 2+ بوست</label>
+          <label><input type="checkbox" id="lMultiGroup"> في 2+ جروب</label>
+          <label><input type="checkbox" id="lPhone"> معاه رقم</label>
+
+        </div>
+      </div>
+      <div class="row-actions">
+        <button class="btn primary" id="lExport">⬇️ تصدير العملاء Excel</button>
+        <button class="btn" id="lMeta">🎯 جمهور لإعلانات ميتا</button>
+        <span class="muted" id="lCount"></span>
+      </div>
+      <div class="panel" id="metaPanel" hidden style="margin-bottom:12px">
+        <h3>🎯 جمهور مخصص (Custom Audience) لإعلانات ميتا</h3>
+        <p class="muted">بيطلع ملف CSV بالأرقام بالشكل اللي ميتا بتقبله. ارفعه في مدير الإعلانات ← الجماهير ← إنشاء جمهور ← جمهور مخصص ← قائمة العملاء، وبعدين اعمل منه Lookalike. ⚠️ ميتا بتشترط إن يكون عندك إذن تستخدم البيانات دي — الأفضل تعلّم «اللي اتواصلت معاهم بس».</p>
+        <div class="form">
+          <label>المستوى<select id="maLevel"><option value="3">🔥🔥🔥 جاهزين بس</option><option value="2" selected>🔥🔥 مهتمين جدًا وأكتر</option><option value="1">🔥 كل المهتمين</option></select></label>
+          <label>النوع<select id="maCat"><option value="all">كل الأنواع (ملف لكل نوع)</option><option value="apartment">شقق</option><option value="land">أراضي</option><option value="villa">فلل</option><option value="other">أخرى</option></select></label>
+          <label>اتفاعل خلال<select id="maDays"><option value="30">آخر 30 يوم</option><option value="90" selected>آخر 3 شهور</option><option value="0">أي وقت</option></select></label>
+        </div>
+        <div class="checks"><label><input type="checkbox" id="maContacted"> اللي اتواصلت معاهم بس (كلمته/معاينة/تفاوض/اتقفل)</label></div>
+        <div class="row-actions"><button class="btn primary" id="maDownload">⬇️ نزّل ملف الجمهور</button><span class="muted" id="maCount"></span></div>
+      </div>
+    </div>
+  </div>
+  <main class="wrap">
+    <div class="list" id="lList"></div>
+    <button class="btn more" id="lMore" hidden>عرض المزيد</button>
+  </main>
+</section>
+
+<!-- ===== البايعين المحتملين ===== -->
+<section class="view" id="v-sellers" hidden>
+  <div class="bar">
+    <div class="wrap">
+      <div class="intro">
+        <b>🏷 البايعين المحتملين</b>
+        <span class="muted">أي حد نازل عرض بيع، أو كتب في تعليق إن عنده وحدة («عندي شقة للبيع»، «معايا أرض»، «عندي المطلوب»). المالك بيتفرّق عن السمسار، وجنب كل بايع الوحدات اللي عنده والمشترين المناسبين ليها.</span>
+      </div>
+      <div class="cls-sign" id="sClsSign"></div>
+      <div class="kpis" id="sKpis"></div>
+      <div class="real-card" id="sReal"></div>
+      <div class="tabs" id="sCatTabs"></div>
+      <div class="muted calib" id="sCalib"></div>
+      <div class="filters">
+        <input type="search" id="sq" placeholder="🔍 دوّر بالاسم أو الرقم أو الكلام">
+        <select id="sRegion"></select>
+        <select id="sDays"><option value="7">🕒 آخر 7 أيام</option><option value="30" selected>🕒 آخر 30 يوم</option><option value="90">🕒 آخر 3 شهور</option><option value="0">🕒 أي وقت</option></select>
+        <select id="sSort"><option value="score">الأقوى الأول</option><option value="recent">الأحدث</option><option value="units">الأكتر وحدات</option><option value="buyers">الأكتر مشترين مناسبين</option><option value="real">🎯 الأكتر احتمال مالك</option></select>
+        <div class="checks">
+          <label><input type="checkbox" id="sOnlyArea"> <span class="areaLbl">📍 منطقتي بس</span></label>
+          <label><input type="checkbox" id="sPhone"> معاه رقم</label>
+          <label><input type="checkbox" id="sPriced"> كاتب سعر</label>
+          <label><input type="checkbox" id="sWithBuyers"> ليه مشترين مناسبين</label>
+        </div>
+      </div>
+      <div class="row-actions"><button class="btn primary" id="sExport">⬇️ تصدير البايعين Excel</button><span class="muted" id="sCount"></span></div>
+    </div>
+  </div>
+  <main class="wrap">
+    <div class="list" id="sList"></div>
+    <button class="btn more" id="sMore" hidden>عرض المزيد</button>
+  </main>
+</section>
+
+<!-- ===== عروضي ===== -->
+<section class="view" id="v-listings" hidden>
+  <main class="wrap">
+    <div class="md-head">
+      <div class="md-title"><b>خانات البحث بتاعتك</b>
+        <p class="muted">ضيف <b>عرض</b> عندك وهاتلك المشترين المناسبين، أو ضيف <b>طلب</b> وهاتلك البائعين العارضين زيه — التطابق بيطلع <b>فورًا</b> من الداتا، وبعدها يسحب لك مخصوص من فيسبوك. عندك قايمة؟ <b>الصقها كلها</b> (١. … ٢. …) وكل عنصر بيتحول لخانة.</p></div>
+      <div class="md-actions"><button class="btn primary big" id="mineAdd">➕ إضافة طلب أو عرض</button><button class="btn" id="mineAll">🔎 دوّر للكل</button></div>
+    </div>
+    <div class="panel md-composer" id="mdComposer" hidden>
+      <div class="seg" id="mdKind"><button data-mkind="offer" class="on">🟢 عندي عرض <small>(هاتلي مشتري)</small></button><button data-mkind="want">🔵 عندي طلب <small>(هاتلي بائع)</small></button></div>
+      <textarea id="mdText" rows="3" dir="rtl"></textarea>
+      <div class="md-parse" id="mdParse"></div>
+      <div class="md-row"><input type="text" id="mdLabel" placeholder="ملاحظة أو اسم صاحب الطلب (اختياري)" maxlength="40">
+        <button class="btn primary" id="mdSave" disabled>➕ ضيف</button><button class="btn primary" id="mdSaveRun" disabled title="Ctrl+Enter">🔎 ضيف وهاتلي دلوقتي</button><button class="btn" id="mdCancel">إلغاء</button></div>
+    </div>
+    <div class="kpis" id="mdKpis"></div>
+    <div class="mine-bar">
+      <span id="mineJobLine" class="muted"></span>
+      <label class="sm">أقل نسبة<select id="mineMinS"><option value="60">60% (أكتر)</option><option value="70" selected>70% (دقيق)</option><option value="85">85% (مطابق جدًا بس)</option></select></label>
+      <label class="sm" title="لو الخانة «عرض» بيجيبلك مشتري صافي بس، ولو «طلب» بيجيبلك بائع صافي (مالك) بس">🕵️ اعرض<select id="mineTrust"><option value="real">✅ الصافي بس (مشتري للعرض · بائع للطلب)</option><option value="noBroker">من غير السماسرة</option><option value="all">الكل</option></select></label>
+      <label class="sm">🔁 يدوّر لوحده<select id="mineEvery"><option value="-1">🔄 مع الدورة الكاملة (مرة كل ٣ ساعات)</option><option value="0">مقفول</option><option value="0.25">كل ربع ساعة</option><option value="1">كل ساعة</option><option value="3" selected>كل 3 ساعات</option><option value="6">كل 6 ساعات</option><option value="12">كل 12 ساعة</option></select></label>
+      <label class="sm chk-in"><input type="checkbox" id="mineFb" checked> 🔎 يدوّر في فيسبوك كله مع كل تحديث</label>
+      <label class="sm chk-in" title="بعد كل بحث: المشتري/البائع الصافي اللي مكتوبلوش رقم — يفتح بوستاته ويقرا تعليقاته (حتى تعليقه على بوسته) ويلقط رقمه لو كاتبه"><input type="checkbox" id="mineDeep" checked> 📞 يدوّر على رقم الصافي في تعليقاته</label>
+      <button class="btn sm" id="mineDeepBtn" title="دوّر دلوقتي على أرقام الصافيين الظاهرين من غير رقم">📞 دوّر على أرقام الصافيين</button>
+      <span id="mineDeepLine" class="muted"></span>
+    </div>
+    <div class="tabs" id="mdTabs"></div>
+    <div class="filters md-q"><input type="search" id="mdq" class="list-q" placeholder="🔍 دوّر في طلباتك وعروضك ونتايجها (اسم / رقم / حي / كلام)" autocomplete="off"></div>
+    <div class="slots" id="slots"></div>
+  </main>
+</section>
+
+<!-- ===== الطلبات ===== -->
+<!-- ===== جواز العقار ===== -->
+<!-- ===== الأطلس: خريطة مخطط المدينة (من الـDWG) ===== -->
+<section class="view" id="v-atlas" hidden>
+  <main class="wrap" id="atlasRoot"></main>
+</section>
+<!-- ===== استخراج آيديات فيسبوك ===== -->
+<section class="view" id="v-extract" hidden>
+  <main class="wrap" id="extRoot"></main>
+</section>
+<!-- ===== رشّحلي: ترشيح الوحدات للعميل + فرصة النهارده ===== -->
+<section class="view" id="v-pick" hidden>
+  <main class="wrap" id="pickRoot"></main>
+</section>
+<!-- ===== 🧲 المغناطيس: وحداتك المسجّلة ↔ مشترين وعروض شبهها ===== -->
+<!-- ===== النشر في الجروبات ===== -->
+<section class="view" id="v-publish" hidden>
+  <main class="wrap" id="pubRoot"></main>
+</section>
+<!-- ===== 🌐 الانتشار: قطعة واحدة ← كل المنصات ===== -->
+<section class="view" id="v-spread" hidden>
+  <main class="wrap" id="sprRoot"></main>
+</section>
+<!-- ===== 📥 الواردين والقياس: رسايل الكود ← ناس ← قنوات ===== -->
+<section class="view" id="v-funnel" hidden>
+  <main class="wrap" id="fnlRoot"></main>
+</section>
+<!-- ===== بوت واتساب: إرسال لقوايم أرقام بصور وأزرار ===== -->
+<section class="view" id="v-wasend" hidden>
+  <main class="wrap" id="waRoot"></main>
+</section>
+
+<section class="view" id="v-posts">
+  <div class="bar">
+    <div class="wrap">
+      <div class="stats mob-hide" id="stats"></div>
+      <div class="aibar" id="aiBar" hidden></div>
+      <div class="tabs mob-hide" id="srcTabs"></div>
+      <div class="tabs" id="typeTabs"></div>
+      <div class="lvl-box lvl-pur" id="purTabs" role="tablist" aria-label="صافي ولا مشتبه (صاحب الطلب أو العرض)"></div>
+      <div class="tier-note" id="purNote"></div>
+      <div class="tabs" id="catTabs"></div>
+      <button class="btn mob-only" id="filtersBtn">🔎 البحث والفلاتر</button>
+      <div class="filters mob-hide">
+        <input type="search" id="q" placeholder="🔍 دوّر في النص (مثلاً: تقسيط، روف، ناصية)">
+        <select id="regionSel"></select>
+        <select id="groupSel"></select>
+        <select id="postDays">
+          <option value="7">🕒 آخر 7 أيام</option><option value="30" selected>🕒 آخر 30 يوم</option>
+          <option value="90">🕒 آخر 3 شهور</option><option value="0">📦 كل الداتا (القديمة كمان)</option>
+        </select>
+        <select id="sortSel">
+          <option value="new">الأحدث الأول</option>
+          <option value="old">الأقدم الأول</option>
+          <option value="priceAsc">السعر: الأقل الأول</option>
+          <option value="priceDesc">السعر: الأعلى الأول</option>
+          <option value="matches">الأكتر مطابقات</option>
+          <option value="deal">🎯 أكبر خصم</option>
+        </select>
+        <div class="checks">
+          <label><input type="checkbox" id="onlyBS"> <span class="areaLbl">📍 منطقتي بس</span></label>
+          <label><input type="checkbox" id="onlyDeals"> 🎯 لقطات بس</label>
+          <label><input type="checkbox" id="hideDups"> 👯 إخفاء المكرر</label>
+          <label><input type="checkbox" id="hideDone" checked> إخفاء اللي خلصته</label>
+          <label><input type="checkbox" id="withPhone"> فيها رقم</label>
+          <label><input type="checkbox" id="withMatch"> ليها مطابقة</label>
+          <label><input type="checkbox" id="onlyNew"> آخر سحب بس</label>
+          <label class="own-f" title="البوستات اللي فيها كلمة «المالك» (أو من المالك / بدون سمسار) متبرّزة ومتصنّفة">🏠 «المالك»: <select id="ownF"><option value="">الكل</option><option value="mention">🏠 فيها «المالك»</option><option value="owner">✅ مالك</option><option value="broker">🤝 سمسار / مكتب / وسيط</option><option value="unsure">🟡 مش متأكد</option><option value="wants">🔎 طلبات «من المالك»</option></select></label>
+        </div>
+      </div>
+      <div class="oldnote" id="oldNote" hidden></div>
+      <div class="row-actions">
+        <button class="btn primary" id="exportBtn">⬇️ تصدير Excel</button>
+        <span class="muted" id="countLine"></span>
+      </div>
+      <details class="tool" id="postTool">
+        <summary>💬 اسحب تعليقات أي بوست بلينكه <small class="muted" id="postToolN"></small></summary>
+        <div class="tool-in">
+          <div class="form one"><label>لينك البوست<input type="text" id="postUrl" placeholder="https://www.facebook.com/..." dir="ltr"></label></div>
+          <div class="row-actions"><button class="btn primary" id="postGo">💬 افتحه واسحب التعليقات</button><span class="muted" id="postJobMsg"></span></div>
+          <div id="postToolBody"></div>
+        </div>
+      </details>
+    </div>
+  </div>
+  <main class="wrap">
+    <div class="list" id="list"></div>
+    <button class="btn more" id="moreBtn" hidden>عرض المزيد</button>
+  </main>
+</section>
+
+<!-- ===== المطابقات ===== -->
+<section class="view" id="v-matches" hidden>
+  <main class="wrap">
+    <div class="intro">
+      <b>🤝 التطابق بين المشتري المحتمل والبايع المحتمل</b>
+      <span class="muted">كل مشتري قصاده أنسب البايعين: نفس النوع، ونفس المنطقة، والسعر في ميزانيته، والمساحة والغرف قريبة. ومن هنا تكلّم الاتنين بضغطة.</span>
+    </div>
+    <div class="kpis" id="mKpis"></div>
+    <div class="learnbox" id="mLearn"></div>
+    <div class="lvl-box lvl-combo" id="mComboTabs" role="tablist" aria-label="مستوى التطابق (المشتري مع البايع)"></div>
+    <div class="tabs tier-tabs" id="mTierTabs" role="tablist" aria-label="نوع المشتري"></div>
+    <div class="tier-note" id="mTierNote"></div>
+    <div class="tabs" id="mCatTabs"></div>
+    <div class="filters">
+      <input type="search" id="mSearch" class="list-q" placeholder="🔍 دوّر باسم المشتري أو البايع أو رقمه أو الحي أو الكلام" autocomplete="off">
+      <select id="mMin"><option value="50">كل المطابقات (50%+)</option><option value="70">مطابقات قوية (70%+)</option><option value="85" selected>ممتازة بس (85%+)</option></select>
+      <select id="mBuyer"><option value="1">🛒 كل المشترين المهتمين</option><option value="2">🔥🔥 مهتمين جدًا وأكتر</option><option value="4">💎 مهتم جدًا (آخر 30 يوم) بس</option></select>
+      <select id="mRegion"></select>
+      <div class="checks">
+        <label><input type="checkbox" id="mOwner"> 🏠 مع المالك بس</label>
+        <label><input type="checkbox" id="mPhones"> الاتنين معاهم رقم</label>
+        <label><input type="checkbox" id="mHideDone" checked> إخفاء اللي خلصته</label>
+        <label title="صف واحد لكل مشتري ومعاه أحسن ٣ قطع مناسبة ليه وزرار واتساب لكل قطعة برسالة جاهزة — وتتبّع «اتكلمت» وتنقّل بالكيبورد"><input type="checkbox" id="mFast" checked> ⚡ عرض سريع (صف لكل مشتري)</label>
+        <label title="كل شخص ومعاه كل اللي متطابقين معاه في كارت واحد — دوس عليه تفتح نافذة بالتفاصيل"><input type="checkbox" id="mGroup" checked> 🗂 جمّع في كارت واحد</label>
+        <label><input type="checkbox" id="mNewOnly"> 🆕 الجديد بس</label>
+      </div>
+      <select id="mSort"><option value="best">⭐ الأقوى الأول</option><option value="new">🆕 الأحدث الأول</option></select>
+    </div>
+    <div class="row-actions"><button class="btn primary" id="mExport">⬇️ تصدير التطابقات Excel</button><button class="btn" id="mDeepAll" title="للناس اللي ظاهرين في التطابقات من غير رقم: يفتح بوستاتهم ويقرا تعليقاتهم وردودهم ويدوّر على رقم كاتبينه بنفسهم">📞 دوّر على أرقام اللي من غير رقم</button><span class="muted" id="mCount"></span></div>
+    <div class="muted deep-line" id="mDeepLine" hidden></div>
+    <div class="fqbar" id="mFastBar" hidden></div>
+    <div class="list" id="mList"></div>
+  </main>
+</section>
+
+<!-- ===== 💼 الصفقات ===== -->
+<section class="view" id="v-pipe" hidden>
+  <main class="wrap">
+    <div class="intro">
+      <b>💼 الصفقات — من التسجيل لحد العمولة</b>
+      <span class="muted">أول مرحلة «📝 مسجّل»: العروض اللي سجّلتها بزرار «📝 سجّل في الـCRM» (الوحدة وصاحبها وحالتها وملاحظتك). وأي صفقة بدأتها بـ«⚡ صفقة بضغطة» من شاشة التطابق بتظهر في «الشغالة» — حرّك المرحلة واكتب العمولة المتوقعة، ولما تتقفل بتتحسب في أرباحك.</span>
+    </div>
+    <div class="tabs" id="pTabs"></div>
+    <div id="pDeals">
+      <div class="kpis" id="pKpis"></div>
+      <div class="filters">
+      <input id="pSearch" type="search" placeholder="🔎 ابحث بالاسم / الرقم / المنطقة / الوحدة">
+      <label class="sm">العمولة الافتراضية <input id="pPct" class="num" inputmode="decimal" style="width:64px"> %</label>
+      <label class="sm"><input type="checkbox" id="pBoth"> من الطرفين (×2)</label>
+    </div>
+    <div class="row-actions"><button class="btn primary" id="pExport">⬇️ تصدير الصفقات Excel</button><span class="muted" id="pCount"></span></div>
+      <div class="list" id="pList"></div>
+    </div>
+    <div id="pCrm" hidden>
+      <div class="kpis" id="cKpis"></div>
+      <div class="tabs" id="cTabs"></div>
+      <div class="filters">
+      <input id="cSearch" type="search" placeholder="🔎 ابحث بالاسم / الرقم / المنطقة / الوحدة / الملاحظة">
+    </div>
+    <div class="row-actions"><button class="btn primary" id="cCopyAll">📋 انسخ كل الأوامر</button><button class="btn" id="cExport">⬇️ تصدير Excel</button><span class="muted" id="cCount"></span></div>
+      <div class="list" id="cList"></div>
+    </div>
+  </main>
+</section>
+
+
+
+<!-- ===== الإحصائيات ===== -->
+<section class="view" id="v-stats" hidden>
+  <main class="wrap">
+    <div class="intro">
+      <b>نبض السوق من الجروبات</b>
+      <span class="muted">محسوبة من كل اللي اتسحب. سعر المتر = الوسيط (بيتجاهل الأرقام الشاذة)، ومن عروض البيع اللي فيها سعر ومساحة بس.</span>
+    </div>
+    <div class="panel land-guide" id="landGuide" style="margin-bottom:12px" hidden>
+      <h3>🌾 دليل أراضي الأحياء</h3>
+      <div class="sub">لكل حي: كام طلب وكام عرض، ومتوسط سعر المتر، وأرخص متر معروض، ومتوسط الأوفر، واتجاه السعر (آخر 30 يوم قدام اللي قبلها). دوس على عدد المجاورات عشان تشوف كل مجاورة لوحدها.</div>
+      <div class="tbl-wrap"><table class="learn-t" id="landGuideTable"></table></div>
+    </div>
+    <div class="panel" id="guidePanel" style="margin-bottom:12px">
+      <h3 id="guideTitle">📒 دليل أسعار العقارات</h3>
+      <div class="sub">كل منطقة: كام طلب شراء وكام عرض بيع، ومتوسط سعر المتر، واتجاه السعر (آخر 30 يوم قدام اللي قبلها). ده المرجع اللي محدش في السوق عنده.</div>
+      <div class="tabs" id="guideZones"></div>
+      <div style="overflow-x:auto"><table class="learn-t" id="guideTable"></table></div>
+      <div class="row-actions" style="margin-top:8px"><button class="btn" id="guideCsv">⬇️ نزّل الدليل Excel</button><span class="muted" id="guideNote"></span></div>
+    </div>
+    <div class="row-actions"><button class="btn primary" id="pulseBtn">📣 اعمل بوست «نبض السوق» للأسبوع ده</button></div>
+    <div class="panel" id="pulseBox" hidden style="margin-bottom:12px">
+      <h3>📣 بوست نبض السوق — جاهز للنشر</h3>
+      <div class="pulse-grid">
+        <canvas id="pulseCanvas" width="1080" height="1350"></canvas>
+        <div class="pulse-side">
+          <label class="muted">الكابشن (مختلف عن الكلام اللي على الصورة ويكمّله)</label>
+          <textarea id="pulseCaption"></textarea>
+          <div class="row-actions"><button class="btn primary" id="pulseDl">⬇️ نزّل الصورة</button><button class="btn" id="pulseCopy">📋 انسخ الكابشن</button></div>
+          <div class="form"><label>اسم الصفحة على الصورة<input type="text" id="pulseBrand" placeholder="العراب للعقارات"></label>
+          <label>الفترة<select id="pulseDays"><option value="7" selected>آخر 7 أيام</option><option value="14">آخر 14 يوم</option><option value="30">آخر 30 يوم</option></select></label></div>
+          <button class="btn" id="pulseRedo">🔄 حدّث البوست</button>
+        </div>
+      </div>
+    </div>
+    <div class="tabs" id="sSrcTabs"></div>
+    <div class="grid" id="statsGrid"></div>
+  </main>
+</section>
+
+<!-- ===== الإعدادات ===== -->
+<!-- ===== 🔔 دوّرلي على ===== -->
+<section class="view" id="v-saved" hidden>
+  <main class="wrap">
+    <div class="ss-head">
+      <div><h2>🔔 دوّرلي على</h2><p class="muted">قول للبرنامج على اللي عميلك عايزه — «أرض في العاشر أو 11، 300 متر، لحد 2 مليون، ناصية» — وأول ما تنزل في أي جروب بيبلغك على الجهاز وعلى تليجرام، وتبعتهاله بضغطة.</p></div>
+      <button class="btn primary" id="ssNew">➕ بحث جديد</button>
+    </div>
+    <div class="panel ss-form" id="ssForm" hidden>
+      <h3 id="ssFormTitle">➕ بحث جديد</h3>
+      <label class="ss-desc-l">📝 <b>اكتب طلب العميل بكلامك</b> — البرنامج هيفهمه ويدوّر في كل حتة، ويديك نسبة تطابق لكل عرض
+        <textarea id="ss-desc" rows="3" placeholder="مثلًا: عميل عايز أرض ناصية في العاشر أو 11، حوالي 300 متر، لحد 2.5 مليون، والأوفر ميزيدش عن 300 ألف"></textarea></label>
+      <div class="row-actions"><button class="btn primary" id="ssParse">✨ افهم الطلب</button><span class="ss-parsed" id="ssParsed"></span></div>
+      <div class="form">
+        <label>اسم العميل<input id="ss-name" placeholder="مثلًا: أ. محمود — أرض العاشر"></label>
+        <label>رقمه (اختياري — عشان تبعتله النتايج واتساب)<input id="ss-phone" inputmode="tel" placeholder="01xxxxxxxxx"></label>
+        <label>أقل نسبة تطابق تبلغني بيها<select id="ss-min"><option value="60">60% (كتير)</option><option value="70" selected>70% (متوازن)</option><option value="80">80%</option><option value="90">90% (دقيق جدًا)</option></select></label>
+      </div>
+      <details class="ss-more" id="ssMore">
+        <summary>⚙️ التفاصيل اللي فهمها البرنامج (تقدر تعدّلها)</summary>
+        <div class="form">
+          <label>بدوّر على<select id="ss-type"><option value="offer">🟢 عروض بيع (العميل عايز يشتري)</option><option value="request">🔵 مشترين (عندي وحدة وعايز مشتري)</option></select></label>
+          <label>النوع<select id="ss-category"><option value="land">🟫 أرض</option><option value="apartment">🏢 شقة</option><option value="villa">🏡 فيلا</option><option value="other">🏬 تاني</option><option value="">أي نوع</option></select></label>
+        </div>
+        <div class="ss-lbl">الأحياء <small class="muted">(سيبها فاضية = أي حي)</small></div>
+        <div class="focus-box" id="ss-regions"></div>
+        <div class="form ss-nums">
+          <label>المساحة من (م²)<input id="ss-areaMin" inputmode="decimal" placeholder="250"></label>
+          <label>لحد (م²)<input id="ss-areaMax" inputmode="decimal" placeholder="400"></label>
+          <label>السعر الإجمالي لحد<input id="ss-priceMax" placeholder="2 مليون / 3.200 / 950 ألف"></label>
+          <label>سعر المتر لحد<input id="ss-ppmMax" placeholder="8000"></label>
+          <label>الأوفر لحد<input id="ss-overMax" placeholder="300 ألف"></label>
+          <label>نوع الأرض<select id="ss-landType"><option value="">أي نوع</option><option>سكني</option><option>فيلات</option><option>تجاري</option><option>خدمات</option><option>إداري</option><option>صناعي</option><option>استثماري</option></select></label>
+          <label>كلمات مهمة<input id="ss-words" placeholder="مثلًا: تخصيص"></label>
+          <label class="ss-chk"><span><input type="checkbox" id="ss-corner"> ناصية</span></label>
+        </div>
+      </details>
+      <div class="ss-fb">
+        <label class="ss-chk"><span><input type="checkbox" id="ss-fb" checked> 🔎 <b>دوّر كمان في فيسبوك كله</b> — أي جروب أو صفحة أو بروفايل (مع كل تحديث و⚡ الصياد السريع)</span></label>
+        <label class="sm">جمل البحث (البرنامج بيكتبها لوحده — سطر لكل جملة)<textarea id="ss-queries" rows="3" spellcheck="false"></textarea></label>
+      </div>
+      <div class="row-actions"><button class="btn primary" id="ssSave">💾 احفظ البحث</button><button class="btn" id="ssCancel">إلغاء</button><span class="muted" id="ssPreview"></span></div>
+    </div>
+    <div class="filters ss-q"><input type="search" id="ssq" class="list-q" placeholder="🔍 دوّر في عمليات البحث المحفوظة ونتايجها (اسم العميل / رقم / حي / كلام)" autocomplete="off"></div>
+    <div id="ssList"></div>
+  </main>
+</section>
+
+<section class="view" id="v-aitool" hidden></section>
+<section class="view" id="v-aitools" hidden></section>
+
+<section class="view" id="v-settings" hidden>
+  <main class="wrap settings">
+    <div class="panel diag-panel" id="diagPanel">
+      <h2>🩺 فحص البرنامج</h2>
+      <p class="muted">بيفحص كل حاجة: الداتا المحفوظة، والظاهر قدامك، والسحب، و«هاتلي مشتري»، والتطابق — ولو فيه حاجة واقفة بيقولك السبب وإزاي تتصلح.</p>
+      <div id="diagOut" class="diag-out"></div>
+      <div class="row-actions"><button class="btn primary" id="diagRun">🩺 افحص دلوقتي</button><button class="btn" id="diagFix">🔧 إصلاح تلقائي</button><button class="btn" id="diagCycle">▶ ابدأ دورة سحب دلوقتي</button><button class="btn sm" id="diagCopy">📋 انسخ التقرير (ابعتهولي)</button></div>
+    </div>
+
+    <div class="panel xs-panel" id="xsPanel">
+      <h2>🔁 الأجهزة والأوامر <small class="muted">(ويندوز ⟷ VPS)</small></h2>
+      <p class="muted" style="margin:4px 0 8px">أي أمر بتديه هنا (اسحب دلوقتي، الصياد، هاتلي مشتري، يوم جديد…) بيتنفذ هنا فورًا وبيوصل للجهاز التاني في ثانية ويتنفذ عليه كمان — والعكس. الأمر مبيستناش جهاز فاصل: الجهاز الشغال بيكمل لوحده. والنشر في الجروبات وتليجرام بينفذهم جهاز واحد («الأساسي») عشان مفيش بوست ولا رسالة تتكرر، ولو وقع بيكمل التاني مكانه في ثواني.</p>
+      <div id="xsTop"></div>
+      <div class="row-actions" id="xsActs"><button class="btn" id="xsTake" title="النشر وتليجرام والتقارير هتكمل من الجهاز ده">⭐ خلّي ده الجهاز الأساسي</button><button class="btn" id="xsPing">🧪 جرّب الأمر على الجهازين</button></div>
+      <div id="xsCmds"></div>
+      <div class="xs-opts">
+        <label class="xs-opt"><input type="checkbox" id="xsAccept" checked> نفّذ أوامر الجهاز التاني هنا</label>
+        <label class="xs-opt" title="استخدمه بس لو متأكد إن الجهاز التاني واقع — وإلا ممكن البوست يتنشر مرتين"><input type="checkbox" id="xsSolo"> اشتغل لوحدك (حتى لو التاني شغال) ⚠️</label>
+        <label class="xs-opt">اسم الجهاز: <input type="text" id="xsName" maxlength="40" placeholder="مثلًا: جهاز المكتب"></label>
+      </div>
+    </div>
+
+    <div class="panel skin-panel">
+      <h2>🎨 شكل البرنامج</h2>
+      <p class="muted" style="margin:4px 0 0">اختار <b>شكل</b> (أورورا الأساسي — دوك زجاجي صغير من تحت — أو الصرح / الأفق / القمرة / بنتو / بلوك — كلهم بنفس الأقسام والتفاصيل)، وفوقه <b>لون</b> (24 لون — كل لون درجة واحدة أو لونين بس) + <b>وضع</b> (فاتح / غامق). اللي تختاره بيتحفظ، وتقدر تبدّل في أي وقت.</p>
+      <h3 class="skin-sub">🧩 الشكل <small class="muted">(الهيكل والملمس: مكان التنقل وشكل الكروت والأرقام والأزرار)</small></h3>
+      <div class="lk-grid" data-looks></div>
+      <h3 class="skin-sub">🎭 الستايل <small class="muted">(20 ستايل — بتشتغل مع شكل «الصرح» بس؛ لو اخترت واحد وإنت على شكل تاني بيرجّعك للصرح)</small></h3>
+      <div class="sx-acts sx-acts-row" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px"><button class="btn sm" type="button" data-sx-rand>🎲 ستايل عشوائي</button><button class="btn sm" type="button" data-sx-col>🎨 ألوان الستايل</button><button class="btn sm" type="button" data-style-reset>↩ من غير ستايل</button></div>
+      <div class="sx-grid" data-styles></div>
+      <h3 class="skin-sub">🎨 اللون</h3>
+      <div class="sgv-grid" data-sgvs></div>
+      <p style="margin:2px 0 10px"><button class="btn sm" type="button" data-look-reset>↩ رجّع الشكل واللون الأساسيين</button></p>
+      <h3 class="skin-sub">🔠 حجم الكلام والأيقونات <small class="muted">(أو Ctrl و + / −)</small></h3>
+      <div class="thm-scales" data-scales></div>
+      <h3 class="skin-sub">الوضع</h3>
+      <div class="thm-modes" data-modes></div>
+      <h3 class="skin-sub">صفحة البداية</h3>
+      <div class="thm-modes" data-landing></div>
+    </div>
+
+    <div class="panel tg-panel">
+      <h2>📞 التنبيهات على الموبايل (تليجرام)</h2>
+      <p class="muted">أول ما يظهر حاجة مهمة يوصلك رسالة على تليجرام فورًا، حتى لو انت برا المكتب — وتقدر كمان تكلّم البرنامج من هناك. خطوتين بس:</p>
+      <ol class="tg-steps">
+        <li>من تليجرام افتح <a href="https://t.me/BotFather" target="_blank"><b>@BotFather</b></a> ← ابعتله <code>/newbot</code> ← اختار اسم (مثلًا «Aqar Matrix») ← هيديك <b>توكن</b> شكله <code>123456:ABC-…</code> — انسخه في الخانة تحت.</li>
+        <li>دوس <b>«🔗 اربط»</b> ← هيفتحلك البوت بتاعك ← دوس <b>Start</b> في تليجرام. البرنامج هيلقط الشات لوحده ويبعتلك رسالة تأكيد. خلاص 🎉</li>
+      </ol>
+      <div class="form">
+        <label>توكن البوت<span class="tg-row"><input id="tgToken" type="password" autocomplete="off" spellcheck="false" placeholder="123456789:AA…" dir="ltr"><button class="btn sm primary" id="tgLink">🔗 اربط</button></span></label>
+        <label>رقم الشات (Chat ID)<span class="tg-row"><input id="tgChat" spellcheck="false" placeholder="بيتجاب لوحده" dir="ltr"><button class="btn sm" id="tgGetChat">🔎 هات رقم الشات</button></span></label>
+      </div>
+      <div class="tg-linkbox" id="tgLinkBox" hidden></div>
+      <div class="checks tg-on">
+        <label><input type="checkbox" id="tgOn" checked> <b>التنبيهات شغالة</b></label>
+        <label><input type="checkbox" id="tgMine" checked> 🏷 مشتري لحاجة معايا</label>
+        <label><input type="checkbox" id="tgReqs" checked> 🔵 أي طلب شراء جديد</label>
+        <label><input type="checkbox" id="tgSaved" checked> 🔔 «دوّرلي على»</label>
+        <label><input type="checkbox" id="tgDeals" checked> 🎯 اللقطات</label>
+        <label><input type="checkbox" id="tgHot" checked> 💎 مشتري جاهز</label>
+        <label><input type="checkbox" id="tgPairs" checked> 🤝 تطابق قوي من <input type="number" id="tgPairMin" min="60" max="100" value="85" class="tg-num">%</label>
+        <label><input type="checkbox" id="tgPairOwner"> 🏠 التطابق مع المالك بس</label>
+        <label title="إشعار على الجهاز (مش تليجرام) أول ما يظهر تطابق مشتري صافي ⟷ بايع صافي نسبته 85%+"><input type="checkbox" id="tgPure" checked> 💎 إشعار فوري لأنضف تطابق (صافي ↔ صافي 85%+)</label>
+        <label><input type="checkbox" id="tgSummary" checked> 📊 ملخص كل سحب</label>
+        <label><input type="checkbox" id="tgOffers"> 🟢 كل عرض بيع جديد (كتير)</label>
+        <label><input type="checkbox" id="tgMorning" checked> ☀️ تقرير الصبح</label>
+        <label><input type="checkbox" id="tgFollow" checked> ⏰ المتابعات اللي عليها الدور</label>
+        <label><input type="checkbox" id="tgMineDone" checked> 🏷 خلص سحب «هاتلي مشتري»</label>
+      </div>
+      <div class="tg-cmd">
+        <label><input type="checkbox" id="tgCmd" checked> 🤖 <b>كلّم البرنامج من تليجرام</b> — ابعت للبوت أمر ويرد عليك على طول (والبرنامج شغال على الكمبيوتر):</label>
+        <div class="tg-cmds"><code>/status</code> الحالة · <code>/new</code> آخر الطلبات · <code>/buyers</code> أكتر المشترين اهتمامًا · <code>/match</code> أقوى التطابقات · <code>/mine</code> مشترين قطعك · <code>/scan</code> اسحب دلوقتي · <code>/hunt</code> الصياد السريع · <code>/findbuyer</code> دوّر على مشترين لقطعك</div>
+      </div>
+      <div class="row-actions"><button class="btn primary" id="tgSave">💾 احفظ</button><button class="btn" id="tgTest">📨 جرّب</button><span class="muted" id="tgMsg"></span></div>
+    </div>
+
+    <div class="panel hunt-panel">
+      <h2>🎯 مصادر زيادة و⚡ الصياد السريع</h2>
+      <p class="muted">غير الجروبات: البرنامج بيدوّر في فيسبوك كله وفي ماركت بليس مع كل تحديث، وبيلقط الجديد كل كام دقيقة من أهم جروباتك.</p>
+      <div class="hunt-grid">
+        <div class="hunt-box">
+          <label class="hunt-h"><input type="checkbox" id="hSearchOn"> 🔎 <b>بحث في فيسبوك كله</b></label>
+          <div class="muted sm">بوستات من أي بروفايل أو جروب (حتى اللي انت مش فيه) — من محافظتك بس. سطر لكل بحث.</div>
+          <textarea id="hSearchQ" rows="7" spellcheck="false"></textarea>
+          <label class="sm">كل تحديث يدوّر في <select id="hSearchN"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option><option>8</option></select> منهم بالدور</label>
+        </div>
+        <div class="hunt-box">
+          <label class="hunt-h"><input type="checkbox" id="hMpOn"> 🛒 <b>ماركت بليس أوتوماتيك</b></label>
+          <div class="muted sm">إعلانات العقارات للبيع، والبرنامج بيقرا وصف الإعلان يعرف الحي. اكتب «عقارات للبيع» عشان قسم العقارات كله. ⚠️ خلّي موقعك في ماركت بليس «بني سويف».</div>
+          <div class="hunt-warn" id="hMpWarn" hidden>⚠️ آخر مرة فيسبوك رفض ماركت بليس لأنك داخل <b>بصفحة</b> مش بالبروفايل الشخصي. من فيسبوك (جوه البرنامج) دوس على صورتك فوق ← حوّل لبروفايلك الشخصي، وبعدها هيشتغل.</div>
+          <textarea id="hMpQ" rows="4" spellcheck="false"></textarea>
+          <label class="sm">كل تحديث ياخد <select id="hMpN"><option>1</option><option>2</option><option selected>3</option><option>4</option></select> منهم بالدور</label>
+        </div>
+        <div class="hunt-box fast">
+          <label class="hunt-h"><input type="checkbox" id="hFastOn"> ⚡ <b>الصياد</b> <small>(بيلقط البوست الجديد أول ما ينزل)</small></label>
+          <div class="muted sm">الإيقاع: <select id="hFastMin"><option value="0" selected>🔴 مستمر — لفة ورا لفة (موصى بيه)</option><option value="5">كل 5 دقايق</option><option value="10">كل 10 دقايق</option><option value="15">كل 15 دقيقة</option><option value="20">كل 20 دقيقة</option></select> على أهم الجروبات (الأحدث بس) + جروبات تانية بالدور — وأي طلب جديد يوصلك على طول، حتى لو الدورة الكبيرة شغالة.</div>
+          <div class="muted sm">🛡 بالليل (١ص–٦ص) بيهدّى لوحده، وبيقف لو فيسبوك طلب تأكيد هوية، وفيه سقف للصفحات في الساعة.</div>
+          <div class="muted sm">جروبات ثابتة ليها الأولوية في كل لفة (سيبها فاضية = البرنامج يختار الأنشط لوحده):</div>
+          <div class="focus-box hunt-groups" id="hFastGroups"></div>
+          <label class="sm"><input type="checkbox" id="hFastSearch" checked> وكمان بحث واحد في فيسبوك كله كل مرة</label>
+          <div class="muted sm" id="hFastLog"></div>
+        </div>
+      </div>
+      <div class="row-actions"><button class="btn primary" id="hSave">💾 احفظ</button><button class="btn" id="hFastNow">⚡ شغّل الصياد دلوقتي</button><span class="muted" id="hMsg"></span></div>
+      <div class="muted sm">💡 الوضع المستمر بيريّح الحساب بين اللفات وبيفرمل بالليل. لو فيسبوك طلب منك تأكيد هوية، افتحه بنفسك وكمّل — الصياد بيرجع لوحده بعد أول سحب ناجح.</div>
+    </div>
+
+    <div class="panel lanes-panel" id="lanesPanel">
+      <h2>🛣 مسارات السحب</h2>
+      <p class="muted">كل نوع سحب ليه مسار لوحده (تابة لوحدها): الدورة الكبيرة، ⚡ الصياد، 🏷 هاتلي مشتري، 🔎 دوّر على الأرقام، والسحب اليدوي — بيشتغلوا في نفس الوقت من غير ما واحد يوقّف التاني أو يبطّأه. والاستخراج كمان تقدر تشغّل لحد 3 مع بعض.</p>
+      <div class="lanes-live" id="lnLive"></div>
+      <div class="form">
+        <label class="sw"><input type="checkbox" id="lnOn"> شغّل المسارات المتوازية <small>(لو قفلتها يرجع الطابور الواحد القديم)</small></label>
+        <label>أقصى عدد سحب في نفس الوقت
+          <select id="lnMax"><option value="2">2 — هادي جدًا</option><option value="3">3</option><option value="4" selected>4 ⭐</option><option value="5">5</option><option value="6">6 — أقصى سرعة</option></select>
+        </label>
+      </div>
+      <div class="muted sm" id="lnProt"></div>
+      <div class="row-actions"><button class="btn primary" id="lnSave">💾 احفظ</button><button class="btn" id="lnStopAll">⏹ وقّف كل المسارات</button><button class="btn" id="lnProtOff" hidden>فُك وضع الحماية</button><span class="muted" id="lnMsg"></span></div>
+      <div class="muted sm">🛡 <b>وضع الحماية:</b> لو فيسبوك قال «بنقيّد معدل…» أو «حظر مؤقت» في أي مسار، كل المسارات بتقف لوحدها ومفيش سحب جديد يبدأ لمدة 90 دقيقة عشان حسابك يرتاح. 💡 كل ما زوّدت المسارات كل ما فيسبوك بيشوف نشاط أكتر على الحساب — لو جالك تحذير قلّل العدد.</div>
+    </div>
+
+    <div class="panel area-panel">
+      <h2>📍 منطقتك (المحافظة والمناطق)</h2>
+      <p class="muted">اختار المحافظة اللي شغال فيها، ومناطقها بتتملى لوحدها. كل طلب وعرض بيتصنّف على المناطق دي، وأي حاجة برا محافظتك بتستخبى بفلتر «📍 منطقتي بس». وتقدر تحدد مناطق معيّنة تركّز عليها بس.</p>
+      <div class="form">
+        <label>المحافظة<select id="govSel"></select></label>
+        <label>تركّز على<select id="focusMode"><option value="all">المحافظة كلها</option><option value="pick">مناطق معيّنة أختارها</option></select></label>
+      </div>
+      <div id="focusBox" class="focus-box" hidden></div>
+      <div class="checks" id="strictBox" hidden>
+        <label><input type="checkbox" id="extractFocus"> 🎯 <b>اسحب من المناطق دي بس</b> — أي عرض في حي تاني مش هيتسحب أصلًا (الطلبات العامة «مطلوب أرض في بني سويف الجديدة» بتتسحب عشان المشترين)</label>
+        <label><input type="checkbox" id="strictFocus"> استبعد كمان اللي منطقته مش مكتوبة (حتى الطلبات العامة)</label>
+      </div>
+      <details class="adv"><summary>✏️ تعديل أسماء المناطق</summary>
+        <p class="muted">كل سطر منطقة. لو ليها أسماء تانية اكتبها بعد علامة = ومفصولة بفاصلة. مثال: <code>الكورنيش = كورنيش النيل، على الكورنيش</code>.</p>
+        <textarea id="k-regions" class="tall"></textarea>
+        <div class="row-actions"><button class="btn" id="regionsReset">رجّع مناطق المحافظة الافتراضية</button></div>
+      </details>
+      <div class="row-actions"><button class="btn primary" id="saveArea">حفظ المنطقة</button><span class="muted" id="areaMsg"></span></div>
+    </div>
+
+    <div class="panel">
+      <h2>⏰ السحب التلقائي</h2>
+      <p class="muted">المنصة بتلف على الجروبات المعلّمة لوحدها كل فترة، تسحب الجديد بس، وتبعتلك إشعار. لازم كروم يكون مفتوح، وواتساب ويب وفيسبوك مسجّلين دخول. الجروبات اللي هتتسحب هي اللي معلّم عليها في لوحة 🏠 جوه واتساب وفيسبوك.</p>
+      <div class="cycle-box">🔄 <b>الدورة الكاملة:</b> كل مرة بيسحب كل الجروبات (فيسبوك وواتساب) ← يدوّر في فيسبوك كله على طلباتك و«دوّرلي على» ← ماركت بليس ← وبعدها «🏷 هاتلي مشتري» لكل قطعك — والمشترين والملاك والتطابق بيتحدّثوا لوحدهم مع كل دورة.</div>
+      <label class="sw"><input type="checkbox" id="autoEnabled"> شغّل السحب التلقائي</label>
+      <div class="form">
+        <label>كل قد إيه
+          <select id="autoHours">
+            <option value="0.5">كل نص ساعة</option>
+            <option value="1" selected>كل ساعة ⭐</option>
+            <option value="2">كل ساعتين</option>
+            <option value="3">كل 3 ساعات</option>
+            <option value="4">كل 4 ساعات</option>
+            <option value="6">كل 6 ساعات</option>
+            <option value="12">مرتين في اليوم</option>
+            <option value="24">مرة في اليوم</option>
+          </select>
+        </label>
+        <label>تعليقات فيسبوك
+          <select id="autoFbComments">
+            <option value="off">من غير تعليقات</option>
+            <option value="light">التعليقات الظاهرة بس (أسرع بس بيفوّت مشترين)</option>
+            <option value="smart" selected>⚡ ذكي: يفتح تعليقات العروض (10 في الجروب) — موصى بيه</option>
+            <option value="deep">يفتح كل عرض ويسحب تعليقاته كلها (أبطأ)</option>
+          </select>
+        </label>
+        <label>💬 إعادة زيارة البوستات الجديدة
+          <select id="autoRevisit">
+            <option value="on" selected>يرجع يقرا تعليقات بوستات آخر 3 أيام كل دورة (بيلقط المشترين اللي علّقوا متأخر) ⭐</option>
+            <option value="off">لأ — البوست بيتقرا مرة واحدة بس</option>
+          </select>
+        </label>
+        <label>عمق السحب في كل جروب
+          <select id="autoDepth">
+            <option value="3">خفيف (3 مرات)</option>
+            <option value="5">عادي (5 مرات)</option>
+            <option value="10">أعمق (10 مرات)</option>
+            <option value="12" selected>عميق (12 مرة) ⭐</option>
+            <option value="20">أقصى عمق (20 مرة — أبطأ)</option>
+          </select>
+        </label>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" id="autoWa" checked> واتساب</label>
+        <label><input type="checkbox" id="autoFb" checked> فيسبوك</label>
+        <label><input type="checkbox" id="autoNotify" checked> ابعتلي إشعار</label>
+        <label><input type="checkbox" id="autoOnlyMatch"> إشعار بس لما يكون فيه مطابقة</label>
+      </div>
+      <div class="row-actions">
+        <button class="btn primary" id="saveAuto">حفظ</button>
+        <button class="btn" id="runNow">▶️ شغّله دلوقتي</button>
+        <span class="muted" id="autoLog"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>💬 الرسايل الجاهزة</h2>
+      <p class="muted">بتظهر في زرار «💬 رسالة جاهزة» جنب كل عميل. الخانات اللي بين القوسين بتتملي لوحدها: <code>{الاسم}</code> <code>{النوع}</code> <code>{المنطقة}</code> <code>{الميزانية}</code> <code>{العرض}</code> (الإعلان اللي سأل عليه) <code>{الجروب}</code> <code>{اسمي}</code>. لو العميل معاه رقم بتتفتح على واتساب على طول، ولو مش معاه بتتنسخ وتتفتح الماسنجر.</p>
+      <div class="form"><label>اسمك وشركتك (مكان {اسمي})<input type="text" id="myName" placeholder="مثلاً: علاء — العراب للعقارات"></label></div>
+      <div id="tplList" class="tpls"></div>
+      <div class="row-actions">
+        <button class="btn primary" id="tplSave">حفظ الرسايل</button>
+        <button class="btn" id="tplAdd">➕ رسالة جديدة</button>
+        <button class="btn" id="tplReset">رجّع الافتراضي</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>🎯 اللقطات و ☀️ تقرير الصبح</h2>
+      <div class="form">
+        <label>العرض يبقى «لقطة» لو أرخص من متوسط منطقته بـ
+          <select id="dealPct"><option value="10">10% أو أكتر</option><option value="15" selected>15% أو أكتر</option><option value="20">20% أو أكتر</option><option value="25">25% أو أكتر</option></select>
+        </label>
+        <label>ميعاد تقرير الصبح
+          <select id="reportHour"><option value="6">6 الصبح</option><option value="7">7 الصبح</option><option value="8">8 الصبح</option><option value="9" selected>9 الصبح</option><option value="10">10 الصبح</option><option value="11">11 الصبح</option><option value="12">12 الضهر</option><option value="13">1 الضهر</option><option value="14">2 الضهر</option><option value="15">3 العصر</option><option value="16">4 العصر</option><option value="17">5 العصر</option><option value="18">6 بالليل</option><option value="19">7 بالليل</option><option value="20">8 بالليل</option><option value="21">9 بالليل</option><option value="22">10 بالليل</option></select>
+        </label>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" id="dealNotify" checked> إشعار لما تظهر لقطة جديدة (مع السحب التلقائي)</label>
+        <label><input type="checkbox" id="reportEnabled" checked> ابعتلي تقرير كل يوم الصبح</label>
+      </div>
+      <p class="muted">سعر المتر بيتقارن بعروض نفس النوع في نفس المنطقة (3 عروض على الأقل). التذكير بالمتابعات بيتشيّك كل ساعة.</p>
+      <div class="row-actions"><button class="btn primary" id="saveDealsReport">حفظ</button></div>
+    </div>
+
+    <div class="panel">
+      <h2>🤖 التحليل بالذكاء الاصطناعي</h2>
+      <p class="muted">بدل الكلمات المفتاحية بس، Claude بيقرأ كل بوست ويطلّع النوع والمنطقة والسعر والغرف بدقة أعلى، ويعرّفك لو الناشر سمسار ولا مالك، ويكتب ملخص قصير. محتاج API key من <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>، والتكلفة بتتحسب على حسابك هناك (قروش لكل بوست تقريبًا). الـ key بيتحفظ على جهازك بس.</p>
+      <label class="sw"><input type="checkbox" id="aiEnabled"> فعّل التحليل بالذكاء الاصطناعي</label>
+      <div class="form">
+        <label>API key<input type="password" id="aiKey" placeholder="sk-ant-..." autocomplete="off"></label>
+        <label>الموديل<input type="text" id="aiModel" placeholder="claude-haiku-5-5"></label>
+      </div>
+      <div class="checks"><label><input type="checkbox" id="aiAuto" checked> حلّل الجديد تلقائي بعد كل سحب تلقائي</label>
+        <label><input type="checkbox" id="aiBuyers" checked> 🧠 حلّل المشترين وجمّعهم تلقائي (اللي اتفاعلوا في أكتر من بوست أو مهتمين جدًا)</label>
+        <label><input type="checkbox" id="aiAudit" checked> 🔁 راجع القديم والجديد دوريًا (دفعة كل ربع ساعة)، وحكّم تاني في أي اختلاف بين الكلمات والذكاء الاصطناعي — اللي يفضل مش مؤكد بيتعلّم ⚠</label></div>
+      <div class="row-actions">
+        <button class="btn primary" id="saveAi">حفظ</button>
+        <button class="btn" id="testAi">🧪 جرّب الـ key</button>
+        <button class="btn" id="runAiAll">🤖 حلّل وراجع كل اللي محتاج</button>
+        <span class="muted" id="aiMsg"></span>
+      </div>
+      <p class="muted" id="aiAuditMsg"></p>
+    </div>
+
+    <div class="panel">
+      <h2>🔤 الكلمات</h2>
+      <p class="muted">كل كلمة في سطر. مش لازم الهمزة أو التاء المربوطة — «شقة» و«شقه» و«الشقة» كلهم واحد.</p>
+      <div class="grid2">
+        <label>كلمات الطلب<textarea id="k-request"></textarea></label>
+        <label>كلمات العرض<textarea id="k-offer"></textarea></label>
+        <label>أراضي<textarea id="k-land"></textarea></label>
+        <label>شقق<textarea id="k-apartment"></textarea></label>
+        <label>فيلا<textarea id="k-villa"></textarea></label>
+      </div>
+      <div class="row-actions">
+        <button class="btn primary" id="saveWords">حفظ الكلمات</button>
+        <button class="btn" id="resetWords">رجّع الافتراضي</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>👥 الفريق</h2>
+      <p class="muted">اكتب أسماء فريقك، كل اسم في سطر. هيظهر جنب كل عميل اختيار «المسؤول»، وفي صفحة ☀️ النهارده تقرير بأداء كل واحد.</p>
+      <textarea id="teamNames" class="tall" style="height:110px" placeholder="علاء&#10;محمد&#10;سارة"></textarea>
+      <div class="row-actions"><button class="btn primary" id="teamSave">حفظ الفريق</button></div>
+    </div>
+
+    <div class="panel">
+      <h2>☁️ الربط بـ Supabase (رادار الطلبات / Aqar Matrix)</h2>
+      <p class="muted">الطلبات والعملاء وعروضك تتبعت لقاعدة بياناتك، فتشوفها من الموبايل ومن موقعك، ومتضيعش لو الجهاز اتغيّر. خطوة واحدة الأول: انسخ كود SQL وشغّله في Supabase ← SQL Editor. استخدم <b>service_role key</b> (من Project Settings ← API) — الجداول بتفضل مقفولة قدام أي حد تاني، والـ key بيتحفظ على جهازك بس، متشاركهوش مع حد.</p>
+      <div class="form">
+        <label>رابط المشروع<input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co"></label>
+        <label>service_role key<input type="password" id="sbKey" autocomplete="off" placeholder="eyJhbGciOi..."></label>
+      </div>
+      <div class="checks"><label><input type="checkbox" id="sbAuto" checked> زامن تلقائي بعد كل سحب تلقائي</label></div>
+      <div class="row-actions">
+        <button class="btn" id="sbCopySql">📋 انسخ كود SQL</button>
+        <button class="btn primary" id="sbSave">حفظ</button>
+        <button class="btn" id="sbTest">🧪 جرّب الاتصال</button>
+        <button class="btn" id="sbSyncNow">☁️ زامن دلوقتي</button>
+        <span class="muted" id="sbMsg"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>🧠 الدرجة بتتعلم من نتايجك</h2>
+      <p class="muted">كل ما تعلّم عميل «اتقفل ✅» أو «مش مهتم» من كارته، الأداة بتشوف إيه اللي كان مشترك بين اللي اشتروا فعلًا، وبتعلّي أو تنزّل الدرجة على أساسه — فالـ 🔥🔥🔥 تبقى أدق على سوقك.</p>
+      <div id="learnBox"></div>
+    </div>
+
+    <div class="panel">
+      <h2>💾 حفظ الداتا</h2>
+      <p class="muted">كل حاجة الأداة بتلاقيها بتتحفظ <b>أول بأول</b> وقت السحب نفسه، على جهازك في كروم، وفضلت محفوظة لو الجهاز اتقفل أو النت قطع أو كروم اتقفل. ومفيش حاجة بتتمسح لوحدها أبدًا — الداتا القديمة بتستخبى من الفلاتر بس، وتقدر تظهرها في أي وقت. وكمان بناخد نسخة احتياطية تلقائي كل 12 ساعة. <b>لو عندك أكتر من جهاز مربوط:</b> الداتا كلها (الحالية والقديمة) متزامنة على كلهم، و«💾 حفظ» بيحفظ ملف كامل على كل جهاز، والملفات القديمة (الأرشيف والنسخ الكاملة وملفات الأيام) بتتنقل بين الأجهزة لوحدها.</p>
+      <div id="storeBox" class="muted"></div>
+      <div id="snapList" class="tpls" style="margin-top:8px"></div>
+      <h3 style="margin-top:14px">🌅 أرشيف الأيام</h3>
+      <p class="muted">كل «يوم جديد» بيحفظ ملف كامل في التحميلات ← AlaaDealsExt ← archive. عشان ترجّع يوم: «📂 استرجاع نسخة» تحت واختار الملف — بيدمجه مع الحالي من غير ما يمسح حاجة.</p>
+      <div id="archList" class="tpls"></div>
+      <div class="form" style="margin-top:8px">
+        <label>📁 ملف على جهازك (في التحميلات ← AlaaDealsExt)
+          <select id="fileAuto"><option value="daily">مرة كل يوم (موصى بيه)</option><option value="hourly">كل ساعة مع التحديث</option><option value="off">مقفول</option></select>
+        </label>
+      </div>
+      <div class="muted" id="fileLine"></div>
+      <div class="form" style="margin-top:8px" id="saveScopeRow">
+        <label>🕸 لما تدوس «💾 حفظ» يتحفظ على
+          <select id="saveScope"><option value="all">كل الأجهزة المتصلة (موصى بيه)</option><option value="here">الجهاز ده بس</option></select>
+        </label>
+      </div>
+      <div id="saveLogBox" class="xs-devs"></div>
+      <div class="row-actions"><button class="btn primary" id="snapNow">📸 خد نسخة احتياطية دلوقتي</button><button class="btn" id="fileNow">📁 احفظ ملف دلوقتي</button></div>
+    </div>
+
+    <div class="panel acc-panel">
+      <h2>🎯 دقة البرنامج على داتاك الحقيقية</h2>
+      <p class="muted">البرنامج بيختار عينة عشوائية من بوستاتك وتعليقاتك الحقيقية (ومنها بوستات هو شايفها «مش عقارية» عشان نتأكد إنه مش بيفوّت حاجة)، وانت تقوله صح ولا غلط — دقيقتين. اللي غلط بيتصلح على طول، وتقدر <b>تعلّمه</b> الكلمة اللي فاتته عشان ميغلطش فيها تاني.</p>
+      <div class="acc-stats" id="accStats"></div>
+      <div class="row-actions"><button class="btn primary" id="accStart">🎯 راجع 20 عينة</button><button class="btn sm" id="accExport">⬇️ صدّر المراجعة (ابعتهالي عشان أحسّن البرنامج)</button><button class="btn sm danger" id="accReset">↺ صفّر العدّاد</button></div>
+    </div>
+
+    <div class="panel">
+      <h2>🗂 البيانات</h2>
+      <div class="row-actions">
+        <button class="btn" id="backupBtn">💾 نسخة احتياطية (JSON)</button>
+        <label class="btn">📂 استرجاع نسخة<input type="file" id="restoreFile" accept=".json" hidden></label>
+        <button class="btn danger" id="clearBtn">🗑 مسح كل الطلبات</button>
+      </div>
+      <div class="keep-box">
+        <div><b>⚡ خلّي البرنامج سريع: أرشفة القديم تلقائي</b>
+          <p class="muted">البوستات والتعليقات الأقدم من المدة دي بتتحفظ في ملف أرشيف (فولدر AlaaDealsExt/archive) وتتشال من البرنامج — والمشترين اللي بتتابعهم بيفضلوا زي ما هم. تقدر ترجّع أي ملف بـ«📂 استرجاع نسخة».</p>
+          <div class="row-actions"><label class="sm">احتفظ بآخر<select id="keepDays"><option value="60">60 يوم</option><option value="90">90 يوم</option><option value="120">120 يوم</option><option value="180">180 يوم</option><option value="365">سنة</option><option value="0">كله (من غير أرشفة)</option></select></label>
+          <button class="btn" id="pruneNow">🗂 أرشف القديم دلوقتي</button> <span class="muted sm" id="dataSize"></span></div>
+        </div>
+      </div>
+      <div class="ocrset" id="ocrBox">
+        <b>🖼 قراءة الصور (OCR عربي)</b>
+        <p class="muted">لو تفاصيل البوست (سعر، مساحة، رقم تليفون، نوع) مكتوبة جوه الصورة، البرنامج بيقرا الصورة لوحده ويضيف الكلام لتحليل البوست — من غير إنترنت. بتشتغل في برنامج ويندوز والسيرفر. دقتها كويسة في الصور المكتوبة بخط واضح، وأضعف في الخطوط المزخرفة.</p>
+        <div class="row-actions"><label class="sm"><input type="checkbox" id="ocrOnBox"> شغّل قراءة الصور</label>
+        <button class="btn" id="ocrRunBtn">🖼 اقرا الصور المعلّقة دلوقتي</button> <span class="muted sm" id="ocrStat"></span></div>
+      </div>
+      <div class="reset-box">
+        <div><b>🧹 تنضيف كامل وبداية جديدة</b>
+          <p class="muted">بيحفظ <b>كل حاجة</b> (الطلبات والعروض والتعليقات والمشترين ومتابعاتهم و«هاتلي مشتري» و«دوّرلي على» والإعلانات والإعدادات) في ملف على جهازك في <code>التحميلات/AlaaDealsExt/backups</code>، وبعدين يفضّي البرنامج ويبدأ من جديد. تسجيل دخول فيسبوك وواتساب بيفضل زي ما هو. وتقدر ترجّع كل حاجة من «📂 استرجاع نسخة» واختار الملف.</p>
+          <label class="sm"><input type="checkbox" id="resetSettings"> رجّع الإعدادات كمان زي أول مرة (الجروبات، الأحياء، تليجرام، مفتاح الذكاء الاصطناعي…)</label></div>
+        <button class="btn danger" id="fullResetBtn">🧹 نضّف وابدأ من جديد</button>
+      </div>
+      <div class="muted sm" id="backupList"></div>
+      <div class="row-actions" style="margin-top:10px"><span class="muted" id="fixLogLine">✏️ تصحيحاتك: —</span><button class="btn sm" id="fixExport">⬇️ صدّر التصحيحات (اختبارات دقة)</button></div>
+    </div>
+  </main>
+</section>
+
+</div>
+<div class="modal" id="grpModal" hidden>
+  <div class="mcard grp-card" role="dialog" aria-labelledby="grpTitle">
+    <div class="mhead"><h3 id="grpTitle">🤝 تفاصيل التطابق</h3><button class="btn sm" data-gclose title="اقفل">✕</button></div>
+    <div id="grpBody"></div>
+  </div>
+</div>
+<div class="modal" id="dealModal" hidden>
+  <div class="mcard deal-card" role="dialog" aria-labelledby="dealTitle">
+    <div class="mhead"><h3 id="dealTitle">⚡ صفقة بضغطة</h3><button class="btn sm" data-dclose title="اقفل">✕</button></div>
+    <div id="dealBody"></div>
+  </div>
+</div>
+<div class="modal" id="accModal" hidden>
+  <div class="mcard acc-card" role="dialog" aria-labelledby="accTitle">
+    <div class="mhead"><h3 id="accTitle">🎯 مراجعة الدقة <span id="accProg" class="muted"></span></h3><button class="btn sm" id="accClose" title="اقفل">✕</button></div>
+    <div id="accBody"></div>
+  </div>
+</div>
+<div class="modal" id="fixModal" hidden>
+  <div class="mcard" role="dialog" aria-labelledby="fixTitle">
+    <div class="mhead"><h3 id="fixTitle">✏️ صحّح البيانات</h3><button class="btn sm" id="fixClose" title="اقفل">✕</button></div>
+    <div class="fix-text" id="fixText"></div>
+    <div class="fix-grid">
+      <label>النوع<select id="fx-type"><option value="request">🔵 طلب شراء</option><option value="offer">🟢 عرض بيع</option><option value="none">🚫 مش عقار / سبام (اخفيه)</option></select></label>
+      <label>الفئة<select id="fx-category"><option value="land">🟫 أرض</option><option value="apartment">🏢 شقة</option><option value="villa">🏡 فيلا</option><option value="other">🏬 تاني</option></select></label>
+      <label>المنطقة / الحي<input id="fx-region" list="fxRegions" placeholder="مثلًا: الحي العاشر"></label>
+      <label>المساحة (م²)<input id="fx-areaM2" inputmode="decimal" placeholder="300"></label>
+      <label>السعر الإجمالي<input id="fx-price" placeholder="2.5 مليون / 3.200 / 2500000"></label>
+      <label>سعر المتر<input id="fx-ppm" placeholder="8000"></label>
+      <div class="fix-land">
+        <label>المجاورة<input id="fx-mugawra" placeholder="5"></label>
+        <label>رقم القطعة<input id="fx-plot" placeholder="123"></label>
+        <label>الأوفر<input id="fx-over" placeholder="300 ألف"></label>
+        <label>المدفوع<input id="fx-paid" placeholder="150 ألف"></label>
+        <label>الباقي<input id="fx-remaining" placeholder="600 ألف"></label>
+        <label>نوع الأرض<select id="fx-landType"><option value="">—</option><option>سكني</option><option>فيلات</option><option>تجاري</option><option>خدمات</option><option>إداري</option><option>صناعي</option><option>استثماري</option></select></label>
+        <div class="fx-feats" id="fx-feats"></div>
+      </div>
+    </div>
+    <datalist id="fxRegions"></datalist>
+    <div class="mfoot"><span class="muted" id="fixNote">التصحيح بيتحفظ وبيكسب على الاستخراج التلقائي، وبيتسجّل عشان نحسّن الدقة.</span>
+      <button class="btn" id="fixReset" title="رجّع للاستخراج التلقائي">↺ رجّع التلقائي</button>
+      <button class="btn primary" id="fixSave">💾 احفظ التصحيح</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="classify.js"></script>
+<script src="plotkit.js"></script>
+<script src="mp4-muxer.js"></script>
+<script src="rvvoice.js"></script>
+<script src="cairo-data.js"></script>
+<script src="plotmk.js"></script>
+<script src="qrcode.js"></script>
+<script src="funnel.js"></script>
+<script src="outreach.js"></script>
+<script src="plan.js"></script>
+<script src="evalpage.js"></script>
+<script src="evalai.js"></script>
+<script src="spread.js"></script>
+<script src="ownmark.js"></script>
+<script src="passport.js"></script>
+<script src="extractui.js"></script>
+<script src="pick.js"></script>
+<script src="pickui.js"></script>
+<script src="match.js"></script>
+<script src="role.js"></script>
+<script src="realness.js"></script>
+<script src="leads.js"></script>
+<script src="report.js"></script>
+<script src="sync.js"></script>
+<script src="ai.js"></script>
+<script src="alerts.js"></script>
+<script src="pub.js"></script>
+<script src="vid.js"></script>
+<script src="wasend.js"></script>
+<script src="qualify.js"></script>
+<script src="wastpl.js"></script>
+<script src="xs.js"></script>
+<script src="fbid-core.js"></script>
+<script src="fbid.js"></script>
+<script src="dashboard.js"></script>
+<script src="publish.js"></script>
+<script src="wasui.js"></script>
+<script src="wacui.js"></script>
+<script src="xsui.js"></script>
+<script src="atlas.js"></script>
+<script src="spreadfly.js"></script>
+<script src="spreadui.js"></script>
+<script src="funnelui.js"></script>
+<script src="magnetui.js"></script>
+<script src="icons54.js"></script>
+<script src="welcome56.js"></script>
+<script src="ui58.js"></script>
+<script src="home62.js"></script>
+<script src="acorn.min.js"></script>
+<script src="aiguard.js"></script>
+<script src="assistq.js"></script>
+<script src="assist.js"></script>
+<script src="aitool.js"></script>
+<script src="assistui.js"></script>
+<script src="assistchat.js"></script>
+</body>
+</html>

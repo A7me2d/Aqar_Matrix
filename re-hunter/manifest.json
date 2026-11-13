@@ -1,0 +1,106 @@
+{
+  "manifest_version": 3,
+  "name": "Aqar Matrix",
+  "version": "10.80.62",
+  "description": "Aqar Matrix: المشترين والبايعين المحتملين والتطابق بينهم، وإعلانات المنافسين، من جروبات فيسبوك وواتساب وماركت بليس وإنستجرام — لأي محافظة، وتحديث تلقائي كل نص ساعة.",
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "notifications",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://api.telegram.org/*",
+    "https://api.anthropic.com/*",
+    "https://web.whatsapp.com/*",
+    "https://www.facebook.com/*",
+    "https://web.facebook.com/*",
+    "https://*.supabase.co/*",
+    "https://graph.facebook.com/*"
+  ],
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "action": {
+    "default_title": "Aqar Matrix",
+    "default_icon": {
+      "16": "icons/16.png",
+      "48": "icons/48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://web.whatsapp.com/*"
+      ],
+      "js": [
+        "wabtn-cfg.js",
+        "vendor/wppconnect-wa.js",
+        "wabtn.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://web.whatsapp.com/*"
+      ],
+      "js": [
+        "classify.js",
+        "content.js",
+        "wasend.js",
+        "wabtnc.js",
+        "wasender.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.facebook.com/*",
+        "https://web.facebook.com/*"
+      ],
+      "js": [
+        "classify.js",
+        "match.js",
+        "fb.js",
+        "poster.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.instagram.com/*"
+      ],
+      "js": [
+        "classify.js",
+        "ig.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "short_name": "Aqar Matrix",
+  "commands": {
+    "save-all": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "💾 حفظ كل الداتا"
+    }
+  },
+  "sandbox": {
+    "pages": [
+      "sandbox.html"
+    ]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src 'self'",
+    "sandbox": "sandbox allow-scripts; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; connect-src 'none'; frame-src 'none'; child-src 'none'; worker-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"
+  }
+}

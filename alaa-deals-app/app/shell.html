@@ -1,0 +1,129 @@
+<!doctype html>
+<!-- © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+     كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Aqar Matrix — منصة العقارات</title>
+<style>
+  :root { --bg: #0d2633; --bg2: #143746; --line: #21495a; --ink: #e6eef2; --mute: #8fb0bd; --gold: #d4a63a; --brand: #d4a63a; --soft: rgba(255,255,255,.1); --green: #3fbf8a; --red: #e07a5f; --amber: #e2b35a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 16.7px/1.3 Cairo,Arial,"Liberation Sans",Helvetica,sans-serif; overflow: hidden; user-select: none; }
+  .row { display: flex; align-items: center; gap: 8px; padding: 0 14px; }
+  #r1 { height: 48px; border-bottom: 1px solid var(--line); }
+  #r2 { height: 40px; background: var(--bg2); border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 8px; font-family: Cairo,Arial,"Liberation Sans",Helvetica,sans-serif; font-weight: 700; font-size:19.5px; white-space: nowrap; margin-inline-end: 6px; flex: none; }
+  .brand img { width: 28px; height: 28px; flex: none; object-fit: contain; }
+  /* لوجو Aqar Matrix: طبقتين (فاتحة/ذهبية) بيتلوّنوا بألوان الثيم */
+  .alogo { --la: color-mix(in srgb, var(--ink) 92%, var(--a1, #F6DB90)); --lb: linear-gradient(135deg, var(--a1, #F6DB90), var(--a2, #E3B04B) 55%, var(--a3, #BE8624)); position: relative; display: inline-block; flex: none; width: 44px; aspect-ratio: 846/631; }
+  .alogo::before, .alogo::after { content: ""; position: absolute; inset: 0; -webkit-mask: center/contain no-repeat; mask: center/contain no-repeat; }
+  .alogo::before { background: var(--la); -webkit-mask-image: url(engine/brand/mark-a.png); mask-image: url(engine/brand/mark-a.png); }
+  .alogo::after { background: var(--lb); -webkit-mask-image: url(engine/brand/mark-b.png); mask-image: url(engine/brand/mark-b.png); }
+  body.m-light .alogo { --la: color-mix(in srgb, var(--ink) 82%, var(--a3, #0F4C36)); --lb: linear-gradient(135deg, var(--a2, #E3B04B), color-mix(in srgb, var(--a2, #E3B04B) 72%, #000)); }
+  .brand small { color: var(--mute); font-weight: 400; font-size:15px; display: block; }
+  #tabs { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+  .sep { flex: none; width: 1px; height: 20px; background: var(--line); margin: 0 5px; }
+  button, input { font-family: inherit; }
+  .tab { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 9px; background: transparent; color: var(--mute); border: 1px solid transparent; cursor: pointer; white-space: nowrap; font: inherit; font-weight: 600; flex: none; min-width: 0; }
+  .tab .ic2 { flex: none; font-size:18.4px; line-height: 1; }
+  .tab .t { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .tab:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .tab:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+  .tab.on { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.12); box-shadow: inset 0 -2px 0 var(--gold); }
+  /* القوايم المنسدلة: «المنصات» و«الصفحات» */
+  .tab.dd { padding: 0 9px 0 10px; }
+  .tab.dd .car { flex: none; font-size: 12.1px; opacity: .65; transition: transform .15s; }
+  .tab.dd.open { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.16); }
+  .tab.dd.open .car { transform: rotate(180deg); opacity: 1; }
+  #pagesBox { display: none; }
+  #pagesBox.has { display: flex; }
+  #pagesTxt { max-width: 190px; }
+  .badge { flex: none; min-width: 21px; height: 21px; padding: 0 6px; border-radius: 99px; background: rgba(212,166,58,.18); color: var(--gold); font-size:14.4px; font-weight: 700; display: grid; place-items: center; line-height: 1; }
+  .badge.auto { background: transparent; border: 1px dashed var(--gold); }
+  .dots { flex: none; display: flex; gap: 3px; align-items: center; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--mute); opacity: .55; }
+  .dots i.ok { background: var(--green); opacity: 1; } .dots i.warn { background: var(--amber); opacity: 1; } .dots i.bad { background: var(--red); opacity: 1; }
+  .tab .spin { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: p 1s infinite; }
+  @keyframes p { 50% { opacity: .2 } }
+  /* مقاسات أصغر */
+  body.mid #tHome:not(.on) .t, body.mid #tDash:not(.on) .t, body.mid #ddPlat:not(.on) .t { display: none; }
+  body.mid #tHome, body.mid #tDash { padding: 0 10px; }
+  body.mid #pagesTxt { max-width: 120px; }
+  body.narrow .brand small, body.narrow .brand > div { display: none; }
+  body.narrow #save .lb { display: none; }
+  body.narrow #tHome .t, body.narrow #tDash .t, body.narrow #ddPlat .t { display: none; }
+  body.narrow #pagesTxt { max-width: 80px; }
+  body.narrow .counts { display: none; }
+  #autoTxt { overflow: hidden; text-overflow: ellipsis; max-width: 42vw; display: inline-block; vertical-align: middle; }
+  button.b { font: inherit; font-weight: 700; border: 1px solid var(--line); border-radius: 9px; padding: 7px 12px; cursor: pointer; background: rgba(255,255,255,.06); color: #fff; white-space: nowrap; }
+  button.b:hover { background: rgba(255,255,255,.12); }
+  button.gold { background: var(--gold); color: #1b1404; border-color: var(--gold); }
+  button.gold:hover { background: #c6992f; }
+  button.ic { background: transparent; color: var(--ink); border: 0; font-size:18.4px; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
+  button.ic:hover { background: rgba(255,255,255,.08); } button.ic:disabled { opacity: .3; cursor: default; background: none; }
+  #addr { flex: 1; min-width: 0; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: #0b202b; color: var(--mute); padding: 0 10px; font: inherit; direction: ltr; text-align: left; }
+  #addr:focus { outline: 1px solid var(--brand); color: var(--ink); }
+  #auto { display: flex; align-items: center; gap: 8px; white-space: nowrap; color: var(--mute); }
+  #auto b { color: #fff; }
+  #toast { position: fixed; inset-inline-start: 50%; top: 8px; transform: translateX(50%); background: var(--gold); color: #1b1404; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: none; z-index: 9; max-width: 70vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .counts { color: var(--mute); white-space: nowrap; }
+  .counts b { color: var(--gold); }
+  body.compact #r2, body.compact #save { display: none; }
+  /* 🎨 بيمشي مع شكل لوحة التحكم */
+  body.skin-studio { --bg: #0b1220; --bg2: #111a2e; --line: #22304d; --gold: var(--a1, #5eead4); --brand: var(--a2, #60a5fa); }
+  body.skin-studio .tab.on { box-shadow: inset 0 -2px 0 var(--a1); background: linear-gradient(135deg, color-mix(in srgb, var(--a1) 18%, transparent), color-mix(in srgb, var(--a3) 16%, transparent)); }
+  body.skin-studio button.gold { background: linear-gradient(135deg, var(--a1), var(--a2) 55%, var(--a3)); border-color: transparent; color: var(--on, #0a1020); }
+  body.skin-studio.m-light button.gold { color: var(--on, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  body.skin-studio .badge { background: color-mix(in srgb, var(--a1) 16%, transparent); }
+  body.skin-studio .tab.dd.open { background: linear-gradient(135deg, color-mix(in srgb, var(--a1) 18%, transparent), color-mix(in srgb, var(--a3) 16%, transparent)); }
+  /* ☀️ الوضع الفاتح لشريط البرنامج */
+  body.m-light { --bg: #ffffff; --bg2: #f4f6fb; --line: #e3e8f0; --ink: #0f172a; --mute: #5b6478; --gold: var(--acc, #0f766e); }
+  body.m-light .tab:hover { background: rgba(15,23,42,.05); color: #0f172a; }
+  body.m-light .tab.on { color: #0b1220; border-color: rgba(15,23,42,.1); }
+  body.m-light .tab.dd.open { background: rgba(15,23,42,.07); color: #0b1220; border-color: rgba(15,23,42,.12); }
+  body.m-light button.ic:hover { background: rgba(15,23,42,.08); }
+  body.m-light button.b { background: rgba(15,23,42,.04); color: #0f172a; }
+  body.m-light button.b:hover { background: rgba(15,23,42,.08); }
+  body.m-light #auto b { color: #0f172a; }
+  body.m-light #addr { background: #f4f6fb !important; color: #5b6478; }
+  body.m-light #addr:focus { color: #0f172a; }
+  body.skin-pro { --bg: #14202b; --bg2: #1b2a37; --line: #26394a; --gold: #c9a040; --brand: #c9a040; }
+  body.skin-plan { --bg: #18324a; --bg2: #1d3b57; --line: #2b4c6b; --gold: #e9b949; --brand: #e9b949; }
+  body.skin-studio.pal-nile .tab.on { background: linear-gradient(270deg, rgba(227,176,75,.18), rgba(227,176,75,.04)); box-shadow: inset 0 -2px 0 #E3B04B; }
+  body.skin-studio.pal-nile button.gold { background: linear-gradient(135deg, #F6DB90, #E3B04B 52%, #BE8624); color: #1B1305; text-shadow: none; }
+  body.skin-nile { --bg: #0a171c; --bg2: #10232a; --line: #22404a; --gold: #e0b861; --brand: #2fb592; }
+  body.skin-nile #addr, body.skin-plan #addr, body.skin-pro #addr, body.skin-studio #addr { background: rgba(0,0,0,.18); }
+</style>
+<link rel="stylesheet" href="engine/icons54.css">
+<link rel="stylesheet" href="engine/icons56.css">
+<link rel="stylesheet" href="app56.css">
+</head>
+<body class="ui56 pg-shell">
+  <div class="row" id="r1">
+    <div class="brand"><span class="alogo" role="img" aria-label="Aqar Matrix"></span><div>Aqar Matrix<small>المؤسس Alaa Matrix</small></div></div>
+    <div id="tabs">
+      <button class="tab" id="tHome" data-id="5" title="صفحة البداية (Ctrl+1)"><span class="ic2">🏠</span><span class="t">البداية</span></button>
+      <button class="tab" id="tDash" data-id="1" title="لوحة التحكم (Ctrl+2)"><span class="ic2">📊</span><span class="t">لوحة التحكم</span></button>
+      <span class="sep"></span>
+      <button class="tab dd" id="ddPlat" data-dd="plat" aria-haspopup="menu" aria-expanded="false" title="فيسبوك · واتساب · إنستجرام — وحالة الدخول لكل واحد"><span class="ic2" id="platIc">🌐</span><span class="t" id="platTxt">المنصات</span><span class="dots" id="platDots"><i id="dFb"></i><i id="dWa"></i><i id="dIg"></i></span><span class="car"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></button>
+      <span id="pagesBox"><button class="tab dd" id="ddPages" data-dd="pages" aria-haspopup="menu" aria-expanded="false" title="الصفحات اللي اتفتحت (مجموعات، بوستات…)"><span class="ic2" id="pagesIc">📑</span><span class="t" id="pagesTxt">الصفحات</span><span class="badge" id="pagesN">0</span><span class="car"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></button></span>
+    </div>
+    <button class="b gold" id="save" title="احفظ كل حاجة (Ctrl+Shift+S)">💾 <span class="lb">Save</span></button>
+    <button class="ic" id="menu" title="القايمة"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/></svg></button>
+  </div>
+  <div class="row" id="r2">
+    <button class="ic" id="back" title="رجوع"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+    <button class="ic" id="fwd" title="قدّام"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg></button>
+    <button class="ic" id="reload" title="تحديث الصفحة (F5)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button>
+    <button class="ic" id="home" title="الصفحة الرئيسية للتاب"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+    <input id="addr" spellcheck="false">
+    <span class="counts" id="counts"></span>
+    <div id="auto"><span id="autoTxt">🔄 …</span><button class="b" id="runNow">▶ حدّث دلوقتي</button></div>
+  </div>
+  <div id="toast"></div>
+<script src="engine/icons54.js"></script>
+<script src="plat54.js"></script>
+<script src="engine/sgv-data.js"></script>
+<script src="shell.js"></script>
+</body>
+</html>

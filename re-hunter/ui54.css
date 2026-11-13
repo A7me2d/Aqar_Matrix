@@ -1,0 +1,136 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+   كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. */
+/* 🧭 10.54 — تصميم «العراب» الجديد: ورقة رفع مساحي (شبكة + علامات قياس) + أيقونات ملوّنة مجسّمة + تابات وكروت وأزرار جديدة.
+   الخط Arial في كل حتة. الألوان من متغيّرات الثيم (أي ثيم تختاره بيمشي على نفس الشكل)، والثيم الافتراضي «العراب». */
+
+/* ---------- ثيم «العراب» ---------- */
+html[data-pal="araab"]{--a1:#6FE3E8;--a2:#25BEC8;--a3:#0F8E9B;--acc-dk:#6FE3E8;--acc-lt:#0E7C86}
+html[data-skin="studio"][data-pal="araab"][data-mode="dark"]{
+  --a1:#6FE3E8;--a2:#25BEC8;--a3:#0F8E9B;--acc-dk:#6FE3E8;
+  --bg:#0C1E24;--surface:#112A31;--surface-2:#17343C;--border:#26474F;--text:#E7F1F0;--muted:#8DACB1;--hi:#FFFFFF;
+  --field:#0A181D;--sub:#143038;--ring-bg:#24444C;--glass:rgba(12,30,36,.82);--glow:8%;--shell:#061215;--on:#032A30;
+  --req:#7CB4FF;--req-bg:#15304F;--off:#43D6A0;--off-bg:#103A30;--hot:#FF8A4C;--hot-bg:#3A2216;--violet:#C0AEFF;
+  --brand-soft:#14363A;--gold:#F2B84B;--gold-soft:#33290F;--chip:#153A40;--chip-t:#7CE6EA;--cat-bg:#183840;--cat:#C3DADC;
+  --info:#143038;--info-t:#B9D0D2;--ai:#26204A;--ai-t:#CFC2FF;
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 36px -24px rgba(0,0,0,.8)}
+html[data-skin="studio"][data-pal="araab"][data-mode="light"]{
+  --a1:#1E9FAB;--a2:#0E7C86;--a3:#0A5A63;--acc-lt:#0E7C86;
+  --bg:#EDF3F2;--surface:#FFFFFF;--surface-2:#F4F8F7;--border:#D2E0DE;--text:#0B2A30;--muted:#52717A;--hi:#051B20;
+  --field:#FFFFFF;--sub:#F4F8F7;--ring-bg:#D7E4E2;--glass:rgba(237,243,242,.84);--glow:9%;--shell:#0B2A31;--on:#FFFFFF;
+  --req:#1F57C9;--req-bg:#E6EEFB;--off:#0B7A57;--off-bg:#E1F4EC;--hot:#C2410C;--hot-bg:#FDECE2;--violet:#6A4DC9;
+  --brand-soft:#DDEEEE;--gold:#B7801C;--gold-soft:#F8EBCB;--chip:#DCEFF0;--chip-t:#0A6770;--cat-bg:#E8EEED;--cat:#0B2A30;
+  --info:#F4F8F7;--info-t:#52717A;--ai:#EBE7F8;--ai-t:#6A4DC9;
+  --shadow:0 1px 2px rgba(11,42,48,.06),0 14px 28px -20px rgba(11,42,48,.4);--sd1:#25BEC8;--sd2:#0E7C86;--sd3:#0A5A63}
+
+/* ---------- ورقة المساحة: شبكة خفيفة ورا المحتوى ---------- */
+html body.ui38.ui42.ui54 .app-main{background-image:linear-gradient(color-mix(in srgb,var(--text) 4%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--text) 4%,transparent) 1px,transparent 1px);background-size:32px 32px;background-position:-1px -1px}
+
+/* ---------- الشريط الجانبي ---------- */
+html body.ui38.ui42.ui54{--rail:256px}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view] .pill{min-width:24px;padding:0 7px;font-size:14.4px;line-height:22px;height:22px}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view] .pill .i54{--ic:1.2em;margin-inline:0 .2em}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view]{min-height:48px;border-radius:14px!important;gap:10px!important;font-weight:600;transition:background .15s,transform .15s}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view] i{flex:0 0 38px;width:38px;height:38px;background:none!important;filter:none!important;border-radius:0;box-shadow:none}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view] i .i54{--ic:2.3em;font-size:18.4px;margin:0}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view]:hover{background:rgba(255,255,255,.07)}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view]:hover i .i54{transform:translateY(-1px) scale(1.04)}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view] .i54{transition:transform .15s}
+html body.ui38.ui42.ui54 .topbar .nav button[data-view].on{background:linear-gradient(270deg,rgba(255,255,255,.12),rgba(255,255,255,.03));box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 10px 20px -14px rgba(0,0,0,.7);color:#fff}
+html body.ui38.ui42.ui54 .nav-cap{font-weight:700;font-size:14.4px;letter-spacing:0;opacity:.7}
+
+/* ---------- العنوان الرئيسي + مسطرة القياس ---------- */
+html body.ui38.ui42.ui54 .hero h2{font-weight:800;font-size:46px;letter-spacing:-.2px}
+html body.ui38.ui42.ui54 .hero h2 .i54{--ic:1.1em;margin-inline:.05em .28em}
+html body.ui38.ui42.ui54 .hero::before{width:196px;height:13px;border-radius:0;bottom:-1px;opacity:.9;background:
+  linear-gradient(var(--a2),var(--a2)) left bottom/100% 2px no-repeat,
+  repeating-linear-gradient(90deg,var(--a2) 0 2px,transparent 2px 14px) left bottom/100% 7px no-repeat,
+  repeating-linear-gradient(90deg,var(--a2) 0 2px,transparent 2px 56px) left bottom/100% 13px no-repeat}
+
+/* ---------- التابات: قضيب غاطس + تابة نافرة بمسطرة ---------- */
+html body.ui38.ui42.ui54 .tabs{gap:4px;padding:5px;border-radius:16px;background:color-mix(in srgb,var(--text) 7%,var(--bg));border:1px solid var(--border);box-shadow:inset 0 2px 5px rgba(0,0,0,.14)}
+html body.ui38.ui42.ui54 .tab{position:relative;display:inline-flex;align-items:center;gap:6px;border-radius:12px;padding:7px 14px;font-weight:600;color:var(--muted);transition:background .15s,color .15s,box-shadow .15s}
+html body.ui38.ui42.ui54 .tab:hover:not(.on){color:var(--text);background:color-mix(in srgb,var(--surface) 70%,transparent)}
+html body.ui38.ui42.ui54 .tab.on{background:linear-gradient(180deg,var(--surface),var(--surface-2));color:var(--hi);font-weight:700;
+  box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 8px 16px -10px rgba(0,0,0,.6),0 0 0 1px color-mix(in srgb,var(--a2) 35%,var(--border))}
+html body.ui38.ui42.ui54 .tab.on::after{content:"";position:absolute;inset-inline:16px;bottom:2px;height:3px;border-radius:3px;background:var(--brass)}
+html body.ui38.ui42.ui54 .tab small{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;padding:0 .45em;border-radius:99px;font-size:13.8px;font-weight:700;background:color-mix(in srgb,var(--text) 9%,transparent);color:var(--muted);font-variant-numeric:tabular-nums}
+html body.ui38.ui42.ui54 .tab.on small{background:var(--brass);color:var(--on)}
+
+/* ---------- الأزرار ---------- */
+html body.ui38.ui42.ui54 .btn{min-height:38px;border-radius:12px;background:linear-gradient(180deg,var(--surface),var(--surface-2));box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 1px 2px rgba(0,0,0,.16);transition:transform .12s,box-shadow .12s,border-color .12s}
+html body.ui38.ui42.ui54 .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 8px 14px -10px rgba(0,0,0,.55)}
+html body.ui38.ui42.ui54 .btn:active:not(:disabled){transform:translateY(0);box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
+html body.ui38.ui42.ui54 .btn.primary{background:var(--brass);color:var(--on);border:0;text-shadow:0 1px 0 rgba(255,255,255,.18);
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 -2px 0 rgba(0,0,0,.2) inset,0 12px 22px -12px color-mix(in srgb,var(--a2) 85%,transparent)}
+html body.ui38.ui42.ui54 .btn.primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+
+/* ---------- الكروت واللوحات ---------- */
+html body.ui38.ui42.ui54 .card,html body.ui38.ui42.ui54 .panel,html body.ui38.ui42.ui54 .slot,html body.ui38.ui42.ui54 .ss-card{border-radius:18px;box-shadow:var(--shadow)}
+html body.ui38.ui42.ui54 .panel{
+  --cm:color-mix(in srgb,var(--a2) 55%,transparent);
+  background-image:linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm));
+  background-size:10px 2px,2px 10px,10px 2px,2px 10px,10px 2px,2px 10px,10px 2px,2px 10px;background-repeat:no-repeat;
+  background-position:left 9px top 9px,left 9px top 9px,right 9px top 9px,right 9px top 9px,left 9px bottom 9px,left 9px bottom 9px,right 9px bottom 9px,right 9px bottom 9px}
+
+/* ---------- الأرقام (KPI) ---------- */
+html body.ui38.ui42.ui54 .kpis{border-radius:20px;box-shadow:var(--shadow)}
+html body.ui38.ui42.ui54 .kpi b{font-weight:800;font-size:36.8px;letter-spacing:-.3px}
+html body.ui38.ui42.ui54 .kpi span{font-weight:500}
+html body.ui38.ui42.ui54 .kpi span .i54{--ic:1.5em}
+
+/* ---------- شريط الأدوات العلوي (مضغوط عشان الأيقونات ما تزقش زرار الحفظ بره) ---------- */
+@media (min-width:760px){
+  html body.ui38.ui42.ui54 .tb-tools{gap:6px}
+  html body.ui38.ui42.ui54 .tb-tools .btn.tb-btn,html body.ui38.ui42.ui54 .tb-tools .areapill,html body.ui38.ui42.ui54 .tb-tools .autopill{padding:6px 10px;white-space:nowrap}
+  html body.ui38.ui42.ui54 .tb-tools .btn.savebtn{padding:7px 16px}
+  html body.ui38.ui42.ui54 .tb-tools .areapill{max-width:190px;overflow:hidden;text-overflow:ellipsis}
+  html body.ui38.ui42.ui54 .tb-tools .catchip{padding-inline:8px}
+}
+@media (min-width:760px) and (max-width:1640px){html body.ui38.ui42.ui54 .thm-btn .lb{display:none}}
+html body.ui38.ui42.ui54 .tb-btn,html body.ui38.ui42.ui54 .areapill,html body.ui38.ui42.ui54 .autopill{border-radius:12px;font-weight:600}
+html body.ui38.ui42.ui54 .thm-btn .i54{--ic:1.45em}
+
+/* ---------- حقول وفلاتر ---------- */
+html body.ui38.ui42.ui54 input[type=search],html body.ui38.ui42.ui54 input[type=text],html body.ui38.ui42.ui54 input[type=number],html body.ui38.ui42.ui54 select,html body.ui38.ui42.ui54 .list-q{border-radius:12px;min-height:40px}
+html body.ui38.ui42.ui54 input[type=checkbox]{accent-color:var(--a2)}
+
+/* ---------- شارات الأعداد ---------- */
+html body.ui38.ui42.ui54 .pill{font-weight:700;font-variant-numeric:tabular-nums}
+html body.ui38.ui42.ui54 .chip{font-weight:600}
+
+@media (prefers-reduced-motion:reduce){html body.ui38.ui42.ui54 *{transition:none!important}}
+
+/* 10.54 — شريط «الدوران التلقائي» في الشاشات الضيقة: القايمة الطويلة ما تدفعش الصفحة برا الشاشة */
+html body.ui38.ui42.ui54 .mine-bar .sm{max-width:100%;flex-wrap:wrap;row-gap:6px}
+html body.ui38.ui42.ui54 .mine-bar select{max-width:100%;min-width:0}
+
+/* 📨 10.55 — لوحة واتساب الرسمي (Cloud API) */
+#wcPanel summary{cursor:pointer;padding:6px 0;font-size:17.3px}
+#wcPanel .wc-step{margin:14px 0 6px;padding-top:10px;border-top:1px dashed var(--border);line-height:1.8}
+#wcPanel .wc-t{border:1px solid var(--border);background:var(--surface-2);border-radius:12px;padding:10px 12px;margin:8px 0;display:grid;gap:6px}
+#wcPanel .wc-th{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#wcPanel .wc-pre{white-space:pre-wrap;word-break:break-word;margin:6px 0 0;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font:inherit;line-height:1.8;direction:rtl}
+#wcPanel .pub-note.ok{border-inline-start-color:var(--off);background:var(--off-bg)}
+#wcPanel .pub-note.bad{border-inline-start-color:#d72b3a}
+#wcPanel .row-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+#wcPanel input[type=text],#wcPanel input[type=number],#wcPanel select{min-height:38px}
+#wcPanel .wc-k{margin-top:12px}
+
+/* 10.55 — الشريط العلوي في الشاشات المتوسطة (١٠٢٤–١٤٠٠): الأزرار الطويلة (المنطقة / التحديث التلقائي) تتقلّص بنقط «…» بدل ما «حفظ» يتقص من الشريط */
+@media (min-width:760px){
+  html body.ui38.ui42.ui54 .tb-tools .areapill,html body.ui38.ui42.ui54 .tb-tools .autopill{flex-shrink:1;min-width:92px;overflow:hidden;text-overflow:ellipsis}
+}
+@media (min-width:760px) and (max-width:1060px){
+  html body.ui38.ui42.ui54 .tb-tools .autopill{display:none}
+  html body.ui38.ui42.ui54 .tb-tools .savebtn{order:-3}
+  html body.ui38.ui42.ui54 .tb-tools .thm-wrap{order:-2}
+  html body.ui38.ui42.ui54 .tb-tools .areapill{min-width:70px}
+  html body.ui38.ui42.ui54 .tb-tools{gap:4px}
+}
+@media (min-width:760px) and (max-width:1060px){
+  html body.ui38.ui42.ui54 .tb-tools .catchips .cl{display:none}
+  html body.ui38.ui42.ui54 .tb-tools .btn.savebtn{padding:7px 12px}
+}
+@media (min-width:760px) and (max-width:900px){
+  html body.ui38.ui42.ui54 .tb-tools .catchips [data-vcat]{display:none}
+}

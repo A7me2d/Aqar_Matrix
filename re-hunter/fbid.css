@@ -1,0 +1,31 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved. */
+/* 🆔 آيدي فيسبوك الرقمي فوق الكروت + شريط «نسخ كل الآيديات» لكل قسم */
+.fbid{--fb-c:var(--ed-hue,var(--accent,#2f6df6));display:inline-flex;align-items:center;gap:6px;max-width:100%;margin:0;padding:3px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--fb-c) 32%,transparent);background:color-mix(in srgb,var(--fb-c) 9%,transparent);color:inherit;font:600 12.5px/1.5 inherit;font-variant-numeric:tabular-nums;letter-spacing:.04em;direction:ltr;unicode-bidi:isolate;white-space:nowrap;cursor:copy;transition:background .15s,border-color .15s,transform .1s}
+button.fbid::before{content:"";width:12px;height:12px;flex:none;background:currentColor;opacity:.55;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='12' height='12' rx='2'/%3E%3Cpath d='M5 15V5a2 2 0 0 1 2-2h10'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='12' height='12' rx='2'/%3E%3Cpath d='M5 15V5a2 2 0 0 1 2-2h10'/%3E%3C/svg%3E") center/contain no-repeat}
+button.fbid:hover{background:color-mix(in srgb,var(--fb-c) 18%,transparent);border-color:color-mix(in srgb,var(--fb-c) 55%,transparent)}
+button.fbid:active{transform:scale(.97)}
+button.fbid:focus-visible{outline:2px solid var(--fb-c);outline-offset:2px}
+button.fbid.done{background:color-mix(in srgb,#16a34a 22%,transparent);border-color:#16a34a}
+.fbid.pend{cursor:progress;opacity:.8;padding:6px 12px;gap:4px}
+.fbid.pend i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.25;animation:fbidDot 1s infinite ease-in-out}
+.fbid.pend i:nth-child(2){animation-delay:.15s}.fbid.pend i:nth-child(3){animation-delay:.3s}
+.fbid.pend.sm{padding:3px 8px;vertical-align:middle}
+.fbid.miss{cursor:help;opacity:.5;padding:3px 14px}
+@keyframes fbidDot{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.fbid.pend i{animation:none;opacity:.6}}
+/* صف الشارة فوق اللافتة */
+.fbid-row{display:flex;justify-content:flex-start;align-items:center;order:-3;flex:0 0 auto;padding:10px 0 6px}
+.card>.fbid-row{margin-inline:20px!important}
+.fbid-in{display:inline-flex;vertical-align:middle;margin-inline-start:6px}
+.fbid-in .fbid{padding:1px 8px;font-size:11.5px}
+.pair-side>.fbid-row{padding:0 0 6px;margin:0!important}
+.fr>.fbid-row,.fr-n .fbid-in{order:0}
+/* شريط القسم */
+.fbid-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 12px;padding:8px 12px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--ed-hue,var(--accent,#2f6df6)) 35%,var(--border,#cbd5e1));background:color-mix(in srgb,var(--ed-hue,var(--accent,#2f6df6)) 5%,transparent);font-size:13px}
+.fbid-bar[hidden]{display:none}
+.fbid-bar .fbid-t{font-weight:700;opacity:.85}
+.fbid-bar .fbid-copy b{font-variant-numeric:tabular-nums;margin-inline-start:4px;padding:0 6px;border-radius:999px;background:color-mix(in srgb,currentColor 12%,transparent)}
+.fbid-bar .fbid-copy[disabled]{opacity:.45;cursor:not-allowed}
+.fbid-pend,.fbid-note{opacity:.8;font-size:12.5px}
+.fbid-warn{color:#b45309;font-weight:700;font-size:12.5px}
+:root[data-theme="dark"] .fbid-warn,html[data-mode="dark"] .fbid-warn{color:#fbbf24}

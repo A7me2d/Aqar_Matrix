@@ -1,0 +1,78 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+   كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. */
+/* 10.58 — تابات واتساب + لوحة تشخيص البوت (+ القايمة الجانبية: تحت) */
+[data-wtab][hidden]{display:none!important}
+.wa-tabs{margin:2px 0 12px;position:sticky;top:var(--tbr,64px);z-index:4;background:var(--bg);padding:6px 0 8px;scroll-margin-top:calc(var(--tbr,64px) + 8px)}
+.wa-tabs .tab{font-size:16.1px;padding:7px 15px}
+.wa-diag{margin:10px 0 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);padding:10px 12px}
+.wa-dg-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;font-size:16.1px}
+.wa-dg{display:flex;align-items:flex-start;gap:8px;padding:7px 4px;border-top:1px solid var(--border);font-size:16.1px;line-height:1.55}
+.wa-dg:first-of-type{border-top:0}
+.wa-dg-i{flex:none;width:20px;text-align:center}
+.wa-dg-t{flex:1 1 auto;min-width:0}
+.wa-dg .btn{flex:none;white-space:nowrap}
+.wa-dg.bad .wa-dg-t{color:var(--hot);font-weight:700}
+.wa-dg.warn .wa-dg-t{font-weight:600}
+@media (max-width:759px){.wa-dg{flex-wrap:wrap}.wa-dg .btn{margin-inline-start:28px}}
+
+/* =====================================================================
+   10.58 — القايمة الجانبية: كاملة · أيقونات بس · دوسة تفتحها كاملة مؤقتًا
+   الحالة بتتحفظ (sb_mode) وبتتحط على <html> كـ sb-full / sb-rail (+ sb-peek لما تتفتح مؤقتًا)
+   ===================================================================== */
+.sb-toggle{display:none}
+@media (min-width:760px){
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58{--sbw:240px}
+  html.sb-rail.sb-rail body.ui38.ui42.ui56.ui58{--sbw:68px}
+  html.sb-anim body.ui58 .topbar::before,html.sb-anim body.ui58 .app-main,html.sb-anim body.ui58 .tb-row,html.sb-anim body.ui58 .topbar .nav,html.sb-anim body.ui58 .side-brand{transition:width .18s ease,margin .18s ease,padding .18s ease,box-shadow .18s ease}
+  /* زرار التصغير/التكبير: أول حاجة في القايمة */
+  html body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle{display:flex;align-items:center;justify-content:flex-start;gap:11px;flex:none;width:100%;min-height:38px;padding:0 12px;margin:0 0 4px;border:0;border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:16.1px;font-weight:400;cursor:pointer;text-align:start;white-space:nowrap}
+  html body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle:hover{background:color-mix(in srgb,var(--text) 7%,transparent);color:var(--hi)}
+  html body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle:focus-visible{outline:2px solid var(--a2);outline-offset:-2px}
+  html body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle svg{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  html body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle .sb-arrow{transition:transform .18s ease}
+  html.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle .sb-arrow{transform:scaleX(-1)}
+  html body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle kbd{margin-inline-start:auto;font:inherit;font-size:13.2px;opacity:.7;border:1px solid var(--border);border-radius:5px;padding:0 5px}
+  /* شكل الأيقونات */
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .side-brand{justify-content:center;padding:0 6px!important}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .side-brand>div{display:none!important}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .side-brand .alogo{--lw:44px}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .nav-cap{display:none!important}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav{padding:8px 8px 14px!important}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view]{justify-content:center!important;padding:0!important;min-height:44px}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view] span{display:none!important}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view] .pill{position:absolute!important;top:2px;inset-inline-end:1px;margin:0;min-width:17px;height:16px;padding:0 4px;font-size:12.1px;line-height:16px}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view].on::before{inset-inline-start:-8px}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle{justify-content:center;padding:0}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle .sb-lb,html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .topbar .nav .sb-toggle kbd{display:none}
+  html.sb-rail.sb-rail:not(.sb-peek) body.ui38.ui42.ui56.ui58 .app-main{padding:20px 18px 48px}
+  /* شكل كامل (مثبّت أو مفتوح مؤقتًا) */
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .side-brand,
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .side-brand{justify-content:flex-start;padding:0 18px!important}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .side-brand>div,
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .side-brand>div{display:flex!important}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .side-brand .alogo,
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .side-brand .alogo{--lw:50px}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .nav-cap,
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .nav-cap{display:block!important}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .topbar .nav,
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .topbar .nav{padding:8px 10px 14px!important}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view],
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view]{justify-content:flex-start!important;padding:0 12px!important;min-height:42px}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view] span,
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view] span{display:block!important}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view] .pill,
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view] .pill{position:static!important;margin:0;margin-inline-start:auto;min-width:20px;height:19px;padding:0 5px;font-size:13.8px;line-height:20px}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view].on::before,
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .topbar .nav button[data-view].on::before{inset-inline-start:-10px}
+  html.sb-full.sb-full body.ui38.ui42.ui56.ui58 .app-main{padding:26px 32px 64px}
+  /* فتح مؤقت: القايمة بتتمدد فوق المحتوى من غير ما تزحزحه */
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .topbar .nav{width:240px!important;background:var(--surface)!important;border-inline-end:1px solid var(--border)!important;box-shadow:-14px 0 30px -16px rgba(0,0,0,.45);z-index:30}
+  html.sb-peek.sb-peek body.ui38.ui42.ui56.ui58 .side-brand{width:240px!important;z-index:90;background:var(--surface)!important;border-inline-end:1px solid var(--border)}
+}
+@media (max-width:759px){.sb-toggle{display:none!important}}
+
+.sb-toggle .sb-arrow{transform-box:fill-box;transform-origin:center}
+
+/* 10.59 — القايمة المصغّرة بقت أطول (قسم أدواتي): نخفي شريط التمرير فيها (التمرير بالعجلة/اللمس شغال) عشان ما ياكلش مكان ولا يمنع الضغط على المساحة الفاضية يفتح القايمة */
+html.sb-rail #nav{scrollbar-width:none!important}
+html.sb-rail #nav::-webkit-scrollbar{display:none!important;width:0!important}

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+alaa-deals-app/app/engine/
+*.exe
+*.zip
+.env
+*.out

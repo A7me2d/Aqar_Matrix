@@ -1,0 +1,279 @@
+<!doctype html>
+<!-- © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+     كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1626">
+<title>Aqar Matrix</title>
+<link rel="icon" href="/icon.png">
+<script>/*PC_SGV*/</script>
+<script src="/m/sgv-data.js"></script>
+<style>
+@font-face{font-family:"Cairo";font-style:normal;font-weight:200 1000;font-display:swap;src:url(/m/cairo-arabic-wght-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+  @font-face{font-family:"Cairo";font-style:normal;font-weight:200 1000;font-display:swap;src:url(/m/cairo-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  
+  /* 10.63: «اللافتة» — نفس ألوان لوحة التحكم (فاتح/غامق) على الموبايل */
+  :root { --bg:#0D1117; --card:#161C25; --card2:#1D2531; --ink:#E8EDF3; --mute:#9AA7B8; --line:#3A4658; --a1:#FFD25A; --a2:#5B94F2; --a3:#2F6FDE;
+    --grad:linear-gradient(135deg,#FFD25A,#FFC20E 60%,#F2A900); --on:#0D1117; --req:#7FB0FF; --off:#3DD68C; --hot:#FF7A6B; --vio:#B7A4FF; --bad:#FF7A6B; }
+  html.light { --bg:#E6E9ED; --card:#fff; --card2:#F1F3F6; --ink:#0F1720; --mute:#566170; --line:#C2C9D2; --a1:#FFC20E; --a2:#0B4FC2; --a3:#083A91; --grad:linear-gradient(135deg,#0B4FC2,#083A91); --on:#fff; --req:#0B4FC2; --off:#0A7C45; --hot:#C42A1E; --vio:#6A4DC9; --bad:#C42A1E; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 Cairo,Arial,Helvetica,sans-serif; }
+  body { padding-bottom:calc(76px + env(safe-area-inset-bottom)); }
+  header { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; padding:calc(10px + env(safe-area-inset-top)) 14px 10px; background:color-mix(in srgb,var(--bg) 82%,transparent); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+  header img { width:38px; height:38px; border-radius:9px; background:none; padding:0; }
+  header h1 { margin:0; font-size:17px; flex:1; white-space:nowrap; min-width:0; }
+  header h1 small { display:block; font-size:12px; color:var(--mute); font-weight:400; }
+  .ib { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:12px; min-width:42px; height:42px; font-size:18px; display:grid; place-items:center; }
+  main { padding:12px 12px 20px; max-width:760px; margin:0 auto; }
+  nav { position:fixed; bottom:0; inset-inline:0; z-index:6; display:grid; grid-template-columns:repeat(5,1fr); background:color-mix(in srgb,var(--card) 92%,transparent); backdrop-filter:blur(16px); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
+  nav button { border:0; background:none; color:var(--mute); font:inherit; font-size:11.5px; font-weight:700; padding:8px 2px 9px; display:grid; justify-items:center; gap:2px; position:relative; }
+  nav button i { font-style:normal; font-size:22px; line-height:1.2; }
+  nav button.on { color:var(--ink); }
+  nav button.on::before { content:""; position:absolute; top:0; inset-inline:22%; height:3px; border-radius:0 0 3px 3px; background:var(--grad); }
+  nav .bdg { position:absolute; top:4px; inset-inline-start:calc(50% + 6px); background:var(--hot); color:#fff; font-size:10px; border-radius:99px; padding:0 5px; line-height:16px; min-width:16px; }
+  .hero { border-radius:12px; padding:16px; border:1px solid transparent; background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad) border-box; margin-bottom:12px; }
+  .hero h2 { margin:0 0 2px; font-size:20px; }
+  nav .i54, header .ib .i54 { color:inherit !important; }
+  .hi { border:1px solid var(--line); border-inline-start:4px solid var(--a2); border-radius:10px; background:var(--card); padding:12px 14px; margin-bottom:12px; }
+  .hi b { display:block; font-size:18px; line-height:1.5; }
+  .hi p { margin:4px 0 2px; font-size:15px; line-height:1.7; }
+  .hi small { color:var(--mute); font-size:12.5px; }
+  .muted { color:var(--mute); } .sm { font-size:13px; }
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:10px 0; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .kpi b { display:block; font-size:28px; font-weight:800; line-height:1.15; }
+  .kpi span { font-size:13px; color:var(--mute); }
+  .kpi.hl b { background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .btn { border:1px solid var(--line); background:var(--card2); color:var(--ink); border-radius:12px; padding:10px 14px; font:inherit; font-weight:700; font-size:14.5px; text-decoration:none; display:inline-flex; gap:6px; align-items:center; justify-content:center; min-height:44px; }
+  .btn.p { background:var(--grad); color:var(--on); border:0; }
+  .btn.wa { background:color-mix(in srgb,var(--off) 16%,transparent); color:var(--off); border-color:color-mix(in srgb,var(--off) 35%,transparent); }
+  .btn.sm { padding:7px 11px; min-height:38px; font-size:13.5px; }
+  .chips { display:flex; gap:6px; overflow-x:auto; padding:2px 0 8px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex:none; border:1px solid var(--line); background:var(--card); color:var(--mute); border-radius:99px; padding:7px 13px; font:inherit; font-size:14px; font-weight:700; }
+  .chip.on { background:var(--grad); color:var(--on); border-color:transparent; }
+  input.q, textarea, select { width:100%; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:12px; padding:11px 12px; font:inherit; font-size:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:13px 14px; margin:10px 0; }
+  .card h3 { margin:0; font-size:16.5px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .tag { font-size:12px; font-weight:700; border-radius:99px; padding:1px 9px; border:1px solid var(--line); color:var(--mute); white-space:nowrap; }
+  .tag.req { color:var(--req); border-color:color-mix(in srgb,var(--req) 40%,transparent); }
+  .tag.off { color:var(--off); border-color:color-mix(in srgb,var(--off) 40%,transparent); }
+  .tag.hot { color:var(--hot); border-color:color-mix(in srgb,var(--hot) 40%,transparent); }
+  .tag.vio { color:var(--vio); border-color:color-mix(in srgb,var(--vio) 40%,transparent); }
+  .tag.real { color:var(--off); } .tag.broker { color:var(--hot); }
+  .txt, .gtxt { margin:8px 0; padding:9px 11px; background:var(--card2); border-radius:12px; font-size:14.5px; white-space:pre-wrap; word-break:break-word; }
+  .meta { font-size:12.5px; color:var(--mute); }
+  .score { font-weight:800; font-size:13px; border-radius:10px; padding:2px 8px; background:color-mix(in srgb,var(--a1) 16%,transparent); color:var(--a1); }
+  html.light .score { color:#12335E; }
+  .pair { display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; }
+  .pair .side { background:var(--card2); border-radius:12px; padding:8px 10px; min-width:0; }
+  .pair .side b { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sec { font-size:16px; margin:16px 2px 6px; }
+  .empty { text-align:center; padding:28px 12px; color:var(--mute); }
+  .health { border-radius:12px; padding:9px 12px; font-size:14px; font-weight:700; margin:8px 0; border:1px solid var(--line); }
+  .health.bad { color:var(--bad); border-color:color-mix(in srgb,var(--bad) 45%,transparent); }
+  .health.ok { color:var(--off); }
+  .toast { position:fixed; bottom:calc(86px + env(safe-area-inset-bottom)); inset-inline:16px; z-index:9; background:var(--ink); color:var(--bg); border-radius:14px; padding:11px 14px; font-weight:700; text-align:center; opacity:0; transform:translateY(10px); transition:.2s; pointer-events:none; }
+  .toast.on { opacity:1; transform:none; }
+  .spin { display:inline-block; animation:sp 1s linear infinite; } @keyframes sp { to { transform:rotate(360deg); } }
+  .login { max-width:420px; margin:12vh auto 0; }
+  details summary { cursor:pointer; color:var(--mute); font-size:13.5px; }
+  .more { width:100%; margin:6px 0 14px; }
+  /* 10.54: أيقونات ملوّنة مجسّمة */
+  header { gap:8px }
+  header .ib { min-width:40px; height:40px }
+  header .ib .i54 { --ic:1.35em; margin:0 }
+  nav button i .i54 { --ic:1.3em; margin:0 }
+  nav button.on i .i54 { transform:translateY(-1px) scale(1.06) }
+  .kpi span .i54, .meta .i54, .tag .i54 { --ic:1.25em }
+  .card h3 .i54 { --ic:1.35em }
+  /* 10.63: لمسات اللافتة: حدود أسمك وأزرار بيضاوية */
+  header { border-bottom-width:2px }
+  .ib, .btn, .chip { border-width:2px }
+  .ib { border-radius:999px }
+  .btn { border-radius:999px }
+  .card, .kpi, .hi, .hero, .health { border-width:2px }
+  .tag { border-width:2px; border-radius:999px }
+  .chip.on, .btn.p { border:2px solid transparent }
+</style>
+<link rel="stylesheet" href="/m/icons54.css">
+<link rel="stylesheet" href="/m/icons56.css">
+</head>
+<body>
+<header>
+  <img src="/icon.png" alt="">
+  <h1>Aqar Matrix<small id="sub">منصة العقارات</small></h1>
+  <button class="ib" id="refresh" title="تحديث">↻</button>
+  <button class="ib" id="full" title="لوحة التحكم الكاملة">🖥</button>
+  <button class="ib" id="theme" title="فاتح/غامق">🌗</button>
+  <button class="ib" id="sgvBtn" title="شكل اللافتة (10 أشكال)">🎨</button>
+  <button class="ib" id="setBtn" title="الإعدادات">⚙️</button>
+</header>
+<main id="main"></main>
+<nav id="nav">
+  <button data-v="today" class="on"><i>☀️</i>النهارده</button>
+  <button data-v="buyers"><i>🛒</i>المشترين</button>
+  <button data-v="posts"><i>📋</i>طلبات وعروض</button>
+  <button data-v="pairs"><i>🤝</i>التطابق</button>
+  <button data-v="mine"><i>🏷</i>هاتلي مشتري</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script src="/m/welcome56.js"></script>
+<script src="/m/icons54.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const S = { v: "today", cat: "all", type: "request", min: 1, pmin: 85, q: "", limit: 40, data: {} };
+// الكود: من الرابط أول مرة، وبعدين بيتحفظ
+(function () { const u = new URL(location.href), t = u.searchParams.get("t"); if (t) { try { localStorage.setItem("alaaCode", t.toUpperCase()); } catch {} history.replaceState(null, "", "/m"); } })();
+const code = () => { try { return localStorage.getItem("alaaCode") || ""; } catch { return ""; } };
+try { if (localStorage.getItem("alaaTheme") === "light" || (!localStorage.getItem("alaaTheme") && matchMedia("(prefers-color-scheme: light)").matches)) document.documentElement.classList.add("light"); } catch {}
+// 🎨 10.64: أشكال اللافتة — الافتراضي نفس شكل البرنامج على الكمبيوتر، وزرار 🎨 بيبدّل (وبيتحفظ على الموبايل)
+const SGVL = (window.SGV && window.SGV.list) || [];
+let sgvId = "azure"; try { sgvId = localStorage.getItem("alaaSgv") || window.PC_SGV || "azure"; } catch { sgvId = window.PC_SGV || "azure"; }
+if (!SGVL.some((v) => v.id === sgvId)) sgvId = "azure";
+function applySgvM() {
+  const root = document.documentElement, st = root.style, light = root.classList.contains("light"), x = SGVL.find((v) => v.id === sgvId) || SGVL[0];
+  const K = ["--bg", "--card", "--card2", "--ink", "--mute", "--line", "--a1", "--a2", "--a3", "--grad", "--on", "--req", "--off", "--hot", "--vio", "--bad"], t = x && x.tok && x.tok[light ? "light" : "dark"];
+  if (!t) { K.forEach((k) => st.removeProperty(k)); return; }
+  const v = { "--bg": t.bg, "--card": t.bg2, "--card2": t.soft, "--ink": t.ink, "--mute": t.mute, "--line": t.line, "--a1": t.a[0], "--a2": t.a[1], "--a3": t.a[2],
+    "--grad": light ? `linear-gradient(135deg,${t.sgb},${t.a[2]})` : `linear-gradient(135deg,${t.a[0]},${t.sgy})`, "--on": t.on, "--req": t.req, "--off": t.off, "--hot": t.hot, "--vio": t.vio, "--bad": t.hot };
+  for (const k of K) st.setProperty(k, v[k]);
+}
+applySgvM();
+function toast(t) { const e = $("toast"); e.textContent = t; e.classList.add("on"); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove("on"), 2200); }
+async function api(op, extra = {}) {
+  const r = await fetch("/api/call", { method: "POST", headers: { "Content-Type": "application/json", "X-Token": code() }, body: JSON.stringify({ op, ...extra }) });
+  if (r.status === 401 || r.status === 429) { const j = await r.json().catch(() => ({})); throw Object.assign(new Error(j.error || "الكود غلط"), { auth: true }); }
+  const j = await r.json(); if (j && j.error) throw new Error(j.error); return j;
+}
+const ago = (t) => { if (!t) return ""; const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? "دلوقتي" : m < 60 ? `من ${m} د` : m < 1440 ? `من ${Math.round(m / 60)} س` : `من ${Math.round(m / 1440)} يوم`; };
+const until = (t) => { if (!t) return "—"; const m = Math.max(0, Math.round((t - Date.now()) / 6e4)); return m < 60 ? `بعد ${m} د` : `بعد ${Math.floor(m / 60)} س ${m % 60 ? (m % 60) + " د" : ""}`; };
+const CAT = { all: "الكل", land: "🌾 أراضي", apartment: "🏢 شقق", villa: "🏡 فلل" };
+const CATN = { land: "أرض", apartment: "شقة", villa: "فيلا", other: "أخرى" };
+const eg = (p) => { const d = String(p || "").replace(/\D/g, ""); return d.startsWith("20") ? d : d.startsWith("0") ? "2" + d : d; };
+function contact(phones, profile, msg) {
+  const p = (phones || [])[0];
+  return `<div class="row" style="margin-top:8px">${p ? `<a class="btn sm" href="tel:${esc(p)}">📞 ${esc(p)}</a><a class="btn sm wa" href="https://wa.me/${eg(p)}${msg ? "?text=" + encodeURIComponent(msg) : ""}">💬 واتساب</a>` : ""}${profile ? `<a class="btn sm" href="${esc(profile)}">👤 فيسبوك</a>` : ""}</div>`;
+}
+const chips = (opts, cur, attr) => `<div class="chips">${Object.entries(opts).map(([k, v]) => `<button class="chip ${String(cur) === String(k) ? "on" : ""}" ${attr}="${k}">${v}</button>`).join("")}</div>`;
+const STG = { new: "جديد", contacted: "كلمته", viewing: "معاينة", negotiating: "تفاوض", won: "اتقفل ✅", lost: "مش مهتم" };
+
+function viewLogin(msg) {
+  $("main").innerHTML = `<div class="login card"><h3>🔐 ادخل الكود</h3><p class="muted sm">الكود موجود في البرنامج على الكمبيوتر/السيرفر: صفحة البداية ← «📱 الموبايل والسيرفر».</p>
+    ${msg ? `<div class="health bad">${esc(msg)}</div>` : ""}<input class="q" id="codeIn" placeholder="مثلًا K7Q2M9XA" autocomplete="off" style="text-transform:uppercase;letter-spacing:2px">
+    <div class="row" style="margin-top:10px"><button class="btn p" id="codeGo">دخول</button></div></div>`;
+}
+async function render() {
+  const m = $("main");
+  try {
+    if (!code()) return viewLogin();
+    if (S.v === "today") return renderToday(await api("summary"));
+    if (S.v === "buyers") return renderBuyers(await api("buyers", { cat: S.cat, min: S.min, q: S.q, limit: S.limit }));
+    if (S.v === "posts") return renderPosts(await api("posts", { cat: S.cat, type: S.type, q: S.q, limit: S.limit }));
+    if (S.v === "pairs") return renderPairs(await api("pairs", { cat: S.cat, min: S.pmin, limit: S.limit }));
+    if (S.v === "mine") return renderMine(await api("mine"));
+  } catch (e) {
+    if (e.auth) return viewLogin(e.message);
+    m.innerHTML = `<div class="card"><h3>⚠️ مش قادر يوصل للبرنامج</h3><p class="muted">${esc(e.message || e)}</p><p class="muted sm">اتأكد إن البرنامج شغال على الكمبيوتر/السيرفر وإن «📱 الموبايل والسيرفر» متفعّل.</p><button class="btn p" id="retry">↻ حاول تاني</button></div>`;
+  }
+}
+function renderToday(d) {
+  $("sub").textContent = d.version ? "نسخة " + d.version : "منصة العقارات";
+  const c = d.counts || {}, h = d.health || {};
+  const hb = h.status && h.status !== "ok" && h.status !== "empty" ? `<div class="health bad">${{ login: "🔐 فيسبوك مش مسجّل دخول على السيرفر — ادخل وسجّل", checkpoint: "🔐 فيسبوك طالب تأكيد هوية على السيرفر", broken: "⚠️ السحب مش بيلقط بوستات", errors: "⚠️ السحب بيقابل أخطاء" }[h.status] || h.status}</div>` : h.status === "ok" ? `<div class="health ok">🛡 السحب شغال تمام ${ago(h.at)}</div>` : "";
+  $("main").innerHTML = `<div class="hi"><b>أهلاً وسهلاً بيك يا بوص علاء 👑</b><p>${window.AQW ? (window.__aq || (window.__aq = AQW.pick())) : ""}</p><small>Alaa Matrix — مؤسس Aqar Matrix</small></div><div class="hero"><h2>النهارده في السوق</h2><div class="muted sm">آخر دورة سحب ${d.last && d.last.finished ? ago(d.last.finished) : "—"} · الجاية ${until(d.next)} · كل ${d.every} ساعات</div>
+      <div class="row" style="margin-top:10px"><button class="btn p" data-run="cycle">▶ اسحب دلوقتي</button><button class="btn" data-run="mine">🏷 دوّر لقطعي</button></div></div>${hb}
+    <div class="grid">
+      <div class="kpi hl"><b>${c.req24 || 0}</b><span>📢 طلب جديد (24 ساعة)</span></div><div class="kpi"><b>${c.off24 || 0}</b><span>🏷 عرض جديد (24 ساعة)</span></div>
+      <div class="kpi"><b>${c.hot || 0}</b><span>💎 مهتم جدًا</span></div><div class="kpi"><b>${c.interested || 0}</b><span>🔥🔥 مهتمين وأكتر</span></div>
+      <div class="kpi"><b>${c.pairs || 0}</b><span>🤝 تطابق قوي</span></div><div class="kpi"><b>${c.mine || 0}</b><span>🏷 مشتري لقطعك</span></div>
+      <div class="kpi"><b>${c.requests || 0}</b><span>كل الطلبات</span></div><div class="kpi"><b>${c.offers || 0}</b><span>كل العروض</span></div></div>
+    ${(d.due || []).length ? `<h3 class="sec">⏰ متابعات النهارده</h3>${d.due.map(buyerCard).join("")}` : ""}
+    <h3 class="sec">🔥 مشترين مهتمين ظهروا آخر 24 ساعة</h3>${(d.hotList || []).length ? d.hotList.map(buyerCard).join("") : `<div class="empty">مفيش جديد آخر 24 ساعة</div>`}
+    ${(d.deals || []).length ? `<h3 class="sec">🎯 لقطات</h3>${d.deals.map(postCard).join("")}` : ""}`;
+  const n = $("nav").querySelector('[data-v="today"]'); let b = n.querySelector(".bdg"); if (!b) { b = document.createElement("span"); b.className = "bdg"; n.append(b); }
+  b.textContent = c.req24 || ""; b.hidden = !c.req24;
+}
+function buyerCard(L) {
+  return `<div class="card"><h3>${esc(L.name)} ${L.hot ? `<span class="tag vio">💎 مهتم جدًا</span>` : `<span class="tag hot">${["فضولي", "🔥 مهتم", "🔥🔥 مهتم جدًا", "🔥🔥🔥 جاهز يشتري"][L.level] || ""}</span>`} <span class="tag">${esc(L.stageAr || "")}</span></h3>
+    <div class="gtxt">🎯 ${esc(L.want || "—")}${L.money ? `\n💰 ${esc(L.money)}` : ""}</div>
+    ${(L.acts || []).slice(0, 2).map((a) => `<div class="meta">${a.kind === "request" ? "📢" : "💬"} «${esc(a.text)}» ${ago(a.at)}</div>`).join("")}
+    ${(L.sellers || []).length ? `<div class="meta" style="margin-top:6px">🤝 بايع مناسب: ${L.sellers.map((s) => `<b>${esc(s.name)}</b> ${s.score}%`).join(" · ")}</div>` : ""}
+    ${contact(L.phones, L.profile)}
+    <div class="row" style="margin-top:8px"><select data-stage="${esc(L.key)}">${Object.entries(STG).map(([k, v]) => `<option value="${k}" ${L.stage === k ? "selected" : ""}>📌 ${v}</option>`).join("")}</select></div></div>`;
+}
+function postCard(p) {
+  return `<div class="card"><h3><span class="tag ${p.type === "request" ? "req" : "off"}">${p.type === "request" ? "📢 طلب" : "🏷 عرض"}</span> ${esc(CATN[p.category] || "")} ${p.region ? "· " + esc(p.region) : ""} ${p.area ? "· " + p.area + "م" : ""} ${p.price ? "· " + esc(p.price) : ""}
+      ${p.matches ? `<span class="tag vio">🔗 ${p.matches} مطابقة</span>` : ""}${p.deal ? `<span class="tag hot">🎯 أرخص ${p.deal}%</span>` : ""}${p.owner ? `<span class="tag off">مالك</span>` : ""}</h3>
+    <div class="txt">${esc(p.text)}</div><div class="meta">👤 ${esc(p.who)} · 👥 ${esc(p.group)} · ${ago(p.at)}</div>
+    ${contact(p.phones, "", "")}${p.url ? `<div class="row" style="margin-top:6px"><a class="btn sm" href="${esc(p.url)}">🔗 البوست</a></div>` : ""}</div>`;
+}
+function filters(withType) {
+  return `${withType ? chips({ request: "📢 طلبات", offer: "🏷 عروض" }, S.type, "data-type") : ""}${chips(CAT, S.cat, "data-cat")}
+    ${S.v === "buyers" ? chips({ 1: "🔥 مهتم وأكتر", 2: "🔥🔥 مهتم جدًا وأكتر", 3: "🔥🔥🔥 جاهز يشتري" }, S.min, "data-min") : ""}
+    <input class="q" id="q" placeholder="🔍 دوّر بالاسم أو الكلام…" value="${esc(S.q)}" enterkeyhint="search">`;
+}
+const more = (d) => (d.total > d.list.length ? `<button class="btn more" id="more">عرض المزيد (${d.total - d.list.length} كمان)</button>` : "");
+function renderBuyers(d) { $("main").innerHTML = filters(false) + `<div class="meta">${d.total} مشتري</div>` + (d.list.length ? d.list.map(buyerCard).join("") : `<div class="empty">مفيش مشترين بالفلاتر دي</div>`) + more(d); }
+function renderPosts(d) { $("main").innerHTML = filters(true) + `<div class="meta">${d.total} ${S.type === "request" ? "طلب" : "عرض"}</div>` + (d.list.length ? d.list.map(postCard).join("") : `<div class="empty">مفيش حاجة بالفلاتر دي</div>`) + more(d); }
+const GRP = { pure: ["✅", "صافي", "off"], suspect: ["🟠", "مشتبه", "hot"], office: ["🏢", "مكتب / سمسار", ""] };
+const grpTag = (g) => (GRP[g] ? `<span class="tag ${GRP[g][2]}">${GRP[g][0]} ${GRP[g][1]}</span>` : "");
+// 🔗 لينك البوست أو التعليق بتاع الطرف (طلب المشتري / تعليقه / عرض البايع) — بيفتح الأصل على فيسبوك
+const postLinks = (ls) => (ls && ls.length ? `<div class="row" style="margin-top:6px">${ls.map((l) => `<a class="btn sm" href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("")}</div>` : "");
+function renderPairs(d) {
+  $("main").innerHTML = chips(CAT, S.cat, "data-cat") + chips({ 85: "🎯 ممتاز 85%+", 70: "✅ قوي 70%+" }, S.pmin, "data-pmin") + `<div class="meta">${d.total} تطابق ${S.pmin >= 85 ? "ممتاز" : "قوي"} (${S.pmin}%+)</div>` + (d.list.length ? d.list.map((x) => `<div class="card">
+    <div class="row" style="justify-content:space-between"><span class="score">${x.score}%</span><span class="meta">${esc(x.why.join(" · "))}</span></div>
+    <div class="pair" style="margin-top:8px"><div class="side"><span class="meta">🛒 المشتري ${x.buyer.hot ? "💎" : ""} ${grpTag(x.buyer.grp)}</span><b>${esc(x.buyer.name)}</b><span class="meta">${esc(x.buyer.want)}</span>${contact(x.buyer.phones, x.buyer.profile)}${postLinks(x.buyer.links)}</div>
+      <div>⟷</div><div class="side"><span class="meta">🏷 ${x.seller.owner ? "المالك" : "البايع"} ${grpTag(x.seller.grp)}</span><b>${esc(x.seller.name)}</b><span class="meta">${esc(CATN[x.unit.category] || "")} ${esc(x.unit.region)} ${esc(x.unit.price)}</span>${contact(x.seller.phones, x.seller.profile)}${postLinks(x.seller.links && x.seller.links.length ? x.seller.links : x.unit.url ? [{ href: x.unit.url, label: "🔗 العرض" }] : [])}</div></div>
+    <div class="txt">${esc(x.unit.text)}</div></div>`).join("") : `<div class="empty">مفيش تطابق ${S.pmin >= 85 ? "ممتاز (85%+)" : "قوي"} لسه${S.pmin >= 85 ? " — جرّب «قوي 70%+»" : ""}</div>`);
+}
+function renderMine(d) {
+  const job = d.job || {};
+  $("main").innerHTML = `<div class="hero"><h2>🏷 هاتلي مشتري</h2><div class="muted sm">${job.running ? "⏳ بيدوّر دلوقتي…" : job.finished ? "آخر تدوير " + ago(job.finished) : "لسه ما دوّرش"}</div>
+    <div class="row" style="margin-top:10px"><button class="btn p" data-run="mine">🔎 دوّر لكل قطعي دلوقتي</button></div>
+    <details style="margin-top:10px"><summary>➕ ضيف قطعة جديدة</summary><textarea id="newSlot" rows="2" placeholder="مثلًا: ارض 300 متر الحي العاشر مجاورة 3 ناصية بسعر 2.4 مليون" style="margin-top:8px"></textarea><button class="btn sm p" id="addSlot" style="margin-top:6px">حفظ</button></details></div>` +
+    (d.slots.length ? d.slots.map((s) => `<h3 class="sec">🟫 ${esc(s.text)}</h3>` + (s.hits.length ? s.hits.map((h) => `<div class="card" data-hk="${esc(h.key)}" data-slot="${esc(s.id)}">
+      <h3><span class="score">${h.score}%</span> ${esc(h.name)} <span class="tag ${h.trustLevel === "real" ? "real" : h.trustLevel === "broker" ? "broker" : ""}">${esc(h.trust)}</span></h3>
+      <div class="meta">${esc(h.kind)} · ${ago(h.at)}</div><div class="txt">«${esc(h.text)}»${h.post ? `\n↩️ على: ${esc(h.post)}…` : ""}</div>
+      ${contact(h.phones, h.profile, h.msg)}<div class="row" style="margin-top:6px">${h.url ? `<a class="btn sm" href="${esc(h.url)}">🔗 البوست</a>` : ""}<button class="btn sm" data-hide>✕ مش مناسب</button></div></div>`).join("") : `<div class="empty">لسه مفيش مشتري للقطعة دي</div>`)).join("") : `<div class="empty">مفيش قطع — ضيف قطعة من فوق</div>`);
+}
+// ===== أحداث =====
+document.addEventListener("click", async (e) => {
+  const t = e.target;
+  const nb = t.closest("nav button"); if (nb) { S.v = nb.dataset.v; S.limit = 40; S.q = ""; document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("on", b === nb)); scrollTo(0, 0); return render(); }
+  if (t.closest("#refresh")) { $("refresh").innerHTML = '<span class="spin">↻</span>'; await render(); $("refresh").textContent = "↻"; return; }
+  if (t.closest("#theme")) { const l = document.documentElement.classList.toggle("light"); try { localStorage.setItem("alaaTheme", l ? "light" : "dark"); } catch {} applySgvM(); return; }
+  if (t.closest("#sgvBtn")) { const i = SGVL.findIndex((v) => v.id === sgvId), n = SGVL[(i + 1) % SGVL.length]; if (!n) return; sgvId = n.id; try { localStorage.setItem("alaaSgv", sgvId); } catch {} applySgvM(); toast("🎨 " + n.ar + (n.orig ? " (الأصلي)" : "")); return; }
+  if (t.closest("#setBtn")) {
+    if (window.AlaaApp && confirm("تغيّر السيرفر أو الكود؟")) return window.AlaaApp.reset();
+    if (!window.AlaaApp && confirm("تخرج وتدخل بكود تاني؟")) { try { localStorage.removeItem("alaaCode"); } catch {} return render(); }
+    return;
+  }
+  if (t.closest("#retry")) return render();
+  if (t.closest("#full")) { location.href = "/d/?t=" + encodeURIComponent(code()); return; }
+  if (t.closest("#codeGo")) { const c = $("codeIn").value.trim().toUpperCase(); if (!c) return; try { localStorage.setItem("alaaCode", c); } catch {} return render(); }
+  const pm = t.closest("[data-pmin]"); if (pm) { S.pmin = +pm.dataset.pmin || 85; S.limit = 40; return render(); }
+  const c = t.closest("[data-cat]"); if (c) { S.cat = c.dataset.cat; S.limit = 40; return render(); }
+  const ty = t.closest("[data-type]"); if (ty) { S.type = ty.dataset.type; S.limit = 40; return render(); }
+  const mn = t.closest("[data-min]"); if (mn) { S.min = +mn.dataset.min; S.limit = 40; return render(); }
+  if (t.closest("#more")) { S.limit += 40; return render(); }
+  const r = t.closest("[data-run]"); if (r) { try { await api("run", { what: r.dataset.run }); toast(r.dataset.run === "mine" ? "🏷 بدأ يدوّر لقطعك — النتايج هتظهر هنا" : "▶ بدأت دورة سحب — هتاخد كام دقيقة"); } catch (er) { toast("❌ " + er.message); } return; }
+  if (t.closest("#addSlot")) { const v = $("newSlot").value.trim(); if (!v) return; try { await api("slot", { text: v }); toast("💾 اتحفظت"); render(); } catch (er) { toast("❌ " + er.message); } return; }
+  if (t.closest("[data-hide]")) { const cd = t.closest("[data-hk]"); try { await api("hideHit", { slot: cd.dataset.slot, key: cd.dataset.hk }); cd.remove(); toast("اتشال"); } catch (er) { toast("❌ " + er.message); } return; }
+});
+document.addEventListener("change", async (e) => {
+  const s = e.target.closest("[data-stage]"); if (!s) return;
+  try { await api("stage", { key: s.dataset.stage, stage: s.value }); toast("📌 اتحدّث"); } catch (er) { toast("❌ " + er.message); }
+});
+let qT; document.addEventListener("input", (e) => { if (e.target.id !== "q") return; clearTimeout(qT); qT = setTimeout(() => { S.q = e.target.value; S.limit = 40; const pos = e.target.selectionStart; render().then(() => { const i = $("q"); if (i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch {} } }); }, 450); });
+document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.id === "codeIn") $("codeGo").click(); });
+setInterval(() => { if (!document.hidden && S.v === "today") render(); }, 120000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
+render();
+</script>
+</body>
+</html>

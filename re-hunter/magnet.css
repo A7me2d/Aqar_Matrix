@@ -1,0 +1,50 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+   كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. */
+/* 🧲 المغناطيس (10.80.34) */
+.mg-top h2{margin:0 0 4px;font-size:26px}
+.mg-top p{margin:0 0 14px}
+.mg-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 14px}
+.mg-fils{display:flex;flex-wrap:wrap;gap:6px}
+.mg-q{flex:1 1 220px;min-width:180px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font:inherit}
+.mg-kbad{border-color:#e3b3a8}.mg-kbad b{color:#b3402a}
+.mg-ready{margin:0 0 18px;padding:12px 14px;border:2px solid var(--hot);border-radius:14px;background:var(--hot-bg)}
+.mg-ready h3{margin:0 0 10px;font-size:19px}.mg-ready h3 small{font-weight:400;font-size:14px}
+.mg-u{margin:0 0 12px;border:1px solid var(--border);border-inline-start:5px solid var(--brand);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.mg-u.k-land{border-inline-start-color:var(--off)}.mg-u.k-apartment{border-inline-start-color:var(--req)}.mg-u.k-villa{border-inline-start-color:var(--violet)}
+.mg-u.has-new{box-shadow:0 0 0 2px var(--hot),var(--shadow)}
+.mg-uh{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer}
+.mg-uh:hover{background:var(--surface-2)}.mg-uh:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.mg-ut{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.mg-ut>b{font-size:18px}
+.mg-pr{padding:2px 10px;border-radius:999px;background:var(--gold-soft);color:var(--chip-t);font-weight:700}
+.mg-uc{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mg-chev{transition:transform .15s;color:var(--muted)}[aria-expanded="true"] .mg-chev{transform:rotate(180deg)}
+.mg-b{display:inline-flex;gap:4px;align-items:center;padding:2px 9px;border-radius:999px;background:var(--info);color:var(--info-t);font-size:14px;white-space:nowrap}
+.mg-b.buy{background:var(--brand-soft);color:var(--brand-t)}.mg-b.new{background:var(--hot);color:#fff;font-weight:700}.mg-b.hot{background:var(--hot-bg);color:var(--hot);font-weight:700}
+.mg-b.riv{background:var(--cat-bg);color:var(--cat)}.mg-b.bad{background:#fbe4de;color:#a53a25;font-weight:700}.mg-b.none{opacity:.7}
+.mg-bd{padding:2px 14px 14px;border-top:1px solid var(--border)}
+.mg-sec h4{margin:12px 0 6px;font-size:16px}
+.mg-h{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:9px 10px;margin:0 0 6px;border:1px solid var(--border);border-radius:11px;background:var(--surface-2)}
+.mg-h.new{border-color:var(--hot);background:var(--hot-bg)}.mg-h.talked{opacity:.62}.mg-h.rv{background:var(--cat-bg)}
+.mg-sc{display:inline-flex;align-items:center;justify-content:center;min-width:52px;padding:6px 8px;border-radius:10px;background:var(--brand);color:#fff;font-size:17px;font-variant-numeric:tabular-nums}.mg-sc.mid{background:var(--bar)}
+.mg-hn{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mg-new{font-style:normal;padding:1px 8px;border-radius:999px;background:var(--hot);color:#fff;font-size:13px;font-weight:700}
+.mg-tk{padding:1px 8px;border-radius:999px;background:var(--off-bg);color:var(--off);font-size:13px}
+.mg-fl{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0}
+.mg-f{padding:1px 8px;border-radius:7px;background:var(--info);color:var(--info-t);font-size:13px;font-weight:600}
+.mg-f.hot{background:var(--hot-bg);color:var(--hot)}.mg-f.bad{background:#fbe4de;color:#a53a25}.mg-f.ok{background:var(--off-bg);color:var(--off)}
+.mg-f.tr-real{background:var(--off-bg);color:var(--off)}.mg-f.tr-broker{background:#fbe4de;color:#a53a25}
+.mg-ev{color:var(--text);font-size:15px;line-height:1.5}.mg-why{color:var(--muted);font-size:13px;margin-top:3px}
+.mg-ha{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center;max-width:360px}
+.mg-ha .btn,.mg-ua .btn{font-size:14px;padding:5px 11px;min-height:0}
+.mg-tag{flex-basis:100%;text-align:end;font-size:13px;color:var(--muted)}
+.mg-ua{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.mg-none,.mg-hid{margin:10px 0;color:var(--muted)}
+.mg-link{display:inline-flex;gap:4px;align-items:center;margin:6px 0 0;padding:3px 11px;border:1px solid var(--hot);border-radius:999px;background:var(--hot-bg);color:var(--hot);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.mg-link:hover{background:var(--hot);color:#fff}
+.sg-tile.c-magnet{--tile:var(--hot,#c8742a)}
+@media (min-width:1000px){.sg-big.sg-mid{grid-template-columns:repeat(5,minmax(0,1fr))}} /* «تسويق ووصول» بقت 5 أدوات */
+@media (max-width:759px){.mg-h{grid-template-columns:auto 1fr}.mg-ha{grid-column:1/-1;justify-content:flex-start;max-width:none}.mg-tag{text-align:start}}
+/* 10.80.57 — المغناطيس تاب جوّه «رشّحلي»: نخفي البحث/الترشيحات اللي فوق ونشيل الحشو الزيادة */
+.rm-pick.pk-mag #pkFind,.rm-pick.pk-mag #pkOpp,.rm-pick.pk-mag #pkRe{display:none}
+.pk-body #magRoot.mg-in{padding:0;margin:0}
+.pk-body #magRoot .mg-top h2{font-size:20px}

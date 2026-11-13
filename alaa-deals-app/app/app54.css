@@ -1,0 +1,155 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+   كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. */
+/* 🧭 10.54 — شكل «العراب» لصفحات تطبيق الويندوز: الشريط العلوي (shell) · القايمة المنسدلة (popup) · صفحة البداية (home)
+   نفس لغة لوحة التحكم: ورقة رفع مساحي (شبكة + مسطرة قياس) + أيقونات ملوّنة مجسّمة + تابات غاطسة/نافرة. الخط Arial. */
+
+/* ألوان المنصات */
+.i54.c-fb{--c1:#6FA6FF;--c2:#1D4FC9}.i54.c-wa{--c1:#62E394;--c2:#0F9D4F}.i54.c-ig{--c1:#FFB45E;--c2:#C42E9B}
+.i54.fill svg{fill:#fff;stroke:#fff;stroke-width:1.2}
+
+/* ============================ الشريط العلوي ============================ */
+html body.ui54.pg-shell{--k1:var(--a1,var(--gold));--k2:var(--a2,var(--brand));--k3:var(--a3,var(--gold));--brassx:linear-gradient(135deg,var(--k1),var(--k2) 55%,var(--k3));font-family:Cairo,Arial,"Liberation Sans",Helvetica,sans-serif}
+html body.ui54.pg-shell #r1{position:relative;height:56px;gap:10px;padding:0 16px;border-bottom:0;
+  background:linear-gradient(color-mix(in srgb,var(--ink) 4%,transparent) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,color-mix(in srgb,var(--ink) 4%,transparent) 1px,transparent 1px) 0 0/28px 28px,var(--bg)}
+/* مسطرة القياس على حافة الشريط */
+html body.ui54.pg-shell #r1::after{content:"";position:absolute;inset-inline:0;bottom:0;height:9px;pointer-events:none;opacity:.62;
+  background:linear-gradient(var(--line),var(--line)) left bottom/100% 1px no-repeat,
+    repeating-linear-gradient(90deg,var(--k2) 0 1px,transparent 1px 10px) left bottom/100% 4px no-repeat,
+    repeating-linear-gradient(90deg,var(--k2) 0 1px,transparent 1px 50px) left bottom/100% 9px no-repeat}
+html body.ui54.pg-shell #r2{height:40px;border-bottom:1px solid var(--line)}
+html body.ui54.pg-shell .brand{gap:10px;font-size:20.7px;font-weight:800;letter-spacing:-.1px}
+html body.ui54.pg-shell .brand small{font-weight:600;font-size:14.4px;margin-top:1px}
+html body.ui54.pg-shell .brand small .i54{--ic:1.3em;margin-inline:0 .25em}
+
+/* قضيب التابات الغاطس */
+html body.ui54.pg-shell #tabs{flex:0 1 auto;gap:3px;padding:4px;border-radius:16px;background:color-mix(in srgb,var(--ink) 6%,var(--bg));border:1px solid var(--line);box-shadow:inset 0 2px 5px rgba(0,0,0,.16)}
+html body.ui54.pg-shell #save{margin-inline-start:auto}
+html body.ui54.pg-shell.compact #menu{margin-inline-start:auto}
+html body.ui54.pg-shell .sep{height:24px;margin:0 3px;background:var(--line)}
+html body.ui54.pg-shell .tab{position:relative;height:40px;padding:0 13px;gap:7px;border-radius:12px;font-weight:600;transition:background .15s,color .15s,box-shadow .15s,transform .15s}
+html body.ui54.pg-shell .tab .ic2{font-size:18.4px}
+html body.ui54.pg-shell .tab .i54{--ic:1.62em;margin-inline:0;transition:transform .15s}
+html body.ui54.pg-shell .tab:hover .i54{transform:translateY(-1px) scale(1.05)}
+html body.ui54.pg-shell .tab:hover:not(.on){background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink)}
+html body.ui54.pg-shell .tab.on,html body.ui54.pg-shell .tab.dd.open{color:var(--ink);font-weight:700;border-color:color-mix(in srgb,var(--k2) 38%,var(--line));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 14%,var(--bg2)),color-mix(in srgb,var(--ink) 7%,var(--bg2)));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 8px 14px -10px rgba(0,0,0,.65)}
+html body.ui54.pg-shell .tab.on::after{content:"";position:absolute;inset-inline:14px;bottom:3px;height:3px;border-radius:3px;background:var(--brassx)}
+html body.ui54.pg-shell .tab.dd.open:not(.on)::after{display:none}
+html body.ui54.pg-shell .tab.dd .car{display:grid;place-items:center;width:14px;height:14px;opacity:.7}
+html body.ui54.pg-shell .tab.dd .car svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+html body.ui54.pg-shell .tab.dd.open .car{opacity:1}
+html body.ui54.pg-shell .badge{background:color-mix(in srgb,var(--k2) 22%,transparent);color:var(--ink);font-variant-numeric:tabular-nums;height:22px;min-width:22px}
+html body.ui54.pg-shell .badge.auto{background:transparent;border:1px dashed var(--k2)}
+/* حبّات حالة الدخول */
+html body.ui54.pg-shell .dots{gap:4px}
+html body.ui54.pg-shell .dots i{width:9px;height:9px;opacity:1;background:radial-gradient(circle at 32% 28%,#fff 0,var(--mute) 32%,color-mix(in srgb,var(--mute) 55%,#000) 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 22%,transparent)}
+html body.ui54.pg-shell .dots i.ok{background:radial-gradient(circle at 32% 28%,#fff 0,#7CF0AE 26%,var(--green) 70%,#0D7347 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 60%,#000),0 0 7px color-mix(in srgb,var(--green) 65%,transparent)}
+html body.ui54.pg-shell .dots i.warn{background:radial-gradient(circle at 32% 28%,#fff 0,#FFE08A 26%,var(--amber) 70%,#A06A08 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--amber) 60%,#000)}
+html body.ui54.pg-shell .dots i.bad{background:radial-gradient(circle at 32% 28%,#fff 0,#FFA79A 26%,var(--red) 70%,#9E2F1D 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--red) 60%,#000)}
+html body.ui54.pg-shell .tab .spin{width:9px;height:9px;background:var(--brassx)}
+
+/* الأزرار */
+html body.ui54.pg-shell button.b{min-height:38px;padding:0 15px;border-radius:12px;display:inline-flex;align-items:center;gap:7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 1px 2px rgba(0,0,0,.18);transition:transform .12s,box-shadow .12s,background .12s}
+html body.ui54.pg-shell button.b:hover:not(:disabled){transform:translateY(-1px)}
+html body.ui54.pg-shell button.b .i54{--ic:1.4em;margin-inline:0}
+html body.ui54.pg-shell button.gold{background:var(--brassx);border:0;color:var(--on,#1b1404);text-shadow:0 1px 0 rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 18px -12px color-mix(in srgb,var(--k2) 90%,transparent)}
+html body.ui54.pg-shell button.gold:hover{background:var(--brassx);filter:brightness(1.06)}
+html body.ui54.pg-shell button.gold:disabled{opacity:.7}
+html body.ui54.pg-shell button.ic{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:11px;color:var(--ink);transition:background .12s}
+html body.ui54.pg-shell button.ic svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+html body.ui54.pg-shell button.ic:hover:not(:disabled){background:color-mix(in srgb,var(--ink) 10%,transparent)}
+html body.ui54.pg-shell #addr{height:30px;border-radius:10px;box-shadow:inset 0 1px 3px rgba(0,0,0,.18)}
+html body.ui54.pg-shell #addr:focus{outline:2px solid color-mix(in srgb,var(--k2) 70%,transparent);outline-offset:0}
+html body.ui54.pg-shell .counts{display:inline-flex;align-items:center;gap:4px}
+html body.ui54.pg-shell .counts .i54{--ic:1.45em;margin-inline:.1em .15em}
+html body.ui54.pg-shell .counts b{color:var(--ink)}
+html body.ui54.pg-shell #autoTxt .i54{--ic:1.4em}
+html body.ui54.pg-shell #toast{background:var(--brassx);color:var(--on,#1b1404);border-radius:12px;box-shadow:0 14px 28px -14px rgba(0,0,0,.6)}
+html body.ui54.m-light.pg-shell #toast{color:#fff}
+html body.ui54.pg-shell .tab:focus-visible,html body.ui54.pg-shell button.ic:focus-visible,html body.ui54.pg-shell button.b:focus-visible{outline:2px solid var(--k2);outline-offset:2px}
+/* أضيق شوية: الأيقونات تفضل والكلام يختفي زي الأول */
+html body.ui54.mid.pg-shell #tabs{gap:2px}
+html body.ui54.narrow.pg-shell .tab{padding:0 9px}
+
+/* ============================ القايمة المنسدلة ============================ */
+html body.ui54.pg-pop{--k1:var(--a1,var(--gold));--k2:var(--a2,var(--brand));--k3:var(--a3,var(--gold));--brassx:linear-gradient(135deg,var(--k1),var(--k2) 55%,var(--k3));font-family:Cairo,Arial,"Liberation Sans",Helvetica,sans-serif}
+html body.ui54.pg-pop #p{border:1px solid color-mix(in srgb,var(--k2) 32%,var(--line));border-top:0;
+  background:linear-gradient(color-mix(in srgb,var(--ink) 3.5%,transparent) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,color-mix(in srgb,var(--ink) 3.5%,transparent) 1px,transparent 1px) 0 0/28px 28px,var(--bg)}
+html body.ui54.pg-pop #p::before{content:"";display:block;flex:none;height:9px;opacity:.85;
+  background:var(--brassx) left top/100% 3px no-repeat,
+    repeating-linear-gradient(90deg,var(--k2) 0 1px,transparent 1px 10px) left top/100% 7px no-repeat,
+    repeating-linear-gradient(90deg,var(--k2) 0 1px,transparent 1px 50px) left top/100% 9px no-repeat}
+html body.ui54.pg-pop #q{margin:8px 10px 2px;height:34px;border-radius:11px;box-shadow:inset 0 1px 3px rgba(0,0,0,.18)}
+html body.ui54.pg-pop #q:focus{outline:2px solid color-mix(in srgb,var(--k2) 70%,transparent)}
+html body.ui54.pg-pop #list{padding:6px}
+html body.ui54.pg-pop .gl{display:flex;align-items:center;gap:8px;padding:9px 10px 5px;font-size:14.4px;font-weight:700;color:var(--mute)}
+html body.ui54.pg-pop .gl::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+html body.ui54.pg-pop .gl .i54{--ic:1.3em;margin-inline:0 .25em}
+html body.ui54.pg-pop .r{min-height:56px;padding:7px 11px;gap:12px;border-radius:13px;transition:background .12s,border-color .12s}
+html body.ui54.pg-pop .r:hover,html body.ui54.pg-pop .r.hl{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+html body.ui54.pg-pop .r.hl{border-color:color-mix(in srgb,var(--k2) 42%,transparent)}
+html body.ui54.pg-pop .r.on{background:linear-gradient(270deg,color-mix(in srgb,var(--k2) 22%,transparent),color-mix(in srgb,var(--k2) 6%,transparent));border-color:color-mix(in srgb,var(--k2) 36%,transparent)}
+html body.ui54.pg-pop .r.on::before{width:4px;inset-block:10px;border-radius:4px;background:var(--brassx)}
+html body.ui54.pg-pop .ic{width:40px;height:40px;display:grid;place-items:center;font-size:18.4px}
+html body.ui54.pg-pop .ic .i54{--ic:2.35em;margin:0;transition:transform .15s}
+html body.ui54.pg-pop .r:hover .ic .i54{transform:translateY(-1px) scale(1.05)}
+html body.ui54.pg-pop .tx b{font-size:17.3px}
+html body.ui54.pg-pop .tx small{font-size:14.4px;gap:7px}
+html body.ui54.pg-pop .dot{width:9px;height:9px;opacity:1;background:radial-gradient(circle at 32% 28%,#fff 0,var(--mute) 32%,color-mix(in srgb,var(--mute) 55%,#000) 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 22%,transparent)}
+html body.ui54.pg-pop .dot.ok{background:radial-gradient(circle at 32% 28%,#fff 0,#7CF0AE 26%,var(--green) 70%,#0D7347 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--green) 60%,#000),0 0 7px color-mix(in srgb,var(--green) 65%,transparent)}
+html body.ui54.pg-pop .dot.warn{background:radial-gradient(circle at 32% 28%,#fff 0,#FFE08A 26%,var(--amber) 70%,#A06A08 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--amber) 60%,#000)}
+html body.ui54.pg-pop .dot.bad{background:radial-gradient(circle at 32% 28%,#fff 0,#FFA79A 26%,var(--red) 70%,#9E2F1D 100%);box-shadow:0 0 0 1px color-mix(in srgb,var(--red) 60%,#000)}
+html body.ui54.pg-pop kbd{font:700 13.2px Cairo,Arial,"Liberation Sans",Helvetica,sans-serif;padding:2px 8px;border-radius:7px;color:var(--ink);background:color-mix(in srgb,var(--ink) 7%,var(--bg2));border:1px solid var(--line);border-bottom-width:3px}
+html body.ui54.pg-pop .x{width:26px;height:26px;border-radius:8px}
+html body.ui54.pg-pop .spin{background:var(--brassx)}
+html body.ui54.pg-pop .ft{padding:7px 8px}
+html body.ui54.pg-pop .ft button{height:36px;border-radius:11px}
+
+/* ============================ صفحة البداية ============================ */
+html body.ui54.pg-home{--k1:var(--a1,#6FE3E8);--k2:var(--a2,#25BEC8);--k3:var(--a3,#0F8E9B);font-family:Cairo,Arial,"Liberation Sans",Helvetica,sans-serif}
+html body.ui54.pg-home .hero{position:relative;overflow:hidden;border-radius:22px;padding:28px 30px;
+  background:linear-gradient(color-mix(in srgb,var(--ink) 4.5%,transparent) 1px,transparent 1px) -1px -1px/30px 30px,linear-gradient(90deg,color-mix(in srgb,var(--ink) 4.5%,transparent) 1px,transparent 1px) -1px -1px/30px 30px,
+    radial-gradient(70% 140% at 100% 0%,color-mix(in srgb,var(--k1) 18%,transparent),transparent 58%),linear-gradient(var(--card),var(--card))}
+html body.ui54.pg-home .hero::after{content:"";position:absolute;inset-inline:0;bottom:0;height:13px;pointer-events:none;opacity:.8;
+  background:linear-gradient(var(--k2),var(--k2)) left bottom/100% 2px no-repeat,
+    repeating-linear-gradient(90deg,var(--k2) 0 2px,transparent 2px 14px) left bottom/100% 7px no-repeat,
+    repeating-linear-gradient(90deg,var(--k2) 0 2px,transparent 2px 56px) left bottom/100% 13px no-repeat;
+  -webkit-mask:linear-gradient(270deg,#000 0,#000 30%,transparent 70%);mask:linear-gradient(270deg,#000 0,#000 30%,transparent 70%)}
+html body.ui54.pg-home .hero h1{font-size:41.4px;font-weight:800;letter-spacing:-.2px;display:flex;align-items:center;gap:6px}
+html body.ui54.pg-home .hero h1 .i54{--ic:1.1em;margin-inline:.1em 0}
+html body.ui54.pg-home .hero p{font-size:18.4px;line-height:1.8}
+html body.ui54.pg-home .hero img,html body.ui54.pg-home .alogo{filter:none}
+html body.ui54.pg-home .stats{gap:12px;margin:18px 0 8px}
+html body.ui54.pg-home .stat{position:relative;border-radius:18px;padding:16px 18px 14px;
+  --cm:color-mix(in srgb,var(--k2) 55%,transparent);
+  background-image:linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm)),linear-gradient(var(--cm),var(--cm));
+  background-size:9px 2px,2px 9px,9px 2px,2px 9px,9px 2px,2px 9px,9px 2px,2px 9px;background-repeat:no-repeat;
+  background-position:left 8px top 8px,left 8px top 8px,right 8px top 8px,right 8px top 8px,left 8px bottom 8px,left 8px bottom 8px,right 8px bottom 8px,right 8px bottom 8px}
+html body.ui54.pg-home .stat b{font-size:36.8px;font-weight:800;letter-spacing:-.3px;line-height:1.25}
+html body.ui54.pg-home .stat span{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16.7px;margin-top:4px}
+html body.ui54.pg-home .stat span .i54{--ic:1.9em;margin:0}
+html body.ui54.pg-home h2.setup-h{display:flex;align-items:center;gap:12px;font-size:21.8px;font-weight:800;margin:30px 0 12px}
+html body.ui54.pg-home h2.setup-h::after{content:"";flex:1;height:9px;opacity:.6;background:linear-gradient(var(--line),var(--line)) left bottom/100% 1px no-repeat,repeating-linear-gradient(90deg,var(--k2) 0 1px,transparent 1px 10px) left bottom/100% 5px no-repeat,repeating-linear-gradient(90deg,var(--k2) 0 1px,transparent 1px 50px) left bottom/100% 9px no-repeat}
+html body.ui54.pg-home .step{grid-template-columns:54px 1fr auto;gap:16px;border-radius:20px;padding:16px 20px;transition:transform .15s,box-shadow .15s}
+html body.ui54.pg-home .step:hover{transform:translateY(-1px)}
+html body.ui54.pg-home .step h3{font-size:19.5px;font-weight:800;display:flex;align-items:center;gap:4px}
+html body.ui54.pg-home .step h3 .i54{--ic:1.65em;margin-inline:0 .3em}
+html body.ui54.pg-home .step p{line-height:1.7}
+html body.ui54.pg-home .num{width:46px;height:46px;border-radius:15px;font-size:23px;font-weight:800;background:var(--soft);border:1px solid var(--line);box-shadow:inset 0 -3px 0 color-mix(in srgb,var(--ink) 9%,transparent)}
+html body.ui54.pg-home .num .i54{--ic:1.9em;margin:0}
+html body.ui54.pg-home .step.done .num{background:linear-gradient(135deg,var(--k1),var(--k2) 55%,var(--k3));color:var(--on);border-color:transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 8px 16px -10px var(--k2)}
+html body.ui54.pg-home button{border-radius:13px;padding:10px 17px;display:inline-flex;align-items:center;gap:7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 18px -14px color-mix(in srgb,var(--k2) 90%,transparent);transition:transform .12s,box-shadow .12s}
+html body.ui54.pg-home button:hover:not(:disabled){transform:translateY(-1px)}
+html body.ui54.pg-home button.l{box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+html body.ui54.pg-home button .i54{--ic:1.4em;margin-inline:0}
+html body.ui54.pg-home .go button{padding:14px 32px;border-radius:16px}
+html body.ui54.pg-home .updrow input{border-radius:12px}
+html body.ui54.pg-home .note{border-radius:16px}
+html body.ui54.pg-home .note .i54,html body.ui54.pg-home .st .i54{--ic:1.35em}
+html body.ui54.pg-home button:focus-visible{outline:2px solid var(--k2);outline-offset:2px}
+@media (max-width:640px){.pg-home .step{grid-template-columns:42px 1fr}.pg-home .hero{padding:20px}.pg-home .hero h1{font-size:32.2px}}
+
+/* ألوان النص لـ «العراب» (الشريط والقايمة بياخدوها من الجسم) */
+html body.ui54.pal-araab{--ink:#E7F1F0;--mute:#8DACB1}
+html body.ui54.pal-araab.m-light{--ink:#0B2A30;--mute:#52717A}

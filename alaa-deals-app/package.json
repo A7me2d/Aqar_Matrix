@@ -1,0 +1,85 @@
+{
+  "name": "alaa-deals",
+  "version": "10.80.62",
+  "description": "Aqar Matrix — منصة العقارات (المؤسس Alaa Matrix)",
+  "main": "app/main.js",
+  "author": "Alaa Matrix",
+  "license": "UNLICENSED",
+  "productName": "Aqar Matrix",
+  "dependencies": {
+    "electron-updater": "6.8.10",
+    "ffmpeg-static": "5.3.0",
+    "tesseract.js": "7.0.0",
+    "ws": "8.18.3"
+  },
+  "scripts": {
+    "sync": "node scripts/sync-engine.js",
+    "dist": "npm run sync && electron-builder --win nsis portable --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.17.0"
+  },
+  "build": {
+    "appId": "com.alaa.deals",
+    "productName": "Aqar Matrix",
+    "asar": true,
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "files": [
+      "app/**/*",
+      "package.json",
+      "!**/node_modules/tesseract.js-core/*.wasm.js",
+      "!**/node_modules/tesseract.js-core/*-lstm.js",
+      "!**/node_modules/tesseract.js-core/*-lstm.wasm",
+      "!**/node_modules/tesseract.js/dist/**"
+    ],
+    "asarUnpack": [
+      "node_modules/**/*",
+      "app/ocr-data/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "build/icon.ico",
+        "to": "icon.ico"
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "artifactName": "AqarMatrix-Setup-${version}.${ext}",
+      "allowToChangeInstallationDirectory": true,
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "portable": {
+      "artifactName": "AqarMatrix-Portable-${version}.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "YOUR_GITHUB_USER",
+        "repo": "alaa-deals-releases",
+        "releaseType": "release"
+      }
+    ]
+  }
+}

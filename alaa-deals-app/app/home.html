@@ -1,0 +1,495 @@
+<!doctype html>
+<!-- © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+     كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>البداية — Aqar Matrix</title>
+<style>
+  :root { --ink: #15232d; --mute: #5e6e7a; --line: #dde4ea; --gold: #d4a63a; --green: #23865f; --red: #c0614a; --card: #fff; --bg: #edf1f5; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17.3px/1.75 Cairo,Arial,"Liberation Sans",Helvetica,sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 18px 60px; }
+  .hero { display: flex; gap: 18px; align-items: center; color: #fff; background: radial-gradient(70% 140% at 100% 0%, rgba(19,122,115,.55), transparent 60%), linear-gradient(120deg, #0d2633, #143746 55%, #18414f); border-radius: 18px; padding: 24px 26px; }
+  .hero img { width: 84px; height: 84px; }
+  /* لوجو Aqar Matrix: طبقتين (أخضر/دهبي) بيتلوّنوا بألوان الثيم */
+  .alogo { --la: #F4EFDC; --lb: linear-gradient(135deg,#F6DB90,#E3B04B 52%,#BE8624); position: relative; display: inline-block; flex: none; width: 118px; aspect-ratio: 846/631; }
+  .alogo::before, .alogo::after { content: ""; position: absolute; inset: 0; -webkit-mask: center/contain no-repeat; mask: center/contain no-repeat; }
+  .alogo::before { background: var(--la); -webkit-mask-image: url(engine/brand/mark-a.png); mask-image: url(engine/brand/mark-a.png); }
+  .alogo::after { background: var(--lb); -webkit-mask-image: url(engine/brand/mark-b.png); mask-image: url(engine/brand/mark-b.png); }
+  body.th .alogo { --la: color-mix(in srgb, var(--ink) 92%, var(--a1)); --lb: var(--grad); }
+  body.th.m-light .alogo { --la: color-mix(in srgb, var(--ink) 80%, var(--a3)); --lb: linear-gradient(135deg, var(--a2), color-mix(in srgb, var(--a2) 72%, #000)); }
+  body.nile .alogo { --la: #F4EFDC; --lb: var(--grad); }
+  body.nile.m-light .alogo { --la: #0F4C36; --lb: linear-gradient(135deg,#E3B04B,#B9801F 55%,#8A5A06); }
+  .hero h1 { margin: 0 0 4px; font-size:34.5px; font-family: Cairo,Arial,"Liberation Sans",Helvetica,sans-serif; font-weight: 700; }
+  .stat b { font-family: Cairo,Arial,"Liberation Sans",Helvetica,sans-serif; font-weight: 700; }
+  h2, .step h3 { font-family: Cairo,Arial,"Liberation Sans",Helvetica,sans-serif; font-weight: 700; }
+  button { font-family: inherit; }
+  .hero p { margin: 0; color: #dcebe8; }
+  .hero .gold { color: #f3dfae; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 16px 0 6px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+  .stat b { display: block; font-size:27.6px; }
+  .stat span { color: var(--mute); font-size:16.7px; }
+  h2 { font-size:20.7px; margin: 26px 0 10px; }
+  .step { display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+  .num { width: 40px; height: 40px; border-radius: 50%; background: #eef2f7; display: grid; place-items: center; font-weight: 800; font-size:20.7px; }
+  .step.done .num { background: var(--green); color: #fff; }
+  .step { box-shadow: 0 1px 2px rgba(13,38,51,.05), 0 10px 28px -18px rgba(13,38,51,.28); }
+  .step h3 { margin: 0; font-size:18.4px; }
+  .step p { margin: 2px 0 0; color: var(--mute); font-size:17.3px; }
+  .st { font-weight: 700; font-size:16.7px; }
+  .ok { color: var(--green); } .bad { color: var(--red); } .warn { color: #b45309; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  button { font: inherit; font-weight: 700; font-size:17.8px; border: 0; border-radius: 10px; padding: 9px 14px; cursor: pointer; color: #fff; background: radial-gradient(70% 140% at 100% 0%, rgba(19,122,115,.55), transparent 60%), linear-gradient(120deg, #0d2633, #143746 55%, #18414f); white-space: nowrap; }
+  button.l { background: #eef2f7; color: var(--ink); }
+  button.g { color: #fff; background: radial-gradient(70% 140% at 100% 0%, rgba(19,122,115,.55), transparent 60%), linear-gradient(120deg, #0d2633, #143746 55%, #18414f); }
+  button:disabled { opacity: .5; cursor: default; }
+  .updrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .updrow input { flex: 1; min-width: 180px; font: inherit; font-size:17.8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; }
+  label.sw { display: flex; gap: 8px; align-items: center; margin: 6px 0; font-size:17.8px; cursor: pointer; }
+  .go { text-align: center; margin-top: 26px; }
+  .go button { font-size:19.5px; padding: 13px 28px; }
+  .note { background: #e4efed; border: 1px solid #cfe0dc; border-radius: 12px; padding: 12px 14px; font-size:17.3px; color: #2a5550; margin-top: 14px; }
+  @media (max-width: 640px) { .step { grid-template-columns: 36px 1fr; } .btns { grid-column: 1 / -1; justify-content: flex-start; } }
+
+  /* 🎨 صفحة البداية بتمشي مع شكل البرنامج (الثيم + فاتح/غامق) */
+  body.th { background-color: var(--bg); background-image: var(--bgimg, none); background-attachment: fixed; color: var(--ink); }
+  body.th .hero { color: var(--ink); border: 1px solid transparent;
+    background: radial-gradient(70% 140% at 100% 0%, color-mix(in srgb, var(--a1) 16%, transparent), transparent 55%) padding-box,
+      radial-gradient(60% 140% at 0% 100%, color-mix(in srgb, var(--a3) 16%, transparent), transparent 55%) padding-box,
+      linear-gradient(var(--card), var(--card)) padding-box, var(--grad) border-box; }
+  body.th .hero p { color: var(--mute); }
+  body.th .hero .gold { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  body.th .hero img { background: var(--grad); border-radius: 18px; padding: 8px; }
+  body.th .stat, body.th .step { background: var(--card); border-color: var(--line); box-shadow: var(--shadow); }
+  body.th .stat b { color: var(--ink); }
+  body.th .stat:first-child b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  body.th .num { background: var(--soft); color: var(--ink); }
+  body.th .step.done .num { background: var(--grad); color: var(--on); }
+  body.th button { background: var(--grad); color: var(--on); }
+  body.th button.l { background: var(--soft); color: var(--ink); border: 1px solid var(--line); }
+  body.th button.g { background: var(--grad); color: var(--on); }
+  body.th .note { background: color-mix(in srgb, var(--a1) 10%, var(--card)); border-color: color-mix(in srgb, var(--a1) 30%, var(--line)); color: var(--ink); }
+  body.th .updrow input { background: var(--card); color: var(--ink); border-color: var(--line); }
+  body.th .ok { color: var(--okc); } body.th .warn { color: var(--warnc); } body.th .bad { color: var(--badc); }
+  body.th.glass .stat, body.th.glass .step, body.th.glass .hero { backdrop-filter: blur(18px) saturate(160%); }
+  body.th.blueprint .stat, body.th.blueprint .step, body.th.blueprint .hero { border-radius: 8px; }
+  body.th.blueprint .hero { border: 1.5px dashed var(--a1); background: var(--card); }
+  body.th.candy button, body.th.candy .stat, body.th.candy .step { border-radius: 22px; }
+  body.th.mono .hero { border: 1px solid var(--ink); background: var(--card); }
+  body.th.pharaoh .hero { box-shadow: inset 0 4px 0 -0px transparent; position: relative; }
+  body.th.pharaoh .hero::after { content: ""; position: absolute; inset-inline: 22px; top: 0; height: 4px; border-radius: 0 0 4px 4px; background: repeating-linear-gradient(90deg, var(--a1) 0 12px, var(--a2) 12px 18px, var(--a3) 18px 24px, var(--a2) 24px 30px); }
+  body.nile { --grad: linear-gradient(135deg,#F6DB90,#E3B04B 52%,#BE8624); }
+  body.nile .hero img { background: var(--grad); }
+  .rm-info { margin-top: 8px; font-size:17.8px; }
+  .rm-info .code { font-size:25.3px; font-weight: 800; letter-spacing: 3px; direction: ltr; display: inline-block; padding: 4px 12px; border-radius: 10px; background: var(--soft, #eef2f7); }
+  .rm-info code { direction: ltr; display: inline-block; font-size:17.8px; padding: 2px 8px; border-radius: 8px; background: var(--soft, #eef2f7); margin: 2px; user-select: all; }
+  .pn-row{border:1px solid var(--line,#d9e0ea);border-radius:12px;padding:10px 12px;margin-top:8px}
+  body.linked .step:not(#stLink):not(#stArea):not(#stUpd){display:none}
+  body.linked #stLink{border-color:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,.25)}
+  body.linked .setup-h{display:none}
+</style>
+<link rel="stylesheet" href="engine/icons54.css">
+<link rel="stylesheet" href="engine/icons56.css">
+<link rel="stylesheet" href="app56.css">
+</head>
+<body class="ui56 pg-home">
+<div class="wrap">
+  <div class="hero">
+    <span class="alogo" role="img" aria-label="Aqar Matrix"></span>
+    <div>
+      <h1 id="hHi">أهلاً وسهلاً بيك يا بوص علاء 👑</h1>
+      <p class="narc" id="narc" title="دوس لجملة تانية"></p>
+      <small class="sig" id="sig">Alaa Matrix — مؤسس Aqar Matrix</small>
+      <p>منصة <b class="gold">Aqar Matrix</b> — المشترين والبايعين المحتملين، والتطابق بينهم، وإعلانات المنافسين، من فيسبوك وواتساب وإنستجرام في مكان واحد، وبتتحدّث لوحدها.</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="sPosts">—</b><span>📦 طلب وعرض متخزّنين</span></div>
+    <div class="stat"><b id="sComments">—</b><span>💬 تعليق مهتم</span></div>
+    <div class="stat"><b id="sGroups">—</b><span>👥 جروب بيتسحب</span></div>
+    <div class="stat"><b id="sNext">—</b><span>🔄 التحديث الجاي</span></div>
+  </div>
+
+  <h2 class="setup-h">جهّز البرنامج (مرة واحدة بس)</h2>
+
+  <div class="step" id="stFb">
+    <div class="num">1</div>
+    <div><h3><span data-pb="fb">📘</span> سجّل دخول فيسبوك</h3><p>بتسجّل بنفسك جوه البرنامج مرة واحدة، والدخول بيتحفظ على جهازك (مشفّر) فمش هتحتاج تسجّل تاني.</p><div class="st" data-st></div></div>
+    <div class="btns"><button data-open="fb">افتح فيسبوك</button></div>
+  </div>
+
+  <div class="step" id="stArea">
+    <div class="num">📍</div>
+    <div><h3>اختار منطقتك</h3><p>من لوحة التحكم ← الإعدادات ← «📍 منطقتك»: اختار المحافظة (أو مناطق معيّنة) — كل الطلبات والعروض بتتصنّف عليها.</p><div class="st" data-st></div></div>
+    <div class="btns"><button class="l" id="openArea">حدّد منطقتي</button></div>
+  </div>
+
+  <div class="step" id="stWa">
+    <div class="num">2</div>
+    <div><h3><span data-pb="wa">🟢</span> اربط واتساب</h3><p>افتح واتساب في موبايلك ← الأجهزة المرتبطة ← ربط جهاز، وامسح الكود اللي هيظهر.</p><div class="st" data-st></div></div>
+    <div class="btns"><button data-open="wa">افتح واتساب</button></div>
+  </div>
+
+  <div class="step" id="stIg">
+    <div class="num">3</div>
+    <div><h3><span data-pb="ig">📸</span> إنستجرام <small style="color:var(--mute)">(اختياري)</small></h3><p>لو عايز تسحب المهتمين من كومنتات بوستات إنستجرام.</p><div class="st" data-st></div></div>
+    <div class="btns"><button class="l" data-open="ig">افتح إنستجرام</button></div>
+  </div>
+
+  <div class="step" id="stImp">
+    <div class="num">4</div>
+    <div><h3>📥 انقل داتا الإضافة القديمة</h3><p>كل الطلبات والعروض والتعليقات والعملاء اللي جمعتهم بإضافة كروم. في الإضافة دوس <b>💾 Save</b> الأول عشان يطلع أحدث ملف.</p><div class="st" data-st></div></div>
+    <div class="btns"><button id="impAuto" style="display:none">استورد الملف ده</button><button class="l" id="impPick">اختار ملف…</button></div>
+  </div>
+
+  <div class="step" id="stGroups">
+    <div class="num">5</div>
+    <div><h3>👥 اختار الجروبات</h3><p>جوه فيسبوك أو واتساب هتلاقي زرار 🏠 عائم — منه علّم الجروبات العقارية، أو استخدم «🔎 دوّر على جروبات أكتر» عشان تلاقي جروبات بني سويف الجديدة.</p><div class="st" data-st></div></div>
+    <div class="btns"><button class="l" data-open="fb">جروبات فيسبوك</button><button class="l" data-open="wa">جروبات واتساب</button></div>
+  </div>
+
+  <div class="step" id="stAuto">
+    <div class="num">6</div>
+    <div><h3>🔄 التحديث التلقائي</h3><p>البرنامج بيلف على الجروبات المعلّمة لوحده ويسحب الجديد ويبعتلك إشعار بالعملاء السخنين واللقطات.</p>
+      <label class="sw"><input type="checkbox" id="optLogin"> يشتغل لوحده مع تشغيل الويندوز (في الخلفية)</label>
+      <label class="sw"><input type="checkbox" id="optTray"> لما أقفل النافذة يفضل شغال جنب الساعة ويكمل التحديث</label>
+      <div class="st" data-st></div></div>
+    <div class="btns"><button class="l" id="runNow">▶ جرّب دلوقتي</button></div>
+  </div>
+
+  <div class="step" id="stRemote">
+    <div class="num">📱</div>
+    <div><h3>الموبايل والسيرفر (VPS)</h3><p>شغّلها عشان تفتح البرنامج من أي جهاز تاني — لاب توب، كمبيوتر، تابلت أو موبايل — ونفس الداتا تظهر متزامنة، والسحب يبان وهو شغال. لو البرنامج على VPS: افتح البورت ده في فايروول السيرفر.</p>
+      <label class="sw"><input type="checkbox" id="rmOn"> شغّل وصول الموبايل</label>
+      <div class="updrow"><input id="rmPort" dir="ltr" placeholder="8787" style="max-width:120px"><button class="l" id="rmPortSave">حفظ البورت</button><button class="l" id="rmRegen">🔄 كود جديد</button><button class="l" id="rmFw" title="لو الأجهزة التانية مش قادرة توصل">🧱 افتح البورت في الفايروول</button></div>
+      <div id="rmInfo" class="rm-info"></div>
+      <div class="st" data-st></div></div>
+    <div class="btns"></div>
+  </div>
+
+  <div class="step" id="stLink">
+    <div class="num">🕸</div>
+    <div><h3 id="lkTitle">شبكة الأجهزة — اربط أي عدد من الأجهزة والسيرفرات</h3>
+      <p id="lkDesc">كل جهاز بيشتغل <b>بالكامل</b> (سحب + كل الأدوات) و<b>كلهم بنفس الداتا والاستخراجات والإعدادات والأوامر لحظة بلحظة</b> — أي حاجة بتتغيّر في جهاز بتوصل للباقي خلال ثواني، ولو جهاز وقع الباقيين يكملوا. <b>جهاز/سيرفر جديد</b>: لما تربطه بيسحب <b>كل الداتا القديمة والإعدادات</b> أول ما يتربط.</p>
+      <div id="pnList"></div>
+      <div class="updrow" id="lkForm" style="margin-top:10px"><input id="pnJoin" dir="ltr" placeholder="45.12.33.10:8787#K7Q2M9XA" title="الصق كود الانضمام هنا (العنوان#الكود)" style="max-width:380px;letter-spacing:1px"><button id="pnAdd">➕ ضيف الجهاز</button></div>
+      <div class="muted" style="font-size:16.1px;margin-top:6px">الصق «كود الانضمام» بتاع الجهاز التاني (الشكل: <code>العنوان#الكود</code>) — بتنسخه من الجهاز التاني: «🕸 انسخ كود الانضمام» في كارت الأجهزة بتاعه — ولازم «📱 الموبايل والسيرفر» يكون متفعّل عليه. تقدر تكتب العنوان والكود لوحدهم كمان.</div>
+      <div class="updrow" style="margin-top:10px"><button class="l" id="pnCopy">🕸 انسخ كود الانضمام بتاع الجهاز ده</button><span id="pnMine" class="muted"></span></div>
+      <div class="muted" style="font-size:16.1px;margin-top:8px">⚡ سيرفر جديد بيتركّب من غير ما حد يفتح شاشته؟ حط ملف اسمه <code>join.txt</code> فيه كود الانضمام (سطر لكل جهاز) في فولدر البرنامج أو فولدر البيانات قبل أول تشغيل — أو شغّل بـ<code>--join=العنوان#الكود</code> — وهو يربط نفسه ويسحب كل حاجة.</div>
+      <div class="st" data-st></div></div>
+    <div class="btns"><button class="l" id="pnResync">🔄 مزامنة كاملة من الأول</button></div>
+  </div>
+
+  <div class="step" id="stUpd">
+    <div class="num">🔄</div>
+    <div><h3>التحديث التلقائي</h3><p>البرنامج بيدوّر لوحده على نسخة جديدة كل 6 ساعات وينزّلها، وبتتثبّت لما تقفله — من غير ما تنزّل ملف ولا تفقد داتا. اكتب اسم مستودع GitHub اللي بتتحط عليه النسخ (مثلاً <b dir="ltr">alaa/alaa-deals-releases</b>).</p>
+      <div class="updrow"><input id="updRepo" dir="ltr" placeholder="owner/repo"><button class="l" id="updSave">حفظ</button><button class="l" id="updCheck">دوّر دلوقتي</button><button id="updInstall" style="display:none">ثبّت دلوقتي</button></div>
+      <div class="st" data-st></div></div>
+    <div class="btns"></div>
+  </div>
+
+  <div class="note">🔒 الداتا كلها متخزنة على جهازك بس (وعلى Supabase لو فعّلته من الإعدادات)، ونسخة احتياطية بتنزل كل يوم في <b>التحميلات ← AlaaDealsExt</b>. البرنامج بيقرا بس — مش بينشر ولا بيعلّق ولا بيبعت حاجة باسمك.</div>
+
+  <div class="go"><button class="g" id="go">📊 يلا على لوحة التحكم</button></div>
+</div>
+<script src="engine/icons54.js"></script>
+<script src="engine/welcome56.js"></script>
+<script src="engine/sgv-data.js"></script>
+<script src="plat54.js"></script>
+<script>document.querySelectorAll("[data-pb]").forEach((e) => { e.outerHTML = platBadge(e.dataset.pb) || e.outerHTML; });</script>
+<script>
+// 🎨 نفس ألوان لوحة التحكم: الثيم + فاتح/غامق/تلقائي
+(function () {
+  const BASE = { dark: { bg: "#0b1220", card: "#111a2e", ink: "#e6ecf7", mute: "#93a1bd", line: "#22304d", soft: "#16213a" },
+    light: { bg: "#f3f5fa", card: "#ffffff", ink: "#0f172a", mute: "#5b6478", line: "#e3e8f0", soft: "#eef2f8" } };
+  const PALS = { tech: ["#2dd4bf", "#60a5fa", "#a78bfa"], gold: ["#f6c453", "#eea23e", "#e0784a"], emerald: ["#34d399", "#10b981", "#a3e635"],
+    ocean: ["#38bdf8", "#3b82f6", "#6366f1"], sunset: ["#fb7185", "#fb923c", "#fbbf24"], royal: ["#c084fc", "#818cf8", "#f472b6"] };
+  const grid = (c, s) => `linear-gradient(${c} 1px,transparent 1px),linear-gradient(90deg,${c} 1px,transparent 1px)`;
+  const T = {
+    aqar: { dark: { bg: "#0B1626", card: "#112038", ink: "#E9EEF6", mute: "#A3B4CC", line: "#2A3E5F", soft: "#172B49", a: ["#EBCB78", "#D4AE5A", "#B8892D"], on: "#0B1626", img: "none", noglow: true },
+      light: { bg: "#F2F5FA", card: "#FFFFFF", ink: "#14283F", mute: "#506580", line: "#D3DBE8", soft: "#EEF2F8", a: ["#D4AE5A", "#B8892D", "#8A6417"], on: "#FFFFFF", img: "none", noglow: true } },
+    araab: { dark: { bg: "#0C1E24", card: "#112A31", ink: "#E7F1F0", mute: "#8DACB1", line: "#26474F", soft: "#143038", a: ["#6FE3E8", "#25BEC8", "#0F8E9B"], on: "#032A30", img: grid("rgba(231,241,240,.04)"), size: "32px 32px" },
+      light: { bg: "#EDF3F2", card: "#FFFFFF", ink: "#0B2A30", mute: "#52717A", line: "#D2E0DE", soft: "#F4F8F7", a: ["#1E9FAB", "#0E7C86", "#0A5A63"], on: "#FFFFFF", img: grid("rgba(11,42,48,.05)"), size: "32px 32px" } },
+    nile: { dark: { bg: "#0A1D24", card: "#0F262E", ink: "#E9F1EE", mute: "#8CA9AF", line: "#1F414C", soft: "#143039", a: ["#F5D88A", "#E3B04B", "#B9801F"], on: "#1B1305", img: "radial-gradient(900px 380px at 100% -80px,rgba(227,176,75,.09),transparent 70%)" },
+      light: { bg: "#EDF1EE", card: "#FFFFFF", ink: "#0A2530", mute: "#587077", line: "#D5DFDA", soft: "#E3EBE7", a: ["#E3B04B", "#C9962E", "#9A6A12"], on: "#1B1305", img: "radial-gradient(900px 380px at 100% -80px,rgba(227,176,75,.12),transparent 70%)" } },
+    cyberneon: { dark: { bg: "#05060a", card: "#0b0e1a", ink: "#e8f7ff", mute: "#86a0b8", line: "rgba(0,240,255,.18)", soft: "#10142a", a: ["#00f0ff", "#7c3aed", "#ff2bd6"], img: grid("rgba(0,240,255,.05)"), size: "44px 44px" },
+      light: { bg: "#f2f4ff", card: "#fff", ink: "#140f2e", mute: "#5d5a7e", line: "#dcd8fb", soft: "#f0eeff", a: ["#00b8d4", "#7c3aed", "#e11d9b"], on: "#fff", img: grid("rgba(124,58,237,.055)"), size: "44px 44px" } },
+    glass: { dark: { bg: "#0a0b18", card: "rgba(24,28,58,.55)", ink: "#eef0ff", mute: "#a3a8cc", line: "rgba(255,255,255,.12)", soft: "rgba(255,255,255,.07)", a: ["#8b93ff", "#ff7ac6", "#5ee7df"],
+        img: "radial-gradient(620px 520px at 92% 4%,rgba(99,102,241,.45),transparent 62%),radial-gradient(640px 520px at 4% 22%,rgba(219,39,119,.32),transparent 62%),radial-gradient(760px 620px at 62% 104%,rgba(13,148,136,.36),transparent 62%)" },
+      light: { bg: "#f4f1ff", card: "rgba(255,255,255,.6)", ink: "#1e1b3a", mute: "#5f5b80", line: "rgba(255,255,255,.85)", soft: "rgba(255,255,255,.7)", a: ["#7c83ff", "#ff6fb8", "#2cc9bf"], on: "#fff",
+        img: "radial-gradient(620px 520px at 92% 4%,#ffc6e3,transparent 62%),radial-gradient(640px 520px at 4% 22%,#c2d9ff,transparent 62%),radial-gradient(760px 620px at 62% 104%,#c3f5df,transparent 62%)" } },
+    blueprint: { dark: { bg: "#0b3561", card: "rgba(9,46,86,.85)", ink: "#eef6ff", mute: "#a9c6e6", line: "rgba(255,255,255,.3)", soft: "rgba(255,255,255,.08)", a: ["#ffd166", "#ffd166", "#ffd166"], on: "#0b2545", img: grid("rgba(255,255,255,.08)"), size: "24px 24px" },
+      light: { bg: "#f5f9ff", card: "#fff", ink: "#0b2545", mute: "#4c6a8f", line: "#c6d9f2", soft: "#eef4fd", a: ["#1d4ed8", "#0284c7", "#0ea5e9"], on: "#fff", img: grid("rgba(29,78,216,.07)"), size: "24px 24px" } },
+    luxe: { dark: { bg: "#0b0b0c", card: "#131315", ink: "#f5efe3", mute: "#a59e90", line: "#2b2720", soft: "#1a1a1d", a: ["#f7dc8f", "#d4a94c", "#9c7a31"], img: "radial-gradient(900px 380px at 50% -14%,rgba(212,169,76,.13),transparent 64%)" },
+      light: { bg: "#f8f4ea", card: "#fffdf7", ink: "#1d1a14", mute: "#6f6656", line: "#e8dcc1", soft: "#f3ecdc", a: ["#e2bf68", "#b8892f", "#8c6a22"], img: "radial-gradient(900px 380px at 50% -14%,rgba(212,169,76,.16),transparent 64%)" } },
+    desert: { dark: { bg: "#1a1410", card: "#231b15", ink: "#f3e9dc", mute: "#b9a58f", line: "#3a2e23", soft: "#2b221a", a: ["#e88a6f", "#e9b076", "#8cc2a7"] },
+      light: { bg: "#f4ecdf", card: "#fffaf2", ink: "#2b2118", mute: "#7a6a58", line: "#e9dbc5", soft: "#f8f0e3", a: ["#e07a5f", "#e9a868", "#81b29a"] } },
+    mono: { dark: { bg: "#0d0d0d", card: "#151515", ink: "#f0f0f0", mute: "#9a9a9a", line: "#2a2a2a", soft: "#1b1b1b", a: ["#f5f5f5", "#f5f5f5", "#f5f5f5"], on: "#0d0d0d", noglow: 1 },
+      light: { bg: "#f6f6f6", card: "#fff", ink: "#111", mute: "#6b6b6b", line: "#e4e4e4", soft: "#f0f0f0", a: ["#111", "#111", "#111"], on: "#fff", noglow: 1 } },
+    candy: { dark: { bg: "#1a1222", card: "#231830", ink: "#f7eaf4", mute: "#b9a3b8", line: "#3b2a4d", soft: "#2b1f3a", a: ["#ff9fb8", "#c9b0ff", "#8ad0ff"] },
+      light: { bg: "#fff5fa", card: "#fff", ink: "#2b1830", mute: "#86677f", line: "#f5d8e7", soft: "#fff0f6", a: ["#ff8fab", "#c3a6ff", "#7cc8ff"] } },
+    pharaoh: { dark: { bg: "#0b1a3a", card: "#10244d", ink: "#f4ead2", mute: "#b9c0d6", line: "#23407a", soft: "#142b5a", a: ["#f0c75e", "#2ec4b6", "#e07a3f"] },
+      light: { bg: "#f2e7cc", card: "#fbf5e4", ink: "#1b2340", mute: "#6b6247", line: "#e0cfa3", soft: "#f5ecd3", a: ["#c99a2e", "#1f9e94", "#c25e2a"], on: "#fff" } },
+/*T45-BEGIN*/
+    lapis: { dark: { bg: "#0B1626", card: "#11223A", ink: "#E6EEF9", mute: "#9BAEC9", line: "#243C5E", soft: "#172B48", a: ["#8DB8FF", "#6A9EF5", "#4F83DE"], on: "#07132A" },
+      light: { bg: "#EEF2F7", card: "#FFFFFF", ink: "#14233B", mute: "#51627C", line: "#D5DEEA", soft: "#F5F8FC", a: ["#2C62BE", "#1F4FA0", "#17376F"], on: "#FFFFFF" } },
+    limestone: { dark: { bg: "#141916", card: "#1B221E", ink: "#E7EDE9", mute: "#A0AFA6", line: "#2E3A33", soft: "#222B26", a: ["#9BD0B3", "#7DBE9B", "#5FA583"], on: "#0E1B14" },
+      light: { bg: "#F1F0EC", card: "#FBFBF9", ink: "#26302B", mute: "#5C675F", line: "#E2E0D8", soft: "#F5F4F0", a: ["#3E8061", "#2F6B4F", "#245640"], on: "#FFFFFF" } },
+    horizon: { dark: { bg: "#14172A", card: "#1D2140", ink: "#F1EEF6", mute: "#B3B0CC", line: "#2E3460", soft: "#252A50", a: ["#F7C9A3", "#F2B58A", "#E58BA0"], on: "#2A1A12" },
+      light: { bg: "#F6F0F3", card: "#FFFFFF", ink: "#2A2347", mute: "#625C85", line: "#E6DCEA", soft: "#FAF5F7", a: ["#7E63D1", "#6A4FC0", "#B24A72"], on: "#FFFFFF" } },
+    stillnight: { dark: { bg: "#171D22", card: "#20282E", ink: "#E9EEEC", mute: "#A3B2AE", line: "#2F3A42", soft: "#283239", a: ["#A8DCC2", "#8FCBAE", "#74B696"], on: "#0F2119" },
+      light: { bg: "#EEF1F3", card: "#FFFFFF", ink: "#1B2A2E", mute: "#566A70", line: "#D8E0E3", soft: "#F4F7F8", a: ["#1F7C85", "#1C6B72", "#14565C"], on: "#FFFFFF" } },
+    buildsite: { dark: { bg: "#16181B", card: "#1F2226", ink: "#ECEDEE", mute: "#A7ADB5", line: "#353A41", soft: "#272B30", a: ["#FFD233", "#F5B800", "#E39B00"], on: "#1A1400" },
+      light: { bg: "#E8E8E4", card: "#FFFFFF", ink: "#1D2024", mute: "#4F555D", line: "#CFCFC8", soft: "#F3F3F0", a: ["#FFC823", "#F5B800", "#E39B00"], on: "#1A1400" } },
+    redsea: { dark: { bg: "#08242B", card: "#0D3039", ink: "#E6F6F6", mute: "#8FBABF", line: "#1B4C59", soft: "#123B46", a: ["#5EE0E0", "#3CCBD0", "#2AAFC0"], on: "#06262B" },
+      light: { bg: "#EAF6F6", card: "#FFFFFF", ink: "#0B3038", mute: "#46686E", line: "#CFE6E7", soft: "#F2FAFA", a: ["#0B7E88", "#0A7480", "#0A5F70"], on: "#FFFFFF" } },
+    pomegranate: { dark: { bg: "#1B0F18", card: "#26141F", ink: "#F5E9EF", mute: "#C3A6B6", line: "#46263A", soft: "#301B29", a: ["#FFA9C4", "#F58AAB", "#E0689A"], on: "#2A0A18" },
+      light: { bg: "#FAF1F4", card: "#FFFFFF", ink: "#3B1226", mute: "#76506A", line: "#EBD3DB", soft: "#FDF7F9", a: ["#B02A5B", "#94204B", "#7A183E"], on: "#FFFFFF" } },
+    notebook: { dark: { bg: "#1E2B29", card: "#273837", ink: "#F1F3EE", mute: "#B5C7C2", line: "#3C5654", soft: "#2F4443", a: ["#FBEA8F", "#F6E27A", "#E8C95A"], on: "#1F2A10" },
+      light: { bg: "#F2F4F7", card: "#FFFEFB", ink: "#1D2433", mute: "#515C72", line: "#D9DDE6", soft: "#F8F7F2", a: ["#3B5BDB", "#2F4AC0", "#2438A0"], on: "#FFFFFF" } },
+    qahwa: { dark: { bg: "#1A1411", card: "#251C17", ink: "#F3E9DF", mute: "#BFA998", line: "#35291F", soft: "#2F241E", a: ["#EDBF93", "#DDA56E", "#C58A52"], on: "#2A1608" },
+      light: { bg: "#EFE6DD", card: "#FAF5EF", ink: "#33231A", mute: "#6A5546", line: "#E3D6C8", soft: "#F4ECE3", a: ["#8A5230", "#75421F", "#5F3416"], on: "#FFFFFF" } },
+    lavender: { dark: { bg: "#15122A", card: "#1D1A38", ink: "#EEEBFA", mute: "#ADA8D0", line: "#36315E", soft: "#262244", a: ["#CBBBFF", "#B4A0FB", "#9C86F0"], on: "#1B1040" },
+      light: { bg: "#F2F0F8", card: "#FFFFFF", ink: "#231F3D", mute: "#5A567D", line: "#DEDAEE", soft: "#F7F5FC", a: ["#7A5CD6", "#6544C6", "#5236AB"], on: "#FFFFFF" } },
+    inkstamp: { dark: { bg: "#0F0F10", card: "#181819", ink: "#F2F2F0", mute: "#ADADB2", line: "#3A3A3E", soft: "#202022", a: ["#FF9A8D", "#FF7566", "#EE5646"], on: "#220806" },
+      light: { bg: "#F5F5F2", card: "#FFFFFF", ink: "#1A1A1A", mute: "#4D4D52", line: "#C9C9C2", soft: "#F0F0EC", a: ["#C62F25", "#B3261E", "#8F1A14"], on: "#FFFFFF" } },
+    neon: { dark: { bg: "#0A0716", card: "#130E27", ink: "#F0ECFF", mute: "#B1A7D9", line: "#3A2A66", soft: "#1B1535", a: ["#FF6BD6", "#A98BFF", "#3DDCF5"], on: "#10061E" },
+      light: { bg: "#F4F0FF", card: "#FFFFFF", ink: "#1E1238", mute: "#5E5384", line: "#DCD2F5", soft: "#F8F5FF", a: ["#C71F94", "#6D3FE0", "#0A7C99"], on: "#FFFFFF" } },
+    deco: { dark: { bg: "#0C0B09", card: "#15130E", ink: "#F4EBD6", mute: "#BDAF8E", line: "#4A3E1E", soft: "#1D1A12", a: ["#F7E19B", "#E2B947", "#C99A2E"], on: "#1A1203" },
+      light: { bg: "#F6F1E4", card: "#FFFDF7", ink: "#2B2310", mute: "#6B5B33", line: "#DCCFA9", soft: "#FAF6EA", a: ["#966A0C", "#8A6409", "#6B4C06"], on: "#FFFFFF" } },
+    khan: { dark: { bg: "#081C24", card: "#0F2B36", ink: "#F3EBDD", mute: "#A9C2C9", line: "#24526A", soft: "#15384A", a: ["#FFD27A", "#FF9A6B", "#F0609B"], on: "#1E0E06" },
+      light: { bg: "#F6EEDD", card: "#FFFAF0", ink: "#12303A", mute: "#4F6A72", line: "#E3D2AE", soft: "#FBF3E2", a: ["#0F7C8C", "#0B6572", "#084E58"], on: "#FFFFFF" } },
+    nubian: { dark: { bg: "#17110F", card: "#231A16", ink: "#F7EBDD", mute: "#C4AE98", line: "#4A3528", soft: "#2D221C", a: ["#FFC15E", "#FF8A4C", "#F0507F"], on: "#230E04" },
+      light: { bg: "#FBF1E3", card: "#FFFBF4", ink: "#3A1F12", mute: "#7A5A44", line: "#EAD3B4", soft: "#FDF6EA", a: ["#C2410C", "#A8340A", "#7C2506"], on: "#FFFFFF" } },
+    oasis: { dark: { bg: "#06201A", card: "#0C2D25", ink: "#E7F7EF", mute: "#9BC3B2", line: "#1F5646", soft: "#123B31", a: ["#C6F36B", "#4ADE9A", "#1FB8A5"], on: "#04170F" },
+      light: { bg: "#EDF7F1", card: "#FFFFFF", ink: "#0E3326", mute: "#46675A", line: "#CDE6D8", soft: "#F4FBF7", a: ["#12814F", "#0F7449", "#0A5C3A"], on: "#FFFFFF" } },
+    carbon: { dark: { bg: "#0D0E10", card: "#16181B", ink: "#EEF0F2", mute: "#A6ACB5", line: "#30343A", soft: "#1E2125", a: ["#FF7A66", "#FF4B3E", "#F0322A"], on: "#1A0504" },
+      light: { bg: "#E9EBEE", card: "#FFFFFF", ink: "#14171B", mute: "#4B535D", line: "#CBD0D6", soft: "#F2F4F6", a: ["#D4232B", "#B71C23", "#8E141A"], on: "#FFFFFF" } },
+    frost: { dark: { bg: "#0C1622", card: "#132235", ink: "#EAF3FB", mute: "#A2B7CC", line: "#2C4666", soft: "#1A2D45", a: ["#C8E8FF", "#8EC8F5", "#9DB6F2"], on: "#07182A" },
+      light: { bg: "#E8F1FA", card: "#FFFFFF", ink: "#0F2238", mute: "#4A6280", line: "#CFE0F1", soft: "#F1F7FD", a: ["#2A70C8", "#1E63B8", "#164C93"], on: "#FFFFFF" } },
+    mango: { dark: { bg: "#1E0F16", card: "#2B1620", ink: "#FFEFE3", mute: "#D6B0A6", line: "#55293D", soft: "#371D2A", a: ["#FFD166", "#FF9A4A", "#FF5C8A"], on: "#2A0C05" },
+      light: { bg: "#FFF4E6", card: "#FFFFFF", ink: "#3B1A0A", mute: "#7A4B2C", line: "#FFE0BF", soft: "#FFF9F0", a: ["#CF4909", "#C2410C", "#A8340A"], on: "#FFFFFF" } },
+    pearl: { dark: { bg: "#121316", card: "#1A1C20", ink: "#EEF0F3", mute: "#A0A6B0", line: "#2E3238", soft: "#202328", a: ["#EDE4FF", "#CFE0FF", "#FFE3D6"], on: "#14161A" },
+      light: { bg: "#F6F6F8", card: "#FFFFFF", ink: "#16181D", mute: "#5A606B", line: "#E4E6EB", soft: "#FAFAFB", a: ["#3A3F4B", "#262A33", "#14161B"], on: "#FFFFFF" } },
+    matrix: { dark: { bg: "#020805", card: "#07130C", ink: "#CFFFE0", mute: "#82C99C", line: "#16623A", soft: "#0B1E13", a: ["#39FF88", "#1FE872", "#16C95E"], on: "#02140A" },
+      light: { bg: "#EDF6F0", card: "#FFFFFF", ink: "#0B2917", mute: "#3C6750", line: "#B9D6C4", soft: "#F4FAF6", a: ["#0A8440", "#087236", "#065B2B"], on: "#FFFFFF" } },
+    cyber: { dark: { bg: "#0A0A12", card: "#12121F", ink: "#F2F2FF", mute: "#ABABD2", line: "#3B3B63", soft: "#1A1A2C", a: ["#FCEE09", "#00F0FF", "#FF2A6D"], on: "#0A0A12" },
+      light: { bg: "#FFF8D2", card: "#FFFFFF", ink: "#15122E", mute: "#58537A", line: "#E3D68A", soft: "#FFFCEC", a: ["#D6006B", "#00677A", "#5E1CC4"], on: "#FFFFFF" } },
+    redteam: { dark: { bg: "#0B0708", card: "#160E10", ink: "#F8EAEB", mute: "#CBA7AA", line: "#552128", soft: "#201315", a: ["#FF6B6B", "#FF4D55", "#F04452"], on: "#1A0507" },
+      light: { bg: "#F6F0F0", card: "#FFFFFF", ink: "#2A1013", mute: "#6A484C", line: "#E2CED0", soft: "#FBF7F7", a: ["#C4162A", "#A5101F", "#7F0B17"], on: "#FFFFFF" } },
+    soc: { dark: { bg: "#050C17", card: "#0B1627", ink: "#E4F2FF", mute: "#90B2D2", line: "#1F3D66", soft: "#11213A", a: ["#3DDCFF", "#22B8F2", "#3C93FF"], on: "#04101E" },
+      light: { bg: "#E9F1F8", card: "#FFFFFF", ink: "#0F2238", mute: "#46617E", line: "#C6D8E9", soft: "#F2F8FC", a: ["#0877B8", "#0A5E96", "#0B4676"], on: "#FFFFFF" } },
+    crt: { dark: { bg: "#0E0904", card: "#181009", ink: "#FFDDA6", mute: "#D3A465", line: "#61400F", soft: "#22170B", a: ["#FFB000", "#FF9A1F", "#FF8433"], on: "#1A0F00" },
+      light: { bg: "#F4E8D0", card: "#FFF8E8", ink: "#3A2408", mute: "#765526", line: "#DDC697", soft: "#FAF0DC", a: ["#A85A00", "#8F4A00", "#6E3800"], on: "#FFFFFF" } },
+    ghost: { dark: { bg: "#070707", card: "#101010", ink: "#EDEDED", mute: "#A8A8A8", line: "#303030", soft: "#181818", a: ["#FFFFFF", "#E2E2E2", "#C8C8C8"], on: "#0A0A0A" },
+      light: { bg: "#F1F1F1", card: "#FFFFFF", ink: "#111111", mute: "#555555", line: "#D6D6D6", soft: "#F7F7F7", a: ["#2B2B2B", "#1B1B1B", "#000000"], on: "#FFFFFF" } },
+    darkweb: { dark: { bg: "#09050F", card: "#130C21", ink: "#EFE8FF", mute: "#B09FD8", line: "#3F2770", soft: "#1C1131", a: ["#C79BFF", "#A66BFF", "#7CFFB2"], on: "#0C0618" },
+      light: { bg: "#F2EDFA", card: "#FFFFFF", ink: "#1D0F38", mute: "#5A4880", line: "#D9CBF0", soft: "#F8F4FD", a: ["#7A2CD8", "#5E1BB5", "#3E1080"], on: "#FFFFFF" } },
+    code: { dark: { bg: "#0E1016", card: "#171A22", ink: "#E5E9F2", mute: "#9DA6BC", line: "#323849", soft: "#1F232D", a: ["#82AAFF", "#C792EA", "#A8E070"], on: "#0B0E16" },
+      light: { bg: "#F3F4F8", card: "#FFFFFF", ink: "#1C2333", mute: "#545E77", line: "#D8DDE8", soft: "#F7F8FB", a: ["#2B58C4", "#7B3FC4", "#1F7A3A"], on: "#FFFFFF" } },
+    bios: { dark: { bg: "#00005E", card: "#00007A", ink: "#FFFFFF", mute: "#B4D7FF", line: "#5A5AFF", soft: "#000092", a: ["#FFFF55", "#55FFFF", "#7CFF7C"], on: "#00003A" },
+      light: { bg: "#C6C6C6", card: "#E6E6E6", ink: "#000060", mute: "#33336E", line: "#00007A", soft: "#D8D8D8", a: ["#0000AA", "#006666", "#7A0A7A"], on: "#FFFFFF" } },
+    synth: { dark: { bg: "#0D0221", card: "#180638", ink: "#F8EBFF", mute: "#C8AEEE", line: "#5A2299", soft: "#230A52", a: ["#FF5CCB", "#FF9A3D", "#FFE14D"], on: "#1A0630" },
+      light: { bg: "#F8EEFF", card: "#FFFFFF", ink: "#2A0A4D", mute: "#66468F", line: "#E0C8F5", soft: "#FBF5FF", a: ["#C2108F", "#B84A0F", "#7A2FD0"], on: "#FFFFFF" } },
+    sign: { dark: { bg: "#0D1117", card: "#161C25", ink: "#E8EDF3", mute: "#9AA7B8", line: "#3A4658", soft: "#1D2531", a: ["#FFD25A", "#5B94F2", "#2F6FDE"], on: "#0D1117" },
+      light: { bg: "#E6E9ED", card: "#FFFFFF", ink: "#0F1720", mute: "#566170", line: "#C2C9D2", soft: "#F1F3F6", a: ["#FFC20E", "#0B4FC2", "#083A91"], on: "#FFFFFF" } },
+/*T45-END*/
+  };
+  // الأشكال القديمة
+  const LEG = { pro: { mode: "light", v: { bg: "#f3f5f8", card: "#fff", ink: "#14202b", mute: "#647381", line: "#e2e7ec", soft: "#eef2f6", a: ["#c9a040", "#14202b", "#c9a040"], on: "#fff" } },
+    plan: { mode: "light", v: { bg: "#eef2f0", card: "#fff", ink: "#18324a", mute: "#5d6f7e", line: "#d5dfe4", soft: "#e6eef0", a: ["#18324a", "#2b6c8f", "#e9b949"], on: "#fff" } },
+    nile: { mode: "dark", v: { bg: "#0c1a1f", card: "#12262d", ink: "#e4efec", mute: "#9db3b0", line: "#22404a", soft: "#183139", a: ["#2fb592", "#e0b861", "#2fb592"] } } };
+  const realMode = (m) => (m !== "auto" ? m : (new Date().getHours() >= 6 && new Date().getHours() < 18 ? "light" : "dark"));
+  function apply(skin, mode) {
+    const b = document.body; if (!b) return;
+    skin = "sign"; // 10.63: «اللافتة» هي الشكل الوحيد (أي شكل قديم متخزّن بيتتجاهل)
+    b.className = b.className.replace(/\b(th|nile|cyber|cyberneon|glass|blueprint|luxe|desert|mono|candy|pharaoh|lapis|limestone|aqar|araab|horizon|stillnight|buildsite|redsea|pomegranate|notebook|qahwa|lavender|inkstamp|m-dark|m-light)\b/g, "").trim();
+    if (skin === "classic") { b.removeAttribute("style"); return; } // الشكل الأصلي زي ما هو
+    let rm = realMode(mode || "dark"), v;
+    if (LEG[skin]) { rm = LEG[skin].mode; v = LEG[skin].v; }
+    else if (T[skin]) v = T[skin][rm];
+    else { const p = PALS[skin] || PALS.tech; v = { ...BASE[rm], a: p }; }
+    v = { ...BASE[rm], ...v };
+    // 10.64: شكل اللافتة المختار (الأصلي = زي ما هو)
+    let sg = null; try { const L = (window.SGV && window.SGV.list) || []; const x = L.find((q) => q.id === sgvId) || L[0]; sg = x && x.tok ? x.tok[rm] : null; } catch {}
+    if (sg) v = { ...v, bg: sg.bg, card: sg.bg2, ink: sg.ink, mute: sg.mute, line: sg.line, soft: sg.soft, a: sg.a, on: sg.on };
+    const [a1, a2, a3] = v.a, glow = v.noglow ? "" : `radial-gradient(900px 420px at 88% -12%,color-mix(in srgb,${a1} ${rm === "dark" ? 17 : 13}%,transparent),transparent 62%),radial-gradient(760px 400px at 6% -8%,color-mix(in srgb,${a3} ${rm === "dark" ? 17 : 13}%,transparent),transparent 60%)`;
+    const st = { "--bg": v.bg, "--card": v.card, "--ink": v.ink, "--mute": v.mute, "--line": v.line, "--soft": v.soft, "--a1": a1, "--a2": a2, "--a3": a3,
+      "--grad": a1 === a2 && a2 === a3 ? a1 : `linear-gradient(135deg,${a1},${a2} 55%,${a3})`, "--on": v.on || "#0a1020",
+      "--bgimg": v.img || glow || "none", "--shadow": rm === "dark" ? "0 24px 48px -36px rgba(0,0,0,.9)" : "0 1px 2px rgba(15,23,42,.04),0 14px 34px -22px rgba(15,23,42,.28)",
+      "--okc": rm === "dark" ? "#6ee7b7" : "#059669", "--warnc": rm === "dark" ? "#fcd34d" : "#b45309", "--badc": rm === "dark" ? "#fca5a5" : "#c0392b" };
+    if (sg) { st["--sgb"] = sg.sgb; st["--sgy"] = sg.sgy; st["--sgg"] = sg.sgg; st["--sgr"] = sg.sgr; st["--sgi"] = sg.sgi; st["--acc"] = sg.acc; st["--sgp"] = sg.sgb; st["--sgp2"] = sg.pd; st["--lga"] = sg.lga; st["--lgb"] = sg.lgb; }
+    else for (const k of ["--sgb", "--sgy", "--sgg", "--sgr", "--sgi", "--acc", "--sgp", "--sgp2", "--lga", "--lgb"]) b.style.removeProperty(k);
+    for (const [k, x] of Object.entries(st)) b.style.setProperty(k, x);
+    b.style.backgroundSize = v.size ? `${v.size}, ${v.size}` : "";
+    b.style.colorScheme = rm;
+    b.classList.add("th", "m-" + rm); if (T[skin]) b.classList.add(skin);
+  }
+  let cur = {}, sgvId = "azure";
+  const go = () => apply(cur.skin, cur.mode);
+  chrome.storage.local.get(["uiSkin", "uiMode", "uiSkinPicked", "uiSkinV", "uiSgv"]).then((o) => { sgvId = o.uiSgv || "azure"; cur = { skin: "sign", mode: o.uiMode || "light" }; go(); });
+  chrome.storage.onChanged.addListener((c) => { if (c.uiSgv) { sgvId = c.uiSgv.newValue || "azure"; go(); } if (c.uiMode) cur.mode = c.uiMode.newValue; if (c.uiSkin || c.uiMode) go(); });
+  setInterval(() => { if (cur.mode === "auto") go(); }, 60000);
+})();
+</script>
+<script>
+// 👑 جملة الترحيب النرجسية — بتتبدّل كل ما تفتح الصفحة أو تدوس عليها
+(function () { const n = document.getElementById("narc"); if (!n || !window.AQW) return; n.textContent = AQW.pick(); n.addEventListener("click", () => { n.textContent = AQW.pick(); }); })();
+</script>
+<script>
+const A = window.alaaApp;
+const $ = (id) => document.getElementById(id);
+const st = (id, cls, txt, done) => { const s = $(id); s.querySelector("[data-st]").className = "st " + cls; s.querySelector("[data-st]").textContent = txt; s.classList.toggle("done", !!done); };
+const ar = (n) => Number(n || 0).toLocaleString("ar-EG-u-nu-latn");
+let found = null;
+
+async function refresh() {
+  const s = await A.call("status");
+  const set = await A.call("settings");
+  paintLink(s);
+  let fbN, waN;
+  if (s.linked) {
+    // الجهاز ده مربوط بالسيرفر: الأرقام كلها من هناك
+    fbN = (s.groups || {}).fb || 0; waN = (s.groups || {}).wa || 0;
+    st("stArea", s.gov ? "ok" : "warn", s.gov ? `✅ ${s.gov}${s.focus ? " · " + s.focus + " منطقة" : ""}` : "بني سويف (الافتراضي)", !!s.gov);
+  } else {
+    const { fbGroups = [], waGroups = [], settings: stg } = await chrome.storage.local.get(["fbGroups", "waGroups", "settings"]);
+    st("stArea", stg && stg.gov ? "ok" : "warn", stg && stg.gov ? `✅ ${stg.gov}${stg.focus && stg.focus.length ? " · " + stg.focus.length + " منطقة" : ""}` : "بني سويف (الافتراضي)", !!(stg && stg.gov));
+    fbN = fbGroups.filter((g) => g.checked).length; waN = (waGroups || []).filter((g) => g && g.checked).length;
+  }
+  $("sPosts").textContent = ar(s.counts.posts);
+  $("sComments").textContent = ar(s.counts.comments);
+  $("sGroups").textContent = ar(fbN + waN);
+  $("sNext").textContent = s.auto.enabled && s.auto.next ? `بعد ${ar(Math.max(0, Math.round((s.auto.next - Date.now()) / 6e4)))} د` : "متوقف";
+  st("stFb", s.fb ? "ok" : "bad", s.fb ? "✅ متسجّل دخول" : "⚠️ لسه ما سجّلتش دخول", s.fb);
+  st("stWa", s.wa === "in" ? "ok" : s.wa === "qr" ? "bad" : "warn", s.wa === "in" ? "✅ واتساب مربوط" : s.wa === "qr" ? "⚠️ مستني تمسح الكود" : "⏳ بيحمّل…", s.wa === "in");
+  st("stIg", s.ig ? "ok" : "", s.ig ? "✅ متسجّل دخول" : "مش متسجّل", s.ig);
+  st("stGroups", fbN + waN ? "ok" : "warn", fbN + waN ? `✅ ${ar(fbN)} جروب فيسبوك · ${ar(waN)} جروب واتساب` : "⚠️ لسه ما علّمتش جروبات", fbN + waN > 0);
+  st("stAuto", s.auto.enabled ? "ok" : "warn", s.auto.enabled ? `✅ شغال كل ${({ 0.5: "نص ساعة", 1: "ساعة", 2: "ساعتين" })[+s.auto.hours] || s.auto.hours + " ساعات"}` + (s.auto.last && s.auto.last.finishedAt ? ` · آخر تحديث ${new Date(s.auto.last.finishedAt).toLocaleTimeString("ar-EG-u-nu-latn", { hour: "numeric", minute: "2-digit" })}` : "") : "⏸ متوقف — شغّله من لوحة التحكم ← الإعدادات", s.auto.enabled);
+  $("optLogin").checked = !!set.openAtLogin; $("optTray").checked = !!set.closeToTray;
+  if (s.linked) return;
+  if (set.imported) st("stImp", "ok", `✅ اتنقل ${ar(set.imported.posts)} طلب/عرض و${ar(set.imported.comments)} تعليق (${new Date(set.imported.at).toLocaleDateString("ar-EG-u-nu-latn")})`, true);
+  else {
+    found = await A.call("findImport");
+    $("impAuto").style.display = found ? "" : "none";
+    st("stImp", found ? "warn" : "", found ? `📄 لقيت ملف من الإضافة بتاريخ ${new Date(found.mtime).toLocaleString("ar-EG-u-nu-latn")} (${ar(Math.round(found.size / 1024))} ك.ب)` : "ما لقيتش ملف في التحميلات/AlaaDealsExt — اختاره بنفسك", false);
+  }
+}
+async function doImport(file) {
+  const r = await A.call("import", file);
+  if (r.canceled) return;
+  if (!r.ok) st("stImp", "bad", "❌ " + r.error, false);
+  refresh();
+}
+document.addEventListener("click", (e) => { const o = e.target.closest("[data-open]"); if (o) A.call("openPerm", o.dataset.open); });
+$("impAuto").onclick = () => found && doImport(found.path);
+$("impPick").onclick = () => doImport();
+$("optLogin").onchange = (e) => A.call("setSetting", "openAtLogin", e.target.checked);
+$("optTray").onchange = (e) => A.call("setSetting", "closeToTray", e.target.checked);
+$("runNow").onclick = async () => { await A.call("runNow"); $("runNow").textContent = "⏳ بيسحب…"; setTimeout(() => ($("runNow").textContent = "▶ جرّب دلوقتي"), 8000); };
+$("openArea").onclick = async () => { await A.call("openDash", "#settings-area"); };
+$("go").onclick = async () => { await A.call("setSetting", "welcomeDone", true); A.call("openPerm", "dash"); };
+chrome.storage.onChanged.addListener(() => { clearTimeout(refresh.t); refresh.t = setTimeout(refresh, 500); });
+async function refreshUpd(u) {
+  u = u || await A.call("update", "status");
+  if (document.activeElement !== $("updRepo")) $("updRepo").value = u.repo || "";
+  const cls = { latest: "ok", ready: "ok", error: "bad", off: "warn", checking: "", downloading: "", idle: "" }[u.state] || "";
+  st("stUpd", cls, u.msg || (u.repo ? "مستني أول فحص..." : "لسه ما اتحددش مستودع"), u.state === "latest" || u.state === "ready");
+  $("updInstall").style.display = u.state === "ready" ? "" : "none";
+}
+
+// 📱 الموبايل والسيرفر
+async function refreshRemote(r) {
+  r = r || await A.call("remote"); if (!r) return;
+  $("rmOn").checked = r.enabled;
+  if (document.activeElement !== $("rmPort")) $("rmPort").value = r.port;
+  const u0 = (r.addresses[0] || {}).url || "";
+  $("rmInfo").innerHTML = r.enabled ? `الكود: <span class="code">${r.code}</span><div style="margin-top:6px">عنوان السيرفر:</div>${r.addresses.map((a) => `<code>${a.ip}:${r.port}</code>`).join(" ")}<span class="muted" style="font-size:16.1px"> · لو على VPS استخدم الـIP العام (public)</span>
+    <div style="margin-top:8px">🖥 <b>لوحة التحكم الكاملة من أي جهاز</b> (نفس الداتا ومتزامنة): <code>${u0}/d</code></div>
+    <div class="muted" style="font-size:16.1px;margin-top:4px">🧪 تجربة سريعة: افتح <code>${u0}/m</code> من موبايلك على باقة النت (مش الواي فاي) — لو صفحة الكود ظهرت يبقى السيرفر شغال من بره، لو لأ دوس «🧱 افتح البورت في الفايروول»</div>
+    <div class="muted" style="font-size:16.1px;margin-top:4px">📱 النسخة المختصرة للموبايل: <code>${u0}/m</code> · 📲 تطبيق الأندرويد: <code>${u0}/apk</code></div>
+    ${r.viewers ? `<div style="margin-top:6px">👀 فاتحين اللوحة دلوقتي من أجهزة تانية: <b>${r.viewers}</b></div>` : ""}` : "";
+  st("stRemote", r.error ? "bad" : r.running ? "ok" : "", r.error ? "❌ " + r.error : r.running ? "✅ شغال — أي جهاز تاني يقدر يدخل دلوقتي" : "مقفول", r.running);
+}
+$("rmOn").onchange = async (e) => refreshRemote(await A.call("remote", { enabled: e.target.checked }));
+$("rmPortSave").onclick = async () => refreshRemote(await A.call("remote", { port: +$("rmPort").value }));
+$("rmFw").onclick = async () => {
+  $("rmFw").disabled = true; $("rmFw").textContent = "⏳ وافق على رسالة الويندوز…";
+  const r = await A.call("firewall");
+  $("rmFw").disabled = false; $("rmFw").textContent = "🧱 افتح البورت في الفايروول";
+  st("stRemote", r && r.ok ? "ok" : "bad", r && r.ok ? "✅ البورت اتفتح في فايروول الويندوز — لو شركة الـVPS عندها Firewall في لوحتها افتح فيه TCP 8787 كمان" : "❌ " + ((r && r.error) || "ما اتفتحش"), !!(r && r.ok));
+};
+$("rmRegen").onclick = async () => { if (confirm("تعمل كود جديد؟ الموبايل هيحتاج يدخل بالكود الجديد.")) refreshRemote(await A.call("remote", { regen: true })); };
+refreshRemote(); setInterval(refreshRemote, 15000);
+// 🕸 شبكة الأجهزة
+const esc = (x) => String(x == null ? "" : x).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tm = (x) => x ? new Date(x).toLocaleTimeString("ar-EG-u-nu-latn", { hour: "numeric", minute: "2-digit", second: "2-digit" }) : "—";
+let PN = null;
+function paintPeers(d) {
+  PN = d; const P = (d && d.peers) || [], M = (d && d.mesh) || {};
+  document.body.classList.toggle("linked", false);
+  const rows = P.map((p) => {
+    const up = !!p.connected, syncing = up && (p.pulling || !p.synced);
+    const state = up ? (syncing ? "🟡 بيسحب الداتا القديمة…" : "🟢 متصل ومتزامن") : "🔴 " + esc(p.error || "مش متصل — بيحاول تاني");
+    const cnt = p.srvPosts != null ? ` · عنده 📦 ${ar(p.srvPosts)} طلب/عرض · 💬 ${ar(p.srvComments)} تعليق` : "";
+    return `<div class="pn-row" data-id="${esc(p.id)}"><div><b>${esc(p.name || p.addr)}</b> <code>${esc(p.addr)}</code> ${state}${p.on === false ? " ⏸ موقوف" : ""}</div>
+      <div class="muted" style="font-size:16.1px">⬇️ ${tm(p.lastPull)} (${ar(p.in)}) · ⬆️ ${tm(p.lastPush)} (${ar(p.out)})${p.pending ? ` · ⏳ ${p.pending} مستني` : ""}${cnt}${p.srvVersion ? ` · نسخة ${esc(p.srvVersion)}` : ""}</div>
+      <div class="updrow"><button class="l" data-pn="resync">🔄 مزامنة</button><button class="l" data-pn="toggle">${p.on === false ? "▶ شغّل" : "⏸ وقّف"}</button><button class="l" data-pn="remove">فك</button></div></div>`;
+  }).join("");
+  $("pnList").innerHTML = P.length ? rows + `<div class="rm-info">${M.up || 0} من ${P.length} متصل ${M.fresh ? "· الجهاز ده <b>جديد</b> وبياخد الداتا والإعدادات من الشبكة" : ""}</div>` : `<div class="muted">لسه مفيش أجهزة مربوطة — الجهاز ده شغال لوحده.</div>`;
+  $("pnResync").style.display = P.length ? "" : "none";
+  const j = (d && d.join) || {};
+  $("pnMine").textContent = j.enabled ? "" : "⚠️ «📱 الموبايل والسيرفر» مقفول على الجهاز ده — فعّله عشان الأجهزة التانية تدخل عليه";
+  const anyUp = P.some((p) => p.connected);
+  st("stLink", !P.length ? "" : anyUp ? "ok" : "bad", !P.length ? "اختياري — اربط أجهزة تانية أو سيرفرات VPS" : anyUp ? `✅ ${M.up}/${P.length} متصل` : "❌ مفيش جهاز متصل — بيحاول تاني", anyUp);
+}
+async function refreshPeers() { if (window.__linked) return; try { paintPeers(await A.call("peers", "list")); } catch {} }
+function paintLink(s) {
+  window.__linked = s && s.linked ? s.linked : null;
+  if (window.__linked) { $("pnList").innerHTML = `<div class="pn-row">🖥 الجهاز ده في وضع «عرض من السيرفر» (${esc(window.__linked.addr)}) — شاشة بس والسحب هناك. عشان يشتغل بالمزامنة الكاملة مع باقي الأجهزة فك الوضع ده الأول. <div class="updrow"><button class="l" id="pnUnview">فك وضع العرض</button></div></div>`; $("pnUnview").onclick = async () => { await A.call("link", { off: true }); }; return; }
+  refreshPeers();
+}
+refreshPeers(); setInterval(refreshPeers, 3000);
+$("pnAdd").onclick = async () => {
+  const v = $("pnJoin").value.trim(); if (!v) return st("stLink", "bad", "❌ الصق كود الانضمام (العنوان#الكود)", false);
+  $("pnAdd").disabled = true; $("pnAdd").textContent = "⏳ بيتصل…";
+  let settings;
+  const M0 = (PN && PN.mesh) || {};
+  if (PN && !(PN.peers || []).length && M0.joined === false && M0.fresh === false) { // جهاز عليه داتا وإعدادات ولسه ما اتربطش بأي جهاز: مين الأساس؟
+    settings = confirm("الجهاز ده عليه داتا وإعدادات.\n\n• موافق = الجهاز ده جديد: خد إعدادات الجهاز التاني (الداتا بتتدمج في الحالتين).\n• إلغاء = إعدادات الجهاز ده هي الأساس وتتنسخ على الباقي.") ? "adopt" : "mine";
+  }
+  const r = await A.call("peers", "add", { join: v, addr: v, settings });
+  $("pnAdd").disabled = false; $("pnAdd").textContent = "➕ ضيف الجهاز";
+  if (r && r.ok) { $("pnJoin").value = ""; st("stLink", "ok", "✅ اتضاف — بيسحب الداتا والإعدادات دلوقتي…", true); paintPeers(await A.call("peers", "list")); }
+  else st("stLink", "bad", "❌ " + ((r && r.error) || "مش قادر يوصل"), false);
+};
+$("pnJoin").addEventListener("keydown", (e) => { if (e.key === "Enter") $("pnAdd").click(); });
+$("pnCopy").onclick = async () => {
+  const j = await A.call("peers", "join");
+  if (!j || !j.enabled) return st("stLink", "bad", "❌ فعّل «📱 الموبايل والسيرفر» الأول (الكارت اللي فوق) عشان الأجهزة التانية تقدر تدخل على الجهاز ده", false);
+  const txt = (j.strings || [])[0]; if (!txt) return;
+  try { await navigator.clipboard.writeText(txt); st("stLink", "ok", "✅ اتنسخ: " + txt + (j.strings.length > 1 ? " — (فيه عناوين تانية للشبكة الداخلية لو الجهازين على نفس الواي فاي)" : ""), true); }
+  catch { st("stLink", "", "انسخ الكود: " + txt, false); }
+};
+$("pnResync").onclick = async () => { await A.call("peers", "resync"); st("stLink", "ok", "🔄 المزامنة الكاملة بدأت — الأرقام هتتساوى خلال ثواني", true); };
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-pn]"); if (!b) return;
+  const id = b.closest(".pn-row").dataset.id, act = b.dataset.pn;
+  if (act === "remove") { if (!confirm("تفك الجهاز ده من الشبكة؟ الداتا اللي اتزامنت بتفضل عندك، والجهاز ده يكمل شغله لوحده.")) return; await A.call("peers", "remove", id); }
+  else if (act === "toggle") await A.call("peers", "toggle", id);
+  else if (act === "resync") await A.call("peers", "resync");
+  refreshPeers();
+});
+$("updSave").onclick = async () => refreshUpd(await A.call("update", "setRepo", $("updRepo").value));
+$("updCheck").onclick = async () => refreshUpd(await A.call("update", "check"));
+$("updInstall").onclick = () => A.call("update", "install");
+A.on("update", refreshUpd);
+refreshUpd();
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>

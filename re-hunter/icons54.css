@@ -1,0 +1,34 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+   كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. */
+/* 🎨 أيقونات ملوّنة مجسّمة (10.54) — بلاطة بتدرّج + لمعة + ظل، والرسمة بيضا جواها. بتتحجّم بـ em فبتمشي مع حجم الكلام اللي حواليها */
+.i54{--c1:#7FB2FF;--c2:#2D63DB;--ic:1.5em;position:relative;display:inline-grid!important;place-items:center;flex:none!important;vertical-align:-.3em;box-sizing:border-box;
+  width:var(--ic);height:var(--ic);margin-inline:.12em;border-radius:.46em;font-style:normal;line-height:1;font-weight:400;text-decoration:none;isolation:isolate;
+  background:linear-gradient(158deg,var(--c1) 0%,var(--c2) 100%);
+  box-shadow:inset 0 .07em 0 rgba(255,255,255,.55),inset 0 -.14em .14em rgba(0,0,0,.24),0 .09em .22em -.04em color-mix(in srgb,var(--c2) 75%,transparent),0 0 0 .045em color-mix(in srgb,var(--c2) 70%,#000 30%)}
+.i54::before{content:"";position:absolute;z-index:-1;inset:.05em .05em 48% .05em;border-radius:.4em .4em 100% 100%/.4em .4em .5em .5em;background:linear-gradient(rgba(255,255,255,.42),rgba(255,255,255,.04))}
+.i54 svg{width:70%;height:70%;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 .05em .03em rgba(0,0,0,.35));pointer-events:none}
+/* النص الأصلي (الإيموجي) جوه الأيقونة مخفي بصريًا بس موجود للبحث والنسخ */
+.i54-t{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;font-size:1.2px}
+
+x-ic,x-t{unicode-bidi:isolate}
+/* ألوان */
+.i54.c-blue{--c1:#7DB1FF;--c2:#2A5FD8}.i54.c-teal{--c1:#4FD8CF;--c2:#0B8A87}.i54.c-green{--c1:#6FDB8F;--c2:#188A4B}.i54.c-amber{--c1:#FFD05A;--c2:#D98206}
+.i54.c-orange{--c1:#FFA867;--c2:#E2561A}.i54.c-red{--c1:#FF8A8A;--c2:#D72B3A}.i54.c-purple{--c1:#B79BFF;--c2:#6A3FD8}.i54.c-pink{--c1:#FF9CCB;--c2:#D8307F}
+.i54.c-slate{--c1:#A9B8CB;--c2:#56667D}.i54.c-cyan{--c1:#6BE0F2;--c2:#0A86A8}.i54.c-gold{--c1:#FFE27A;--c2:#C98A0A}.i54.c-indigo{--c1:#92A2FF;--c2:#3C48C9}
+
+/* نقطة ملوّنة (🟢🔴🟡…) = كورة مجسّمة صغيرة */
+.i54.dot{--ic:.82em;width:var(--ic);height:var(--ic);border-radius:50%;margin-inline:.18em;vertical-align:-.04em;
+  background:radial-gradient(circle at 32% 28%,#fff 0,var(--c1) 26%,var(--c2) 100%);box-shadow:0 0 0 .05em color-mix(in srgb,var(--c2) 60%,#000 40%),0 .06em .16em color-mix(in srgb,var(--c2) 60%,transparent)}
+.i54.dot::before{display:none}
+
+/* المقاسات حسب المكان */
+button .i54,.btn .i54,.tab .i54{--ic:1.42em}
+.chip .i54,.pill .i54,.tab small .i54,small .i54{--ic:1.3em}
+h1 .i54,h2 .i54{--ic:1.5em;margin-inline:.1em .3em}
+h3 .i54,h4 .i54,summary .i54{--ic:1.45em;margin-inline:.05em .3em}
+.i54.sm{--ic:1.15em}.i54.lg{--ic:2em}.i54.xl{--ic:2.6em}
+
+/* غامق: ظل الأيقونة أخف عشان ما تعومش */
+html[data-mode="dark"] .i54{box-shadow:inset 0 .07em 0 rgba(255,255,255,.5),inset 0 -.14em .14em rgba(0,0,0,.3),0 .1em .3em -.04em rgba(0,0,0,.55),0 0 0 .045em color-mix(in srgb,var(--c2) 55%,#000 45%)}
+@media (forced-colors:active){.i54{forced-color-adjust:none}}
+@media print{.i54{box-shadow:none;border:1px solid #999}}

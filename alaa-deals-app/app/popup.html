@@ -1,0 +1,135 @@
+<!doctype html>
+<!-- © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
+     كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>قايمة</title>
+<style>
+  :root { --bg: #0d2633; --bg2: #143746; --line: #21495a; --ink: #e6eef2; --mute: #8fb0bd; --gold: #d4a63a; --brand: #d4a63a; --green: #3fbf8a; --red: #e07a5f; --amber: #e2b35a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 16.7px/1.3 Cairo,Arial,"Liberation Sans",Helvetica,sans-serif; overflow: hidden; user-select: none; }
+  button, input { font-family: inherit; }
+  /* اللوحة: عرض ثابت والارتفاع على قد الكلام — نافذة main.js بتتظبط على مقاسها */
+  #p { position: absolute; top: 0; inset-inline-start: 0; display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--line); border-top: 2px solid var(--gold); }
+  #p.plat { width: 318px; }
+  #p.pages { width: 404px; }
+  #q { display: none; margin: 8px 8px 2px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg2); color: var(--ink); padding: 0 10px; font: inherit; }
+  #q:focus { outline: 1px solid var(--brand); }
+  #p.s #q { display: block; }
+  #list { flex: 1; min-height: 0; overflow-y: auto; padding: 5px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+  .gl { padding: 8px 9px 4px; color: var(--mute); font-size: 14.4px; font-weight: 700; }
+  .r { position: relative; display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 6px 10px; border-radius: 9px; cursor: pointer; border: 1px solid transparent; }
+  .r:hover, .r.hl { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+  .r.hl { border-color: color-mix(in srgb, var(--ink) 14%, transparent); }
+  .r.on { background: color-mix(in srgb, var(--gold) 15%, transparent); }
+  .r.on::before { content: ""; position: absolute; inset-block: 8px; inset-inline-start: 0; width: 3px; border-radius: 3px; background: var(--gold); }
+  .ic { flex: none; width: 26px; text-align: center; font-size: 21.8px; line-height: 1; }
+  .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .tx b { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tx small { color: var(--mute); font-size: 14.4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .tx small.u { direction: ltr; text-align: left; display: block; }
+  .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--mute); opacity: .6; }
+  .dot.ok { background: var(--green); opacity: 1; } .dot.warn { background: var(--amber); opacity: 1; } .dot.bad { background: var(--red); opacity: 1; }
+  kbd { flex: none; font: 13.2px Cairo,Arial,"Liberation Sans",Helvetica,sans-serif; color: var(--mute); border: 1px solid var(--line); border-radius: 5px; padding: 2px 6px; direction: ltr; }
+  .x { flex: none; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 6px; opacity: .55; font-size: 15px; }
+  .x:hover { opacity: 1; background: color-mix(in srgb, var(--red) 28%, transparent); }
+  .r.auto .tx b { font-style: italic; font-weight: 600; color: var(--mute); }
+  .spin { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--gold); animation: p 1s infinite; }
+  @keyframes p { 50% { opacity: .2 } }
+  .ft { display: none; border-top: 1px solid var(--line); padding: 6px; }
+  .ft.has { display: block; }
+  .ft button { width: 100%; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; }
+  .ft button:hover { background: color-mix(in srgb, var(--red) 18%, transparent); border-color: var(--red); }
+  .empty { padding: 18px 10px; text-align: center; color: var(--mute); }
+</style>
+<link rel="stylesheet" href="engine/icons54.css">
+<link rel="stylesheet" href="engine/icons56.css">
+<link rel="stylesheet" href="app56.css">
+</head>
+<body class="ui56 pg-pop">
+<div id="p" class="plat">
+  <input id="q" placeholder="🔍 دوّر في الصفحات المفتوحة…" spellcheck="false">
+  <div id="list" role="menu"></div>
+  <div class="ft" id="ft"><button id="closeAll"></button></div>
+</div>
+<script src="engine/icons54.js"></script>
+<script src="plat54.js"></script>
+<script>
+const A = window.alaaApp, $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+let D = null, Q = "", HL = -1, MAXH = 520, lastSize = "";
+const SEARCH_MIN = 7; // لما الصفحات تكتر بيظهر مربع بحث
+
+function applyTheme(th) {
+  if (!th) return;
+  document.body.className = ((th.cls || "").replace(/\b(ui54|pg-pop)\b/g, "") + " ui54 pg-pop").replace(/\s+/g, " ").trim();
+  for (const [k, v] of Object.entries(th.vars || {})) document.body.style.setProperty(k, v);
+  // نفس القيم على :root عشان html/body ياخدوها
+  for (const [k, v] of Object.entries(th.vars || {})) document.documentElement.style.setProperty(k, v);
+}
+function rowsOf() { return [...document.querySelectorAll("#list .r")]; }
+function mark() { const rs = rowsOf(); rs.forEach((r, i) => r.classList.toggle("hl", i === HL)); if (rs[HL]) rs[HL].scrollIntoView({ block: "nearest" }); }
+
+function render() {
+  if (!D) return;
+  const p = $("p"); p.className = D.kind + (D.kind === "pages" && D.items.length >= SEARCH_MIN ? " s" : "");
+  let html = "", manual = 0;
+  if (D.kind === "plat") {
+    html = D.items.map((i) => `<div class="r ${i.on ? "on" : ""}" role="menuitem" data-k="${i.k}"><span class="ic">${platBadge(i.k) || i.ic}</span><div class="tx"><b>${esc(i.n)}</b><small><i class="dot ${i.st}"></i><span>${esc(i.text)}</span></small></div><kbd>${esc(i.key)}</kbd></div>`).join("");
+  } else {
+    const q = Q.trim().toLowerCase(), items = D.items.filter((i) => !q || (i.title + " " + i.url).toLowerCase().includes(q));
+    const row = (i) => `<div class="r ${i.on ? "on" : ""} ${i.auto ? "auto" : ""}" role="menuitem" data-id="${i.id}" title="${esc(i.title)}"><span class="ic">${i.loading ? '<span class="spin"></span>' : i.auto ? "🔄" : "📄"}</span><div class="tx"><b dir="auto">${esc(i.title)}</b><small class="u">${esc(i.url)}</small></div>${i.auto ? "" : `<span class="x" data-x="${i.id}" title="اقفل الصفحة">✕</span>`}</div>`;
+    const m = items.filter((i) => !i.auto), a = items.filter((i) => i.auto);
+    manual = D.items.filter((i) => !i.auto).length;
+    if (m.length) html += `<div class="gl">الصفحات المفتوحة (${m.length})</div>` + m.map(row).join("");
+    if (a.length) html += `<div class="gl">🔄 سحب تلقائي — بيشتغل لوحده (${a.length})</div>` + a.map(row).join("");
+    if (!items.length) html = `<div class="empty">${q ? "مفيش صفحة بالاسم ده" : "مفيش صفحات مفتوحة"}</div>`;
+  }
+  $("list").innerHTML = html;
+  if (window.I54) I54.scan($("list")); // الأيقونات تتبدّل فورًا قبل قياس المقاس
+  const ft = $("ft"); ft.classList.toggle("has", D.kind === "pages" && manual > 0);
+  $("closeAll").textContent = `✕ اقفل كل الصفحات المفتوحة (${manual})`;
+  const rs = rowsOf(); if (HL >= rs.length) HL = rs.length - 1;
+  if (HL < 0 && rs.length) { const on = rs.findIndex((r) => r.classList.contains("on")); HL = on; }
+  mark();
+  $("list").style.maxHeight = Math.max(120, MAXH - ($("p").classList.contains("s") ? 48 : 0) - (ft.classList.contains("has") ? 50 : 0) - 6) + "px";
+  report();
+}
+function report() {
+  const r = $("p").getBoundingClientRect(), w = Math.ceil(r.width), h = Math.ceil(r.height), k = w + "x" + h;
+  if (k !== lastSize) { lastSize = k; A.send("popSize", { w, h }); }
+}
+
+A.on("popData", (d) => {
+  const fresh = !D || d.fresh || D.kind !== d.kind;
+  if (d.maxH) MAXH = d.maxH;
+  D = d;
+  applyTheme(d.th);
+  if (fresh) { Q = ""; HL = -1; lastSize = ""; $("q").value = ""; }
+  render();
+  if (fresh) { window.focus(); }
+});
+
+document.addEventListener("click", (e) => {
+  const x = e.target.closest("[data-x]"); if (x) { e.stopPropagation(); A.call("close", +x.dataset.x); return; }
+  if (e.target.closest("#closeAll")) { A.call("closeAux"); return; }
+  const r = e.target.closest(".r"); if (!r) return;
+  if (r.dataset.k) A.call("popAct", { act: "plat", kind: r.dataset.k });
+  else if (r.dataset.id) A.call("activate", +r.dataset.id);
+});
+document.addEventListener("auxclick", (e) => { const r = e.target.closest(".r[data-id]"); if (r && e.button === 1 && !r.classList.contains("auto")) { e.preventDefault(); A.call("close", +r.dataset.id); } });
+document.addEventListener("mousemove", (e) => { const r = e.target.closest(".r"); if (!r) return; const i = rowsOf().indexOf(r); if (i !== HL) { HL = i; mark(); } });
+$("q").addEventListener("input", () => { Q = $("q").value; HL = 0; render(); });
+document.addEventListener("keydown", (e) => {
+  const rs = rowsOf();
+  if (e.key === "Escape") { e.preventDefault(); A.call("popClose", true); }
+  else if (e.key === "ArrowDown") { e.preventDefault(); HL = rs.length ? (HL + 1) % rs.length : -1; mark(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); HL = rs.length ? (HL - 1 + rs.length) % rs.length : -1; mark(); }
+  else if (e.key === "Enter") { const r = rs[HL]; if (r) { e.preventDefault(); r.click(); } }
+  else if ((e.key === "Delete" || (e.key === "Backspace" && document.activeElement !== $("q"))) && rs[HL] && rs[HL].dataset.id && !rs[HL].classList.contains("auto")) { e.preventDefault(); A.call("close", +rs[HL].dataset.id); }
+  else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && D && D.kind === "pages" && $("p").classList.contains("s") && document.activeElement !== $("q")) { $("q").focus(); }
+});
+</script>
+</body>
+</html>
