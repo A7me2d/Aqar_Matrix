@@ -24,6 +24,8 @@ try {
 const VERSION = app.getVersion();
 const APPDIR = __dirname;
 const ENGINE = path.join(APPDIR, "engine");
+// 📇 دليل الموظفين (المصدر المرخّص لأرقام التواصل) — ممكن يتغيّر لـlocalhost/self-hosted في الاختبارات
+const EMPLOYEE_PHONE_URL = String(process.env.EMPLOYEE_PHONE_URL || "https://lap.wzila.com/alaa-data.php");
 const ICON = path.join(APPDIR, "icon.png");
 const AUMID = "com.alaa.deals";
 // أيقونة النافذة على ويندوز: ملف ICO القياسي (BMP للأحجام الصغيرة + PNG لـ256) — مش PNG. ده اللي بيمنع «الورقة البيضا» في شريط المهام
@@ -357,14 +359,15 @@ function setupIpc() {
     } catch (err) { return { ok: false, description: "مفيش اتصال بتليجرام: " + (err.message || err) }; }
   });
   // 📨 واتساب الرسمي (Cloud API): النداء لـgraph.facebook.com بيعدّي من هنا (من غير قيود CORS) — لينكات ميتا بس (والمحلي في الاختبارات)
+  // 📇 دليل الموظفين: نفس مصدر التوحيد (الرقم المنشور في البوست أو الدليل المرخّص) — من غير قيود المتصفح
   ipcMain.handle("app:employeePhone", async (e, o = {}) => {
     const id = String(o.id || "");
     if (!/^\d{5,25}$/.test(id)) return { error: "آيدي غير صالح" };
     try {
-      const r = await net.fetch("https://lap.wzila.com/alaa-data.php?id=" + encodeURIComponent(id), { signal: AbortSignal.timeout(12000), credentials: "omit", redirect: "error", cache: "no-store" });
+      const r = await net.fetch(EMPLOYEE_PHONE_URL + "?id=" + encodeURIComponent(id), { signal: AbortSignal.timeout(12000), credentials: "omit", redirect: "error", cache: "no-store" });
       if (!r.ok) return { error: "HTTP " + r.status };
       return { text: (await r.text()).slice(0, 16000) };
-    } catch { return { error: "تعذر جلب الداتا" }; }
+    } catch { return { error: "تعذر الاتصال" }; }
   });
   ipcMain.handle("app:graph", async (e, o = {}) => {
     const url = String(o.url || ""), ok = /^https:\/\/graph\.facebook\.com\/v\d{1,2}\.\d\/[A-Za-z0-9_\/.?=&,%+:-]{1,400}$/.test(url) || (TEST && /^http:\/\/127\.0\.0\.1:\d{2,5}\/[A-Za-z0-9_\/.?=&,%+:-]{1,400}$/.test(url));

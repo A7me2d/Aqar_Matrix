@@ -7,6 +7,7 @@ button.fbid:active{transform:scale(.97)}
 button.fbid:focus-visible{outline:2px solid var(--fb-c);outline-offset:2px}
 button.fbid.done{background:color-mix(in srgb,#16a34a 22%,transparent);border-color:#16a34a}
 .fbid.pend{cursor:progress;opacity:.8;padding:6px 12px;gap:4px}
+.fbid.pend::before{content:none}
 .fbid.pend i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.25;animation:fbidDot 1s infinite ease-in-out}
 .fbid.pend i:nth-child(2){animation-delay:.15s}.fbid.pend i:nth-child(3){animation-delay:.3s}
 .fbid.pend.sm{padding:3px 8px;vertical-align:middle}
@@ -30,4 +31,12 @@ button.fbid.done{background:color-mix(in srgb,#16a34a 22%,transparent);border-co
 .fbid-bar .fbid-copy[disabled]{opacity:.45;cursor:not-allowed}
 .fbid-pend,.fbid-note{opacity:.8;font-size:12.5px}
 .fbid-warn{color:#b45309;font-weight:700;font-size:12.5px}
+/* 🏷️ شارة التواصل: تليفون (منشور في البوست أو دليل الموظفين) · آيدي · «معندوش داتا» · «تعذر الاتصال» */
+.fbid.phone{--fb-c:#16a34a}
+.fbid.phone::before{opacity:.85}
+.fbid-note.err{color:#b91c1c;font-weight:700;opacity:1}
+.fbid-note.none{opacity:.7}
+.fbid-note.load{opacity:.75}
+:root[data-theme="dark"] .fbid-note.err,html[data-mode="dark"] .fbid-note.err{color:#f87171}
+:root[data-theme="dark"] .fbid.phone{--fb-c:#4ade80}
 :root[data-theme="dark"] .fbid-warn,html[data-mode="dark"] .fbid-warn{color:#fbbf24}

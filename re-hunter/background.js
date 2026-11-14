@@ -1555,7 +1555,7 @@ function onMsg(msg, sender, sendResponse) {
   // 🆔 آيدي فيسبوك الرقمي: اللوحة بتبعت اليوزرات اللي ظاهرة (أولوية) والخلفية بتحوّلهم واحد ورا التاني بهدوء
   if (msg.type === "fbidWant") { fbidWant(msg.handles || [], { urgent: msg.urgent !== false, retry: !!msg.retry }).then((n) => sendResponse({ ok: true, queued: n, st: fbidSt() })).catch((e) => sendResponse({ ok: false, error: String(e.message || e) })); return true; }
   if (msg.type === "fbidStatus") { sendResponse({ ok: true, st: fbidSt() }); return false; }
-  if (msg.type === "employeePhone") { EMPLOYEEPHONE.lookup(msg.id).then(sendResponse, () => sendResponse({ ok: false })); return true; }
+  if (msg.type === "employeePhone") { EMPLOYEEPHONE.lookup(msg.id).then((r) => sendResponse(r || { ok: false, error: "تعذر الاتصال" }), () => sendResponse({ ok: false, error: "تعذر الاتصال" })); return true; }
   if (msg.type === "kvMerge") {
     kvQueued(async () => {
       if (!KV_OK.has(msg.key)) throw new Error("key");

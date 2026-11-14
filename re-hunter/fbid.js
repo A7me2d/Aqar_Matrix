@@ -1,8 +1,12 @@
 // © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة / All rights reserved.
 // كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential.
-// 🆔 آيدي فيسبوك الرقمي لكل شخص (طالب / عارض / مشتري / بائع / تطابق) فوق الكارت — بيتحوّل لوحده (زي findidfb / lookup-id).
-//  • اللي حسابه بيظهر برقم: بيتعرض فورًا. اللي حسابه بيوزر (facebook.com/اسم): الخلفية بتحوّله لرقم لوحدها (طابور هادي) والرقم بيظهر مكانه لايف.
-//  • الرقم بس هو اللي بيظهر — دوسة عليه بتنسخه. وفي كل قسم زرار «نسخ كل الآيديات» لكل اللي في القسم (مش اللي ظاهر بس).
+// 🏷️ شارة التواصل الموحّدة لكل شخص (طلب / عرض / تطابق / مشتري / بائع / نتيجة «هاتلي مشتري»):
+//  • الرقم المنشور في البوست نفسه (لو الشخص كاتبه) → ده بيتعرض الأول.
+//  • ولا دليل الموظفين المرخّص (بالآيدي الرقمي) → لو فيه تليفون بيتعرض، وإلا الآيدي + «معندوش داتا».
+//  • «مفيش داتا» ≠ «فشل الاتصال»: كل حالة ليها رسالة واضحة، والتحميل مابيتفضلش يدور للأبد.
+//  • الدوسة على الشارة بتنسخ القيمة الظاهرة (تليفون أو آيدي).
+//  • آيدي فيسبوك الرقمي لكل شخص: اللي حسابه بيظهر برقم: بيتعرض فورًا. اللي حسابه بيوزر (facebook.com/اسم): الخلفية بتحوّله لرقم لوحدها (طابور هادي) والرقم بيظهر مكانه لايف.
+//  • في كل قسم زرار «نسخ كل الآيديات» لكل اللي في القسم (مش اللي ظاهر بس).
 (() => {
   const C = globalThis.FBIDCORE;
   const KEY = "extractIdCache", MISS = "__fbidMiss", ST = "__fbidSt";
@@ -22,31 +26,79 @@
     if (asked && Date.now() - asked > 60000) return "التحويل لم يكتمل — راجع اتصال البرنامج بفيسبوك";
     return "";
   }
-  const employee = new Map(), employeeQueue = new Set();
-  let employeeBusy = 0;
-  function employeeBadge(n) {
-    const hit = employee.get(n), r = hit && hit.until > Date.now() ? hit.result : null;
-    if (!r && !employeeQueue.has(n) && !(hit && hit.loading)) {
-      employeeQueue.add(n);
-      setTimeout(drainEmployees, 0);
-    }
-    const value = r && r.ok && r.phone ? r.phone : n;
-    const isPhone = value !== n || !!(r && r.ok && r.phone);
-    const note = !r ? "جاري جلب الداتا…" : !r.ok ? "تعذر جلب الداتا" : !r.phone ? "معندوش داتا" : "";
-    return `<span class="fbid-contact" data-employee-id="${E(n)}"><button type="button" class="fbid" data-fbnum="${E(value)}" data-phone="${isPhone ? "1" : "0"}" dir="ltr" title="${isPhone ? "رقم التليفون" : "آيدي فيسبوك"} — دوس للنسخ" aria-label="نسخ ${isPhone ? "رقم التليفون" : "آيدي فيسبوك"} ${E(value)}">${E(value)}</button>${note ? ` <span class="fbid-note" dir="rtl" role="status">${note}</span>` : ""}</span>`;
+
+  // ===== 📇 دليل الموظفين (المصدر المرخّص التاني) — طابور جلب هادي + مهلة، عشان التحميل مابيتحولش لدوران أبد =====
+  const D_MAX = 3, D_WAIT = 25000;                             // اتنين في نفس الوقت · مهلة الانتظار في الطابور
+  const D_TTL = { phone: 36e5, none: 3e5, err: 6e4 };           // مدة الكاش: رقم · مفيش داتا · فشل
+  const D = { ui: new Map(), q: new Set(), req: new Set(), busy: 0 };
+
+  function dirNeed(id) {
+    if (D.req.has(id)) return;                                          // شغّال دلوقتي
+    const s = D.ui.get(id), now = Date.now();
+    if (s && s.until && now < s.until && s.st !== "load") return;       // النتيجة معروفة
+    if (s && s.st === "load" && s.deadline && now < s.deadline) return;  // في انتظار
+    D.q.add(id); setTimeout(dirDrain, 0);
   }
-  function drainEmployees() {
-    while (employeeBusy < 3 && employeeQueue.size) {
-      const n = employeeQueue.values().next().value;
-      employeeQueue.delete(n); employee.set(n, { loading: true }); employeeBusy++;
-      Promise.resolve().then(() => chrome.runtime.sendMessage({ type: "employeePhone", id: n }))
-        .then((r) => finish(r || { ok: false }), () => finish({ ok: false }));
-      function finish(result) {
-        employee.set(n, { result, until: Date.now() + (!result.ok ? 60000 : result.phone ? 3600000 : 300000) });
-        employeeBusy--; refreshSoon(); drainEmployees();
+  function dirDrain() {
+    while (D.busy < D_MAX && D.q.size) {
+      const id = D.q.values().next().value; D.q.delete(id); D.busy++;
+      const prev = D.ui.get(id) || {};
+      // القيمة القديمة تفضل معروضة لحد ما الجديدة توصل (من غير وميض تحميل)
+      D.ui.set(id, { ...prev, st: prev.st || "load", deadline: Date.now() + D_WAIT, until: 0 });
+      D.req.add(id);
+      let p = null;
+      try { p = globalThis.EMPLOYEEPHONE && EMPLOYEEPHONE.lookup ? EMPLOYEEPHONE.lookup(id) : null; } catch {}
+      if (!p || typeof p.then !== "function") { try { p = chrome.runtime.sendMessage({ type: "employeePhone", id }); } catch { p = null; } }
+      Promise.resolve(p).then((r) => dirDone(id, r), () => dirDone(id, { ok: false, error: "تعذر الاتصال" }));
+    }
+  }
+  function dirDone(id, r) {
+    const ok = !!(r && r.ok), ph = ok ? String(r.phone || "") : "";
+    D.ui.set(id, { st: ok ? (ph ? "ok" : "none") : "err", phone: ph, err: ok ? "" : String((r && r.error) || "تعذر الاتصال"),
+      until: Date.now() + (ok ? (ph ? D_TTL.phone : D_TTL.none) : D_TTL.err) });
+    D.req.delete(id); D.busy--; refreshSoon(); dirDrain();
+    if (D.ui.size > 3000) { const k = D.ui.keys().next().value; if (k) D.ui.delete(k); }
+  }
+  // 📞 الرقم المنشور في البوست/التعليق نفسه (أول مصدر — تليفون الشخص بنفسه)
+  function postPhone(x) {
+    const arr = Array.isArray(x && x.phones) ? x.phones : (x && x.phone ? [x.phone] : []);
+    for (const p of arr) {
+      const s = String(p == null ? "" : p).trim();
+      if (!s || !/^[+\d\s().-]+$/.test(s)) continue;
+      const d = s.replace(/\D/g, "");
+      if (d.length >= 7 && d.length <= 15) return s;
+    }
+    return "";
+  }
+  // 🏷️ الشارة نفسها: القيمة المعروضة + ملاحظة الحالة
+  function badge(value, o) {
+    const lab = o.phone ? "رقم التليفون" : "آيدي فيسبوك";
+    const dots = o.dots ? "<i></i><i></i><i></i>" : "";
+    return `<button type="button" class="fbid${o.cls ? " " + o.cls : ""}" data-fbnum="${E(value)}" data-phone="${o.phone ? "1" : "0"}" dir="ltr" title="${E(o.title || (lab + " — دوس للنسخ"))}" aria-label="نسخ ${E(lab)} ${E(value)}">${E(value)}${dots}</button>` +
+      (o.note ? ` <span class="fbid-note${o.noteCls ? " " + o.noteCls : ""}" dir="rtl" role="status">${E(o.note)}</span>` : "");
+  }
+  // محتوى الشارة حسب الحالة (نفسه لكل الأقسام: طلبات · عروض · تطابق · مشترين · بائعين · هاتلي مشتري)
+  function contactInner(key) {
+    // اليوزر لو اتحوّل لرقم في الكاش → نكمّل بالرقم (والدليل بيشتغل عليه)
+    const num = C.isNum(key) ? key : (C.isNum(S.cache[key]) ? String(S.cache[key]) : "");
+    if (num) {
+      dirNeed(num); // لو النتيجة قديمة → يجيبها تاني (من غير ما يغيّر المعروض لحد ما الجديدة توصل)
+      const s = D.ui.get(num) || { st: "load", deadline: Date.now() + D_WAIT };
+      if (s.st === "load") {
+        if (s.deadline && Date.now() > s.deadline) { s = { st: "err", err: "انتهت المهلة", until: Date.now() + D_TTL.err }; D.ui.set(num, s); }
+        else return badge(num, { cls: "pend", dots: true, note: "جاري الجلب…", noteCls: "load" });
       }
+      if (s.st === "err") return badge(num, { cls: "miss", note: "تعذر الاتصال", noteCls: "err", title: "مقدرتش أوصل لدليل الموظفين — " + (s.err || "راجع الاتصال") + " (الآيدي لسه معروض)" });
+      if (s.st === "none") return badge(num, { cls: "miss", note: "معندوش داتا", noteCls: "none", title: "دليل الموظفين مفيهوش رقم للحساب ده" });
+      return badge(s.phone, { phone: true, cls: "phone", title: "رقم التليفون (دليل الموظفين) — دوس للنسخ" });
     }
+    // يوزر فيسبوك (مش رقم لسه): بنستنى التحويل
+    if (isDead(key)) return `<span class="fbid miss" title="مفيش آيدي رقم ظاهر للحساب ده (الحساب خاص أو اتمسح)">—</span>`;
+    const note = conversionNote(key);
+    if (note) return `<span class="fbid miss" dir="rtl" role="status">${E(note)}</span>`;
+    return `<span class="fbid waiting" dir="rtl" role="status">في انتظار حالة التحويل</span>`;
   }
+  const contactWrap = (key) => `<span class="fbid-contact" data-contact="${E(key)}" data-csrc="${C.isNum(key) ? "dir" : "handle"}">${contactInner(key)}</span>`;
 
   // ===== مين هو الشخص؟ → { num } (رقم جاهز) أو { handle } (يوزر محتاج تحويل) أو null (مفيش فيسبوك: واتساب/إنستجرام/من غير حساب) =====
   function raw(x) {
@@ -63,20 +115,20 @@
   const numOf = (r) => (!r ? "" : r.num ? r.num : C.isNum(S.cache[r.handle]) ? String(S.cache[r.handle]) : "");
   const isDead = (h) => { const m = S.miss[h]; return !!m && m.why === "none"; }; // الحساب مفيهوش آيدي ظاهر (خاص/اتمسح) — بنجرّب تاني بعد ساعات
 
-  // ===== الشارة فوق الكارت =====
-  function chipInner(r) {
-    const n = numOf(r);
-    if (n) return employeeBadge(n);
-    if (isDead(r.handle)) return `<span class="fbid miss" data-fbh="${E(r.handle)}" title="مفيش آيدي رقم ظاهر للحساب ده (الحساب خاص أو اتمسح)">—</span>`;
-    const note = conversionNote(r.handle);
-    if (note) return `<span class="fbid miss" data-fbh="${E(r.handle)}" dir="rtl" role="status">${E(note)}</span>`;
-    return `<span class="fbid waiting" data-fbh="${E(r.handle)}" dir="rtl" role="status">في انتظار حالة التحويل</span>`;
-  }
+  // ===== 🏷️ الشارة فوق الكارت (نفس الشكل في كل الأقسام) =====
   // opt.inline = جوه سطر (من غير صف لوحده)
   function chip(x, opt) {
     const r = raw(x); if (!r) return "";
-    if (r.handle) want([r.handle]);
-    return opt && opt.inline ? `<span class="fbid-in">${chipInner(r)}</span>` : `<div class="fbid-row">${chipInner(r)}</div>`;
+    const ph = postPhone(x); // 📞 رقم منشور في البوست → بيتعرض على طول
+    if (ph) {
+      const inner = `<span class="fbid-contact" data-csrc="post">${badge(ph, { phone: true, cls: "phone", title: "رقم التليفون (منشور في البوست) — دوس للنسخ" })}</span>`;
+      return opt && opt.inline ? `<span class="fbid-in">${inner}</span>` : `<div class="fbid-row">${inner}</div>`;
+    }
+    const n = numOf(r), key = n || r.handle;
+    if (!key) return "";
+    if (!n && r.handle) want([r.handle]);
+    const inner = contactWrap(key);
+    return opt && opt.inline ? `<span class="fbid-in">${inner}</span>` : `<div class="fbid-row">${inner}</div>`;
   }
 
   // ===== طلب التحويل من الخلفية (دفعات، من غير تكرار) =====
@@ -103,7 +155,7 @@
     if (S.q.size) S.t = setTimeout(flush, 350);
   }
 
-  // ===== أقسام (طلبات / عروض / مشترين / بايعين / تطابق) =====
+  // ===== أقسام (طلبات / عروض / مشترين / بايعين / تطابق / هاتلي مشتري) =====
   // groups = [{ label, ic, items: [post|lead|seller…] }] — الـitems هي القايمة كلها (بعد الفلتر) مش اللي ظاهر بس
   function sec(name, container, groups) {
     if (!container) return;
@@ -157,13 +209,10 @@
   // ===== تحديث لايف أول ما الرقم يوصل =====
   function refresh() {
     S.rt = 0;
-    document.querySelectorAll(".fbid[data-fbh]").forEach((el) => {
-      const h = el.getAttribute("data-fbh"), r = { handle: h };
-      const html = chipInner(r);
+    document.querySelectorAll(".fbid-contact[data-contact]").forEach((el) => {
+      const k = el.getAttribute("data-contact");
+      const html = contactWrap(k);
       if (el.outerHTML !== html) el.outerHTML = html;
-    });
-    document.querySelectorAll("[data-employee-id]").forEach((el) => {
-      el.outerHTML = employeeBadge(el.getAttribute("data-employee-id"));
     });
     Object.values(S.sec).forEach(paintBar);
   }
@@ -183,6 +232,6 @@
   // جرّب تاني اللي فشل (مثلًا بعد ما تسجّل دخول فيسبوك)
   function retry() { const hs = Object.keys(S.miss); try { chrome.runtime.sendMessage({ type: "fbidWant", handles: hs, urgent: true, retry: true }); } catch {} return hs.length; }
 
-  globalThis.FBID = { raw, chip, sec, numOf, want, retry, _S: S, _apply: apply, _refresh: refresh };
+  globalThis.FBID = { raw, chip, contact: chip, sec, numOf, want, retry, _S: S, _apply: apply, _refresh: refresh, _D: D, _contactInner: contactInner, _badge: badge };
   init();
 })();

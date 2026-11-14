@@ -4493,7 +4493,7 @@ function hitHtml(s, h, kind) {
   const unit = h.unit && (h.unit.category || h.unit.region) ? uLine({ land: {}, ...h.unit, category: h.unit.category || "land" }) : "";
   return `<div class="hit lv-${h.tr.level}${h.pin ? " pinned" : ""}" data-hkey="${esc(h.key || personKey(h))}">
     <span class="ss-score ${h.score < 85 ? "mid" : ""}" title="${esc(h.tier || "")}">${h.score}%</span>
-    <div class="hit-m"><div class="hit-n">${h.tier ? `<span class="tier-b">${esc(h.tier)}</span> ` : ""}<b>${esc(h.name || "—")}</b>
+    <div class="hit-m"><div class="hit-n">${h.tier ? `<span class="tier-b">${esc(h.tier)}</span> ` : ""}<b>${esc(h.name || "—")}</b>${window.FBID ? FBID.chip(h, { inline: true }) : ""}
       ${kind === "want" ? `<span class="tr-b tr-${h.tr.level}">${h.tr.label}</span>` : `<button class="tr-b tr-${h.tr.level}" data-trfix title="دوس لو البرنامج غلط — هتغيّرها بنفسك (حقيقي ⟵ سمسار ⟵ تلقائي)">${h.tr.label}</button>`}
       ${h.hot ? `<span class="l-lvl super">💎</span>` : ""}<span class="badge b-cat">${KIND_AR[h.kind] || ""}</span>${ownHitBadge(h, kind)}
       <span class="muted">· ${h.src === "data" ? "من الداتا" : h.src === "both" ? "داتا + سحب" : "سحب مخصص"}${h.group ? " · 📌 " + esc(h.group) : ""}${h.ts || h.at ? " · " + relDay(h.ts || h.at) : ""}</span></div>
