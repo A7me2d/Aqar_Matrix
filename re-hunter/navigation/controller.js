@@ -8,7 +8,7 @@
   const closeButton = document.getElementById("navClose"), backdrop = document.getElementById("navBackdrop");
   const small = window.matchMedia("(max-width:600px)");
   const home = nav.querySelector('[data-view="home"]'), homeSlot = document.getElementById("navHomeSlot");
-  let current = "", open = false, pref = "";
+  let current = nav.querySelector("button[data-view].on")?.dataset.view || document.body.dataset.pg || "home", open = false, pref = "";
   try { pref = localStorage.getItem("sb_mode") || ""; } catch {}
   if (!["full", "rail"].includes(pref)) pref = "";
   html.classList.add("aqm-navigation", "sb-full");
@@ -84,7 +84,16 @@
   closeButton.addEventListener("click", () => showMenu(false));
   backdrop.addEventListener("click", () => showMenu(false));
   nav.addEventListener("click", (event) => {
-    if (event.target.closest("button[data-view],#asFab")) showMenu(false, false);
+    const button = event.target.closest?.("button[data-view]");
+    if (button && nav.contains(button)) {
+      if (typeof window.AQMOpenView !== "function") return;
+      event.preventDefault();
+      event.stopPropagation();
+      showMenu(false, false);
+      window.AQMOpenView(button.dataset.view);
+      return;
+    }
+    if (event.target.closest?.("#asFab")) showMenu(false, false);
   });
   document.addEventListener("click", (event) => {
     const mode = event.target.closest?.("[data-sbm]");
@@ -98,8 +107,12 @@
       event.preventDefault(); setPref(pref === "rail" ? "full" : "rail");
     }
   });
-  // Close a non-modal panel when keyboard focus leaves navigation.
-  nav.addEventListener("focusout", () => queueMicrotask(() => { if (open && !nav.contains(document.activeElement)) showMenu(false, false); }));
+  // During focusout activeElement can temporarily be body, before the next
+  // button receives focus. Closing then hides the pointer target before click.
+  // relatedTarget is the actual destination, including for keyboard Tab moves.
+  nav.addEventListener("focusout", (event) => {
+    if (open && event.relatedTarget && !nav.contains(event.relatedTarget)) showMenu(false, false);
+  });
   window.addEventListener("sb-refresh", layout);
   window.addEventListener("resize", measure);
   if (small.addEventListener) small.addEventListener("change", layout); else small.addListener(layout);
@@ -115,6 +128,4 @@
   // Compatibility for the existing appearance preferences.
   window.__sb = { get mode() { return pref === "rail" ? "rail" : "full"; }, get pref() { return pref; }, get peek() { return open; }, set: setPref };
   layout();
-  const selected = nav.querySelector("button[data-view].on");
-  if (selected) refresh(selected.dataset.view);
 })();

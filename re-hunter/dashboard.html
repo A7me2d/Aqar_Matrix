@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="matches/matches.css">
 <link rel="stylesheet" href="posts/cards.css">
 <link rel="stylesheet" href="posts/screen.css">
+<link rel="stylesheet" href="navigation/navigation.css">
 <script src="sbboot.js"></script>
 <script src="keep.js"></script>
 <script src="sgv-data.js"></script>
@@ -66,38 +67,7 @@
       <button class="btn primary savebtn" id="saveAll" title="Ctrl+S">💾 حفظ</button>
     </div>
   </div>
-  <nav class="nav" id="nav">
-    <button data-view="home" class="nav-home"><i>🏠</i><span>الرئيسية</span></button>
-    <span class="nav-cap">الأساسي</span>
-    <button data-view="posts" class="on"><i>📋</i><span>الطلبات والعروض</span><em class="pill" id="navPosts">0</em></button>
-    <button data-view="matches"><i>🤝</i><span>التطابق</span><em class="pill match" id="navMatches">0</em><em class="pill hot" id="navMatchesNew" hidden>0</em></button>
-    <button data-view="leads"><i>🛒</i><span>المشترين</span><em class="pill buy" id="navLeads">0</em></button>
-    <button data-view="listings"><i>🎯</i><span>هاتلي مشتري</span><em class="pill" id="navListings">0</em></button>
-    <span class="nav-sep"></span>
-    <span class="nav-cap">تسويق ووصول</span>
-    <button data-view="pick"><i>⭐</i><span>رشّحلي</span><em class="pill hot" id="navMagnet" hidden>0</em></button>
-    <button data-view="atlas"><i>🗺</i><span>الأطلس</span></button>
-    <button data-view="sellers"><i>🏷</i><span>البائعين</span><em class="pill sell" id="navSellers">0</em></button>
-    <button data-view="publish"><i>📣</i><span>نشر فيس بوك</span><em class="pill" id="navPub" hidden>0</em></button>
-    <button data-view="spread"><i>🌐</i><span>الانتشار</span></button>
-    <button data-view="funnel"><i>📥</i><span>الواردين والقياس</span><em class="pill match" id="navFunnel" hidden>0</em></button>
-    <button data-view="wasend"><i>📨</i><span>بوت واتساب</span><em class="pill" id="navWa" hidden>0</em></button>
-    <span class="nav-sep"></span>
-    <span class="nav-cap">أدوات مساعدة</span>
-    <button data-view="extract"><i>👥</i><span>استخراج</span></button>
-    <span class="nav-sep"></span>
-    <span class="nav-cap">المتابعة</span>
-    <button data-view="pipe"><i>💼</i><span>الصفقات</span><em class="pill match" id="navPipe" hidden>0</em></button>
-    <button data-view="today"><i>☀️</i><span>النهارده</span><em class="pill hot" id="navToday" hidden>0</em></button>
-    <button data-view="saved"><i>🔔</i><span>دوّرلي على</span><em class="pill hot" id="navSaved" hidden>0</em></button>
-    <button data-view="stats"><i>📈</i><span>نبض السوق</span></button>
-    <span class="nav-sep"></span>
-    <span class="nav-cap" id="navToolsCap">أدواتي</span>
-    <span id="navTools" style="display:contents"></span>
-    <button data-view="aitools"><i>🧩</i><span>كل أدواتي</span><em class="pill hot" id="navToolsN" hidden>0</em></button>
-    <span class="nav-sep"></span>
-    <button data-view="settings"><i>⚙️</i><span>الإعدادات</span></button>
-  </nav>
+  <nav class="nav aqm-nav" id="nav"></nav>
 </header>
 <div class="app-main">
 <div id="welcome" class="welcome" hidden role="status">
@@ -947,6 +917,8 @@
 <script src="fbid-core.js"></script>
 <script src="employee-phone.js"></script>
 <script src="fbid.js"></script>
+<script src="navigation/items.js"></script>
+<script src="navigation/view.js"></script>
 <script src="matches/model.js"></script>
 <script src="matches/cards.js"></script>
 <script src="matches/fast.js"></script>
@@ -965,7 +937,7 @@
 <script src="magnetui.js"></script>
 <script src="icons54.js"></script>
 <script src="welcome56.js"></script>
-<script src="ui58.js"></script>
+<script src="navigation/controller.js"></script>
 <script src="home62.js"></script>
 <script src="acorn.min.js"></script>
 <script src="aiguard.js"></script>

@@ -5,7 +5,7 @@
 - `controller.js`: active state, More panel, focus handling, responsive home placement, assistant placement and appearance preference compatibility.
 - `navigation.css`: layout and scoped overrides for legacy theme rules.
 
-`dashboard.js` still owns screen selection and counts. It calls `AQMNavigation.refresh(state.view)` when rendering. Assistant tools continue to populate `#navTools`. Existing counter IDs remain available even when counts are hidden from the primary bar.
+`dashboard.js` still owns screen selection and counts. Navigation calls `AQMOpenView(view)` directly, switching screens without a reload or depending on the document action dispatcher. The dashboard calls `AQMNavigation.refresh(state.view)` when rendering. Assistant tools continue to populate `#navTools`. Existing counter IDs remain available even when counts are hidden from the primary bar.
 
 The home button moves into More on small screens, without cloning controls or IDs. Secondary views keep a visible active label on More. The panel closes on navigation, outside click or Escape. Ctrl+B and existing `sb_mode` appearance choices control optional icon-only mode on desktop.
 

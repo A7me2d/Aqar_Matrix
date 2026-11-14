@@ -831,8 +831,7 @@ function render() {
   todayBadge();
   if (state.view === "today") renderToday();
   if (state.view === "leads") renderLeads();
-  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.view === state.view));
-  try { const on = document.querySelector("#nav button.on"); if (on && window.matchMedia("(max-width:759px)").matches) { const nv = $("nav"); nv.scrollTo({ left: on.offsetLeft - (nv.clientWidth - on.offsetWidth) / 2, behavior: "smooth" }); } } catch {}
+  if (window.AQMNavigation) AQMNavigation.refresh(state.view);
   $("navPosts").textContent = items.length ? ar(items.filter(inArea).length) : "0";
   $("navMatches").textContent = pairs.filter((x) => x.score >= 70).length;
   if (lastRenderView === "matches" && state.view !== "matches") markMatchesSeen(); // خرجت من الشاشة = شفت اللي كان فيها
@@ -846,6 +845,15 @@ function render() {
   if (state.view === "settings") { renderSettingsStatus(); cfgRefill(); }
   if (grpOpen) { if (state.view !== "matches") lastCards = null; refreshGroupModal(); } // نافذة التفاصيل بتتحدث لوحدها
 }
+
+// Navigation has a direct entry point; clicks inside its nested groups do not
+// depend on the document's general action dispatcher or a page reload.
+window.AQMOpenView = function (view) {
+  if (!ALL_VIEWS.includes(view) && !VIEW_ALIAS[view] && !String(view).startsWith("tool:")) return;
+  state.view = view;
+  if (view === "settings") fillSettings();
+  render();
+};
 
 // ================= الطلبات =================
 // فلتر «🏠 المالك» في الطلبات والعروض: mention = أي بوست فيه الكلمة ، وبعدها التصنيف
@@ -3564,8 +3572,6 @@ $("tgTest").onclick = async () => {
   $("tgMsg").textContent = r && r.ok ? "✅ وصلت؟ بص على تليجرام" : "❌ " + ((r && r.error) || "مفيش رد");
   if (r && r.ok) { alertCfg = cfg; await chrome.storage.local.set({ alertCfg }); cfgOwnAt = Date.now(); cfgTouched.clear(); }
 };
-document.querySelectorAll("#nav button").forEach((b) => { const s = b.querySelector("span"); if (s && !b.title) b.title = s.textContent; });
-document.querySelectorAll("#nav button[data-view]").forEach((b) => { const s = b.querySelector("span"); if (s && !b.title) b.title = s.textContent.trim(); });
 if (window.alaaApp) document.documentElement.classList.add("in-app"); // جوه البرنامج: اللوجو موجود فوق في شريط البرنامج
 
 

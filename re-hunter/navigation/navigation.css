@@ -1,0 +1,125 @@
+/* Navigation owns its layout across the existing appearance presets. */
+html.aqm-navigation #side { z-index:90!important; }
+html.aqm-navigation #side + .app-main {
+  margin-inline:auto!important; width:100%!important; max-width:1280px!important;
+  padding-bottom:calc(var(--dkh,76px) + 48px + env(safe-area-inset-bottom))!important;
+}
+#side > #nav {
+  pointer-events:auto!important;
+  --nav-accent:var(--hue,var(--primary,#2563eb));
+  position:fixed!important; inset:auto!important; top:auto!important;
+  bottom:calc(16px + env(safe-area-inset-bottom))!important;
+  left:50%!important; right:auto!important; transform:translateX(-50%)!important;
+  display:block!important; width:min(880px,calc(100vw - 32px))!important;
+  min-width:0!important; max-width:none!important; height:auto!important; min-height:0!important;
+  padding:6px!important; margin:0!important; overflow:visible!important;
+  border:1px solid var(--border)!important; border-radius:18px!important;
+  background:var(--surface)!important; color:var(--text)!important;
+  box-shadow:0 8px 32px #00000018!important; backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
+  z-index:90!important; isolation:isolate; direction:rtl;
+}
+#nav::before,#nav::after,#nav button::before,#nav button::after { display:none!important; }
+#nav #navPrimary { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:4px; width:100%; }
+#nav button[data-view],#nav #navMore {
+  pointer-events:auto!important;
+  position:relative!important; display:flex!important; flex-direction:row!important;
+  align-items:center!important; justify-content:flex-start!important; gap:9px!important;
+  order:initial!important; width:100%!important; min-width:0!important; max-width:none!important;
+  min-height:46px!important; height:auto!important; margin:0!important; padding:10px!important;
+  border:0!important; border-radius:11px!important; background:transparent!important;
+  color:var(--text)!important; box-shadow:none!important; transform:none!important;
+  font:inherit!important; font-size:13px!important; font-weight:600!important;
+  line-height:1.5!important; text-align:start!important; cursor:pointer;
+  transition:background .15s ease,color .15s ease;
+}
+#nav button[data-view] span,#nav #navMore span {
+  display:block!important; flex:1 1 auto!important; min-width:0!important;
+  max-width:none!important; width:auto!important; opacity:1!important;
+  color:inherit!important; font-size:inherit!important; font-weight:inherit!important;
+  white-space:nowrap!important; overflow:hidden!important; text-overflow:ellipsis!important; text-align:start!important;
+}
+#nav button[data-view] i,#nav #navMore i {
+  display:grid!important; place-items:center; flex:0 0 24px!important;
+  width:24px!important; height:24px!important; min-width:24px!important;
+  margin:0!important; padding:0!important; border:0!important; border-radius:0!important;
+  background:transparent!important; color:inherit!important; box-shadow:none!important;
+  transform:none!important; font-size:20px!important; font-style:normal!important;
+}
+#nav button i .i54 { --ic:21px; color:inherit!important; }
+#nav button i .i54 svg { fill:none!important; }
+#nav button[data-view]:hover,#nav #navMore:hover { background:var(--surface-2,var(--bg))!important; }
+#nav button[data-view].on,#nav #navMore.on,#nav #navMore[aria-expanded=true] {
+  background:color-mix(in srgb,var(--nav-accent) 11%,var(--surface))!important;
+  color:var(--nav-accent)!important;
+}
+#nav button:focus-visible { outline:2px solid var(--nav-accent)!important; outline-offset:2px; }
+#nav #navPrimary>button { flex-direction:column!important; justify-content:center!important; gap:4px!important; padding:7px 4px!important; }
+#nav #navPrimary>button>span { flex:none!important; max-width:100%!important; font-size:12px!important; text-align:center!important; }
+#nav #navPrimary .pill { display:none!important; }
+#nav #navPrimary #navMatchesNew:not([hidden]):not([data-nav-zero=true]) {
+  display:block!important; position:absolute!important; top:7px!important;
+  inset-inline-end:calc(50% - 19px)!important; width:7px!important; min-width:7px!important;
+  height:7px!important; padding:0!important; overflow:hidden; font-size:0!important;
+  border:2px solid var(--surface)!important; border-radius:50%!important; background:var(--nav-accent)!important;
+}
+#nav #navMorePanel {
+  position:absolute!important; inset:auto 0 calc(100% + 12px)!important;
+  display:block; max-height:min(640px,calc(100dvh - 130px)); overflow-y:auto;
+  overscroll-behavior:contain; padding:20px; border:1px solid var(--border);
+  border-radius:18px; background:var(--surface); box-shadow:0 16px 50px #00000025;
+}
+#nav #navMorePanel[hidden],#navBackdrop[hidden] { display:none!important; }
+#nav .nav-panel-header { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:18px; }
+#nav .nav-panel-header>div>span { font-size:11px; color:var(--muted); }
+#nav .nav-panel-header h2 { margin:2px 0 0; color:var(--text); font-size:20px; line-height:1.5; }
+#nav #navClose { display:grid; place-items:center; flex:none; width:36px; height:36px; padding:0; border:1px solid var(--border); border-radius:10px; color:var(--muted); background:var(--surface); cursor:pointer; }
+#nav #navClose:hover { color:var(--text); background:var(--surface-2,var(--bg)); }
+#nav .nav-groups { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 28px; }
+#nav .nav-group { min-width:0; margin:0; padding:0; border:0; }
+#nav .nav-group h3,#nav #navToolsCap {
+  display:block!important; margin:0 10px 6px!important; padding:0!important;
+  font-size:11px!important; line-height:1.7!important; font-weight:600!important;
+  letter-spacing:0!important; color:var(--muted)!important;
+}
+#nav #navTools { display:block!important; }
+#nav #navMorePanel .pill {
+  position:static!important; flex:none!important; display:inline-flex!important;
+  align-items:center; justify-content:center; width:auto!important; min-width:24px!important;
+  height:22px!important; margin:0!important; padding:0 6px!important;
+  border:0!important; border-radius:6px!important; background:var(--surface-2,var(--bg))!important;
+  color:var(--muted)!important; font-size:11px!important; font-style:normal!important;
+  transform:none!important; box-shadow:none!important;
+}
+#nav #navMorePanel .pill[hidden],#nav #navMorePanel .pill[data-nav-zero=true] { display:none!important; }
+#nav #navHomeSlot:empty { display:none; }
+#nav #navHomeSlot:not(:empty) { margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+#nav .nav-panel-footer { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-top:20px; padding-top:14px; border-top:1px solid var(--border); }
+#nav .nav-panel-footer>button { width:auto!important; }
+#nav #navAssistantSlot { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:12px; }
+#nav #navAssistantSlot:not(:has(#asFab)) { display:none; }
+#nav #navAssistantSlot #asFab {
+  position:static!important; display:grid!important; place-items:center; flex:none!important;
+  width:40px!important; min-width:40px!important; height:40px!important; margin:0!important; padding:0!important;
+  border:1px solid var(--border)!important; border-radius:10px!important; transform:none!important;
+  background:var(--surface-2,var(--bg))!important; color:var(--nav-accent)!important; box-shadow:none!important;
+}
+#navBackdrop { position:fixed; inset:0; z-index:80; background:#0005; }
+#nav[data-compact=true] { width:400px!important; }
+#nav[data-compact=true] #navPrimary>button>span { display:none!important; }
+#nav[data-compact=true] #navMorePanel { width:min(760px,calc(100vw - 32px)); right:50%!important; left:auto!important; transform:translateX(50%); }
+@media (max-width:600px) {
+  #side>#nav { bottom:calc(8px + env(safe-area-inset-bottom))!important; width:calc(100vw - 16px)!important; border-radius:14px!important; padding:4px!important; }
+  #nav #navPrimary { grid-template-columns:repeat(5,minmax(0,1fr)); gap:1px; }
+  #nav #navPrimary>button { min-height:56px!important; }
+  #nav #navPrimary>button>span { font-size:10px!important; }
+  #nav #navMorePanel { padding:16px; max-height:calc(100dvh - 115px); border-radius:14px; }
+  #nav .nav-groups { gap:20px 10px; }
+  #nav #navMorePanel button[data-view] { font-size:12px!important; padding:9px 6px!important; gap:6px!important; }
+  #nav .nav-group h3,#nav #navToolsCap { margin-inline:6px!important; }
+}
+@media (max-width:360px) {
+  #nav .nav-groups { grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #nav button { transition:none!important; }
+}
