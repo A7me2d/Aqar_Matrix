@@ -1727,11 +1727,14 @@ function fastRows(list) {
 function fastUnit(r, x, i) {
   const B = r.B, S = x.S, u = x.u, sent = (fastMeta(B).sentU || []).includes(u.id), nw = pairIsNew(x), hasPh = !!(B.phones && B.phones[0]);
   const href = primaryUrl(x, "S");
+  const sellerRef = window.FBID ? FBID.raw(S) : null;
+  const sellerId = sellerRef ? FBID.numOf(sellerRef) : /^\d{5,}$/.test(String(S.uid || "")) ? String(S.uid) : "";
   return `<div class="fu${sent ? " opened" : ""}${nw ? " new" : ""}" data-pair="${esc(B.key)}|${esc(u.id)}">
     <i class="fu-k" title="دوس ${ar(i + 1)} على الكيبورد عشان تبعتها">${ar(i + 1)}</i>
     <b class="fu-sc" style="--p:${x.score}">${x.score}%</b>
     <div class="fu-m">
       <div class="fu-t">${esc(uLine(u))}${nw ? ` <em class="newbadge">🆕 جديد</em>` : ""}</div>
+      <div class="fu-seller-id muted">آيدي البايع: ${sellerId ? `<bdi dir="ltr">${esc(sellerId)}</bdi>` : "غير متاح"}</div>
       <div class="fu-l2"><span class="fu-w muted">🏷 ${esc(S.name)} ${roleBadge(S)} · 🕒 ${relDay(u.ts)}</span><span class="fu-cmp" title="ليه اتطابقوا؟ ✔ مناسب · ≈ قريب · ✖ مش مناسب · ❔ العرض ماكتبهاش">${cmpChips(x)}</span></div>
     </div>
     <div class="fu-a"><button class="btn sm ${sent ? "" : hasPh ? "wa primary" : "primary"}" data-fsend="${esc(u.id)}" title="${hasPh ? "يفتح واتساب برسالة جاهزة من غير رقم القطعة — انت اللي بتدوس إرسال" : "مفيش رقم: بينسخ الرسالة ويفتح الشات/البروفايل"}">${sent ? "✔ اتفتحت — تاني؟" : hasPh ? "💬 ابعتها" : "📋 انسخ وافتح الشات"}</button>${lnk(href, u.kind === "comment" ? "🔗 تعليقه (عرض)" : "🔗 العرض", "btn sm lnk")}</div>
