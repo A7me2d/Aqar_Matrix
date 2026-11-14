@@ -107,7 +107,7 @@ function baseCtx(extra) {
   delete FBID._S.cache["some.handle"];
 
   // ===== 3) توحيد الشارة في الأقسام الخمسة =====
-  const dash = fs.readFileSync(path.join(ENG, "dashboard.js"), "utf8");
+  const dash = ["dashboard.js", "matches/cards.js", "matches/fast.js"].map((file) => fs.readFileSync(path.join(ENG, file), "utf8")).join("\n");
   const bodyOf = (name) => { const i = dash.indexOf("function " + name); if (i < 0) return ""; const j = dash.indexOf("\nfunction ", i + 10); return dash.slice(i, j < 0 ? dash.length : j); };
   ok(/FBID\.chip\(/.test(bodyOf("card")), "الطلبات والعروض: الشارة موجودة");
   ok(/FBID\.chip\(/.test(bodyOf("pairCard")), "التطابق: الشارة موجودة (المشتري والبايع)");

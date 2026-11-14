@@ -5,3 +5,4 @@ alaa-deals-app/app/engine/
 *.zip
 .env
 *.out
+output/playwright/

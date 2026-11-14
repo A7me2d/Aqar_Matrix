@@ -150,40 +150,7 @@ a.phsrc{text-decoration:none}
 .deep-line{margin:4px 0 8px;font-size:15px}
 
 /* ⚡ العرض السريع في شاشة التطابق: صف لكل مشتري ومعاه أحسن ٣ قطع + واتساب بضغطة */
-.fqbar{margin:6px 0 10px;padding:8px 12px;border:1px solid var(--border,#dde4ea);border-radius:12px;background:var(--surface,#fff)}
-.fqbar[hidden]{display:none}
-.fq-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.fq-lbl{font-weight:800}
-.fq-keys{margin-inline-start:auto;font-size:14.4px}
-.fq-keys kbd,.fqbar kbd{display:inline-block;min-width:20px;padding:1px 6px;margin:0 2px;border:1px solid var(--border,#c9d2da);border-bottom-width:2px;border-radius:6px;background:var(--surface-2,#f4f7fa);font:700 12px/1.5 inherit;text-align:center}
-.fq-note{margin-top:4px;font-size:14.4px}
-.fr{display:grid;grid-template-columns:minmax(230px,0.9fr) minmax(0,2fr);gap:12px;margin:0 0 10px;padding:12px;border:1px solid var(--border,#dde4ea);border-inline-start:5px solid var(--req,#2f6db5);border-radius:14px;background:var(--surface,#fff);scroll-margin:70px 0 20px}
-.fr.cur{outline:3px solid var(--sg-blue,#2f6db5);outline-offset:1px;box-shadow:0 0 0 5px color-mix(in srgb,var(--sg-blue,#2f6db5) 18%,transparent)}
-.fr.talked{opacity:.62;border-inline-start-color:var(--off,#23865f)}
-.fr.talked:hover,.fr.talked.cur{opacity:1}
-.fr.fbk{border-inline-start-color:var(--gold,#d4a63a)}
-.fr-b{display:flex;flex-direction:column;gap:5px;min-width:0}
-.fr-n{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:17.3px}
-.fr-name{font-weight:800}
-.fr-w{font-size:17.3px;line-height:1.5}
-.fr-i{font-size:15px}
-.fr-c{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:4px}
-.fr-us{display:flex;flex-direction:column;gap:8px;min-width:0}
-.fu{display:grid;grid-template-columns:24px 50px minmax(0,1fr) auto;align-items:center;gap:10px;padding:6px 10px;border:1px solid var(--border,#dde4ea);border-radius:11px;background:var(--surface-2,#f4f7fa)}
-.fu.new{border-color:var(--hot,#c8742a)}
-.fu.opened{border-style:dashed;background:var(--off-bg,#e5f4ec)}
-.fu-k{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--text,#15232d);color:var(--surface,#fff);font-style:normal;font-weight:800;font-size:15px}
-.fu-sc{display:grid;place-items:center;height:30px;border-radius:9px;font-size:16.7px;color:#fff;background:hsl(calc(30 + (var(--p,50) - 50) * 2.2),62%,36%)}
-.fu-m{min-width:0}
-.fu-t{font-weight:700;line-height:1.45}
-.fu-l2{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px;margin-top:2px}
-.fu-w{font-size:14.4px}
-.fu-cmp{display:inline-flex;flex-wrap:wrap;gap:4px}
-.fu .cmp{font-size:13.2px!important;padding:0 7px!important;border-radius:6px!important;line-height:1.55}
-.fu-a{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
-.fu-a .btn.wa.primary{background:var(--sg-green,#1a9b5c);border-color:var(--sg-green,#1a9b5c);color:#fff}
-@media (max-width:900px){.fr{grid-template-columns:1fr}.fu{grid-template-columns:24px 50px minmax(0,1fr)}.fu-a{grid-column:1/-1;justify-content:flex-start}.fq-keys{margin-inline-start:0;flex-basis:100%}}
-@media (prefers-reduced-motion:no-preference){.fr{transition:outline-color .12s,box-shadow .12s,opacity .15s}}
+/* Matching styles now live in matches/matches.css. */
 
 /* 10.80.21 — خط Arial صريح: رسم أوضح لكل كلمة */
 html body,html body *{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-synthesis:none}

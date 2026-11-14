@@ -926,11 +926,7 @@ const tabsHtml = (obj, cur, key, counts) => Object.entries(obj).map(([k, v]) =>
 function renderPosts() {
   const req = items.filter((p) => p.type === "request").length;
   const pending = Object.values(raw).filter((p) => !p.ai).length;
-  $("stats").innerHTML =
-    `<span class="stat">الإجمالي<b>${items.length}</b></span><span class="stat">طلبات<b>${req}</b></span>` +
-    `<span class="stat">عروض<b>${items.length - req}</b></span><span class="stat">ليهم مطابقة<b>${items.filter((p) => (matches.get(p.id) || []).length).length}</b></span>` +
-    `<span class="stat">خلصتهم<b>${items.filter((p) => p.done).length}</b></span>` +
-    (() => { const n = HAS_OWN ? items.reduce((k, p) => k + (ownOf(p).mention ? 1 : 0), 0) : 0; return n ? `<span class="stat own-stat" title="بوستات فيها كلمة «المالك»">🏠 فيها «المالك»<b>${n}</b></span>` : ""; })();
+  renderPostsOverview(req);
 
   // شريط الذكاء الاصطناعي
   const bar = $("aiBar");
@@ -976,12 +972,12 @@ function renderPosts() {
     deal: (x, y) => ((deals.get(y.id) || {}).pct || 0) - ((deals.get(x.id) || {}).pct || 0) || tOf(y) - tOf(x),
   };
   list.sort(sorters[state.sort]);
-  $("countLine").textContent = `${list.length} نتيجة`;
+  updatePostsScreen(list);
   const hiddenOld = state.postDays ? filtered({ days: true }).length - list.length : 0;
   $("oldNote").hidden = !hiddenOld;
   $("oldNote").innerHTML = hiddenOld ? `📦 فيه <b>${hiddenOld}</b> طلب/عرض أقدم من ${state.postDays} يوم متخزنين ومستخبيين <button class="btn sm" data-showold>اعرضهم</button>` : "";
-  if (!items.length) $("list").innerHTML = `<div class="empty"><b>لسه مفيش طلبات</b>افتح واتساب ويب أو فيسبوك، دوس زرار 🏠 تحت على الشمال، واسحب جروباتك العقارية.</div>`;
-  else if (!list.length) $("list").innerHTML = `<div class="empty"><b>مفيش نتايج</b>جرّب تشيل شوية فلاتر.</div>`;
+  if (!items.length) $("list").innerHTML = `<div class="empty posts-empty"><span class="posts-empty-symbol" aria-hidden="true">▤</span><h3>لسه مفيش طلبات أو عروض</h3><p>البوستات اللي بتسحبها من مصادر العقارات هتظهر هنا، وتقدر تبحث فيها وتراجع تفاصيلها.</p></div>`;
+  else if (!list.length) $("list").innerHTML = `<div class="empty posts-empty"><span class="posts-empty-symbol" aria-hidden="true">⌕</span><h3>مفيش منشورات مطابقة للبحث</h3><p>جرّب كلمة تانية، أو وسّع المنطقة والفترة، أو شيل بعض الفلاتر.</p><div><button type="button" class="btn primary" data-post-reset>تصفير البحث</button><button type="button" class="btn" data-post-filters-open>راجع الفلاتر</button></div></div>`;
   else $("list").innerHTML = list.slice(0, state.shown).map((p) => card(p, { sgn: true })).join("");
   if (window.FBID) FBID.sec("posts", $("list"), [{ label: "الطالبين", items: list.filter((p) => p.type === "request") }, { label: "العارضين", items: list.filter((p) => p.type !== "request") }]); // 🆔 نسخ كل الآيديات
   $("moreBtn").hidden = list.length <= state.shown;
@@ -1062,6 +1058,7 @@ function card(p, opts = {}) {
   const open = state.open.has(p.id) || opts.forceOpen;
   const cl = clusters.get(p.id);
   const dupOpen = state.open.has("d:" + p.id);
+  if (opts.sgn) return postCard(p, opts, { more, ms, open, cl, dupOpen });
   return `<article class="card ${opts.sgn ? "sgn " : ""}${p.done ? "done" : ""} t-${p.type}" data-id="${p.id}">
     ${opts.sgn && window.FBID ? FBID.chip(p) : ""}${sgPlate(p)}<div class="c-top">${head(p)}${chips(p)}<span class="when">${fmtWhen(p)}</span></div>
     ${p.summary ? `<div class="summary">🤖 ${esc(p.summary)}</div>` : ""}
@@ -1176,144 +1173,9 @@ function qOK(q, text, phones, ctx) {
   return PH.qMatch(q, text || "", ctx || {});
 }
 // 🏷 خانات المشتري في التطابق: صافي (موثّق + صافي) · مشتبه · مكتب/سمسار · الكل
-const TIER_TABS = { pure: "✅ مشتري صافي", suspect: "🟡 مشتبه", office: "🏢 مكتب / سمسار", all: "الكل" };
-const tierSel = (sel, t) => sel === "all" || (sel === "pure" ? t === "verified" || t === "pure" : t === sel);
-const tierRank = (t) => (typeof ROLE !== "undefined" && ROLE.TIERS[t] ? ROLE.TIERS[t].ord : 2);
-function tierChip(L) {
-  if (!L || typeof ROLE === "undefined") return "";
-  const T = ROLE.tierBadge(L), why = [...(L.bwhy || []).slice(0, 3), ...(L.bneg || []).slice(0, 2)].join(" • ");
-  return `<span class="badge ${T.cls} tier-chip" data-tier="${T.k}" title="${esc(why)}">${T.ic} ${esc(T.t)}${T.sub ? " · " + esc(T.sub) : ""}</span>`;
-}
-// 🧪 مستوى التطابق (v10.71.5): t1 صافي↔صافي · t2 مشتري صافي↔مكتب/سمسار · t3 مشتبه↔مكتب/سمسار · t4 مشتري مشتبه↔مالك (جوه «الكل» بس)
-const COMBO_TABS = { all: "الكل", t1: "💎 صافي ↔ صافي", t2: "🟢 مشتري صافي ↔ مكتب / سمسار", t3: "🟠 مشتبه ↔ مكتب / سمسار" };
-const comboOf = (x) => (typeof ROLE !== "undefined" ? ROLE.comboOf(x.B, x.S) : "t4");
-const comboOrd = (x) => (typeof ROLE !== "undefined" ? ROLE.COMBOS[comboOf(x)].ord : 2);
-function pairFiltered(ign = {}) {
-  const q = qNorm(state.mq);
-  return pairs.filter((x) => x.score >= state.mMin &&
-    (ign.cat || state.mCat === "all" || x.u.category === state.mCat) &&
-    (ign.combo || state.mCombo === "all" || comboOf(x) === state.mCombo) &&
-    (ign.tier || state.mCombo !== "all" || tierSel(state.mTier, x.B.btier)) &&
-    (state.mBuyer === 4 ? x.B.superHot : x.B.level >= state.mBuyer) &&
-    (!state.mRegion || x.u.region === state.mRegion) &&
-    (!state.mOwner || x.S.owner) && (!state.mPhones || (x.B.phones.length && x.S.phones.length)) &&
-    (!state.mOnlyArea || (unitInArea(x.u) && leadInArea(x.B))) &&
-    (!state.mHideDone || (!["won", "lost"].includes(stageOf(x.B)) && !x.u.done)) &&
-    (!state.mNewOnly || pairIsNew(x)) &&
-    (!q || qOK(q, x.B.name + " " + x.S.name + " " + (x.u.text || "") + " " + (x.u.region || "") + " " + ((x.B.want && x.B.want.text) || ""), [...(x.B.phones || []), ...(x.S.phones || [])], { cats: [x.u.category] })));
-}
-// 🤝 لو مفيش تطابق ظاهر: نقول السبب بالظبط ونقترح الحل (بدل شاشة فاضية)
-function matchEmpty() {
-  const reqs = items.filter((p) => p.type === "request"), offs = items.filter((p) => p.type === "offer");
-  const buyers = leads.filter((L) => !L.isBroker && L.level >= 1), sellersN = sellers.length;
-  const anyMin = pairs.length; // كل التطابقات اللي المحرك طلعها (>=50%)
-  const atMin = pairs.filter((x) => x.score >= state.mMin).length; // عدّت حد النسبة الحالي
-  const inAreaAtMin = pairs.filter((x) => x.score >= state.mMin && unitInArea(x.u) && leadInArea(x.B)).length;
-  const btn = (t, act) => `<button class="btn sm" data-mact="${act}">${t}</button>`; // (من غير onclick جوه الصفحة — الإضافة بتمنعه)
-  const lowerBtn = btn("🤝 اعرض كل التطابقات (50%+)", "min50");
-  let head, hint = "";
-  if (!reqs.length && !buyers.length) { head = "لسه مفيش مشترين أو طلبات"; hint = "البرنامج بيلاقي المشترين من الطلبات ومن تعليقات العروض. اسحب الجروبات وفعّل «⚡ ذكي» في تعليقات فيسبوك عشان يلقط اللي بيسألوا على العروض."; }
-  else if (!offs.length && !sellersN) { head = "لسه مفيش عروض أو بايعين"; hint = "التطابق بيوصّل بين مشتري وبايع — محتاج عروض بيع كمان. اسحب جروبات فيها عروض، أو فعّل ماركت بليس."; }
-  else if (!anyMin) { head = `عندك ${ar(reqs.length + buyers.length)} طلب/مشتري و ${ar(offs.length + sellersN)} عرض/بايع — بس مفيش تطابق بينهم`; hint = "غالبًا المناطق أو الأنواع مختلفة (مشتري عايز أرض في حي، والعروض في حي تاني). راجع إن مناطقك في الإعدادات واسعة كفاية."; }
-  else if (!atMin && state.mMin > 50) { head = `مفيش تطابق فوق ${state.mMin}% — بس فيه ${ar(anyMin)} تطابق أضعف`; hint = lowerBtn; }
-  else if (!inAreaAtMin && atMin) { head = `فيه ${ar(atMin)} تطابق بس كلهم برا مناطقك المحددة`; hint = "مناطق التركيز بتخفي اللي بره. وسّعها من ⚙️ الإعدادات ← 📍 منطقتك، أو اعرض المحافظة كلها."; }
-  else if (state.mBuyer > 1) { head = "مفيش تطابق مع المشترين الأقوى بس"; hint = btn("اعرض كل المشترين المهتمين", "buyer1"); }
-  else if (state.mCat !== "all" || state.mRegion || state.mOwner || state.mPhones || state.mNewOnly) { head = "مفيش تطابق بالفلاتر دي"; hint = btn("🧹 شيل كل الفلاتر", "clear"); }
-  else { head = "مفيش تطابقات دلوقتي"; hint = anyMin ? lowerBtn : "لما البرنامج يسحب طلبات وعروض في نفس المناطق هيوصّل بينهم هنا."; }
-  return `<div class="empty"><b>${head}</b><div style="margin-top:8px">${hint}</div></div>`;
-}
-function renderMatches() {
-  { const mi = $("mSearch"); if (mi && mi.value !== (state.mq || "")) mi.value = state.mq || ""; }
-  const all = pairFiltered({ cat: true });
-  const list = pairFiltered();
-  $("mKpis").innerHTML = `
-    <div class="kpi"><b>${pairs.filter((x) => x.score >= 70).length}</b><span>🤝 مطابقة قوية (70%+)</span></div>
-    <div class="kpi"><b>${new Set(pairs.filter((x) => x.score >= 70).map((x) => x.B.key)).size}</b><span>🛒 مشتري ليه بايع مناسب</span></div>
-    <div class="kpi"><b>${new Set(pairs.filter((x) => x.score >= 70).map((x) => x.S.key)).size}</b><span>🏷 بايع ليه مشتري مناسب</span></div>
-    <div class="kpi"><b>${new Set(pairs.filter((x) => x.score >= 70).map((x) => x.u.id)).size}</b><span>📢 عرض ليه مشتري مناسب</span></div>
-    <div class="kpi kpi-btn ${state.mOwner ? "on" : ""}" data-mownerk title="دوس عشان تعرض التطابق مع الملاك بس"><b>${pairs.filter((x) => x.score >= 70 && x.S.owner).length}</b><span>🏠 مع المالك مباشرة (من غير سمسار)</span></div>
-    <div class="kpi kpi-hot"><b>${pairs.filter((x) => x.score >= 70 && x.B.superHot).length}</b><span>💎 مع مشتري مهتم جدًا</span></div>
-    <div class="kpi kpi-btn kpi-new ${state.mNewOnly ? "on" : ""}" data-mnewk title="التطابقات اللي نزلت بعد آخر مرة شفت فيها الشاشة دي — دوس تعرضها بس"><b>${pairs.filter((x) => x.score >= 70 && pairIsNew(x)).length}</b><span>🆕 جديد (70%+) <button class="btn sm" data-mseen title="علّم كل الجديد إنك شفته">✔ شفته</button></span></div>`;
-  { // 🧪 مستوى التطابق: العدّادات بتتحسب من غير فلتر المشتري ومن غير فلتر المستوى نفسه
-    const allC = pairFiltered({ tier: true, combo: true }), cc = (k) => allC.filter((x) => comboOf(x) === k).length;
-    const nAllC = pairFiltered({ combo: true }).length;
-    const CD = { all: ["📋", "الكل", "كل التطابقات (حسب نوع المشتري تحت)"], t1: ["💎", "صافي ↔ صافي", "مشتري صافي مع بايع مالك — أنضف تطابق"], t2: ["🟢", "مشتري صافي ↔ مكتب/سمسار", "المشتري صافي والبايع مشتبه أو مكتب أو سمسار"], t3: ["🟠", "مشتبه ↔ مكتب/سمسار", "المشتري مشتبه أو مكتب والبايع مكتب أو سمسار"] };
-    $("mComboTabs").innerHTML = lvlHtml("🧪 مستوى التطابق", "اختار تركيبة المشتري والبايع اللي عايز تشوفها", Object.keys(COMBO_TABS).map((k) => ({ k, ic: CD[k][0], t: CD[k][1], d: CD[k][2], n: k === "all" ? nAllC : cc(k) })), state.mCombo, "mcombo");
-  }
-  { const allT = pairFiltered({ tier: true, combo: true }), cnt = (k) => allT.filter((x) => tierSel(k, x.B.btier)).length, tOn = (k) => state.mCombo === "all" && state.mTier === k;
-    $("mTierTabs").innerHTML = `<span class="tier-lbl">🛒 نوع المشتري</span>` + Object.entries(TIER_TABS).map(([k, v]) => `<button class="tab ${tOn(k) ? "on" : ""}" role="tab" aria-selected="${tOn(k)}" data-mtier="${k}">${v}<small>${cnt(k)}</small></button>`).join("");
-    const note = { pure: "مشترين كاتبين طلبهم بأنفسهم من غير أي علامة سمسرة، أو أكدوا على واتساب (💎).", suspect: "مشترين مش واضح هما فعلًا المشتري ولا بيجمعوا عروض لعميل — اتأكد منهم قبل ما تضيّع وقت.", office: "ناس شكلهم مكاتب أو سماسرة أو تجار بيطلبوا بكميات (أو قالوا هما كده) — ظاهرين هنا بس مش في «صافي».", all: "كل المشترين مرتبين: موثّق ← صافي ← مشتبه ← مكتب/سمسار." }[state.mTier] || "";
-    const n0 = cnt(state.mTier), others = Object.keys(TIER_TABS).filter((k) => k !== state.mTier && k !== "all" && cnt(k) > 0);
-    if (state.mCombo !== "all") { // مستوى مختار: بنشرح معناه، ولو فاضي نقترح المستويات اللي فيها تطابقات
-      const C = typeof ROLE !== "undefined" ? ROLE.COMBOS[state.mCombo] : null, allC2 = pairFiltered({ tier: true, combo: true }), c2 = (k) => allC2.filter((x) => comboOf(x) === k).length;
-      const oth = Object.keys(COMBO_TABS).filter((k) => k !== "all" && k !== state.mCombo && c2(k) > 0);
-      $("mTierNote").innerHTML = `<span class="muted">${esc(C ? C.d : "")} — بيتجاهل فلتر نوع المشتري اللي تحت.</span>` + (!c2(state.mCombo) && oth.length ? ` <b>مفيش هنا دلوقتي —</b> ${oth.map((k) => `<button class="btn sm" data-mcombo="${k}">${COMBO_TABS[k]} (${ar(c2(k))})</button>`).join(" ")}` : "");
-    } else $("mTierNote").innerHTML = `<span class="muted">${esc(note)}</span>` + (!n0 && others.length ? ` <b>مفيش هنا دلوقتي —</b> ${others.map((k) => `<button class="btn sm" data-mtier="${k}">${TIER_TABS[k]} (${ar(cnt(k))})</button>`).join(" ")}` : ""); }
-  $("mCatTabs").innerHTML = tabsHtml(catsTabs(), state.mCat, "mcat", (k) => k === "all" ? all.length : all.filter((x) => x.u.category === k).length);
-  const regs = countBy(pairs.filter((x) => x.score >= state.mMin), (x) => x.u.region);
-  $("mRegion").innerHTML = `<option value="">📍 كل المناطق</option>` + [...regs].sort((a, b) => b[1] - a[1]).map(([r, n]) => `<option ${r === state.mRegion ? "selected" : ""} value="${esc(r)}">${esc(r)} (${n})</option>`).join("");
-  renderLearn();
-  { const fb = $("mFastBar"); if (fb && !fastOn) { fb.hidden = true; fb.textContent = ""; } }
-  if (fastOn) { lastCards = null; deepMatchUI(list); renderFast(list); return; } // ⚡ صف لكل مشتري
-  const cards = matchCards(list); lastCards = cards;
-  const nG = cards.filter((c) => c.g).length, nNew = list.filter(pairIsNew).length;
-  $("mCount").textContent = `${list.length} مطابقة` + (grpOn ? ` في ${cards.length} كارت${nG ? ` (${nG} مجمّعين)` : ""}` : "") + (nNew ? ` · 🆕 ${nNew} جديد` : "") + (state.mq ? ` — بحث: «${state.mq}» ` : "");
-  deepMatchUI(list);
-  if (!list.length) {
-    $("mList").innerHTML = matchEmpty();
-    if (window.FBID) FBID.sec("matches", $("mList"), []);
-    return;
-  }
-  $("mList").innerHTML = cards.slice(0, state.mShown).map((c) => (c.g ? groupCard(c) : pairCard(c.items[0]))).join("") + (cards.length > state.mShown ? `<button class="btn more" data-mmore>عرض المزيد (${cards.length - state.mShown})</button>` : "");
-  if (window.FBID) FBID.sec("matches", $("mList"), [{ label: "المشترين", items: uniqBy(list.map((x) => x.B), (b) => b.key) }, { label: "البايعين", items: uniqBy(list.map((x) => x.S), (s) => s.key) }]);
-}
-// 🏠 «المالك» في التطابق: تصنيف نص الوحدة (البايع) ونص طلب المشتري + هل الاتنين متفقين (طالب من المالك ⟷ البايع مالك)
-function ownUnitRole(u, S) {
-  if (!HAS_OWN) return { mention: false };
-  return OWNMK.roleOf({ type: "offer", text: u.text || "", isBroker: u.isBroker }, sellerRoleCtx(S), true);
-}
-function ownBuyerRole(B, u) {
-  if (!HAS_OWN) return { mention: false };
-  const ev = buyerEv(B, u);
-  const r = OWNMK.classify(ev.text || "", { kind: "request", mentionOnly: true });
-  return r.mention ? r : OWNMK.classify((B.want && B.want.text) || "", { kind: "request", mentionOnly: true });
-}
-const ownBadgeU = (u, S, sm) => { const r = ownUnitRole(u, S); return r.mention && r.t && r.src !== "ai" ? OWNMK.badgeHtml(r, esc) : ""; };
-const ownBadgeB = (B, u) => { const r = ownBuyerRole(B, u); return r.mention && r.t ? OWNMK.badgeHtml(r, esc) : ""; };
-function ownPair(x) {
-  if (!HAS_OWN) return "";
-  const b = ownBuyerRole(x.B, x.u);
-  if (!b.wantsOwner) return "";
-  const ur = ownUnitRole(x.u, x.S);
-  const owner = x.S.owner || ur.role === "owner", broker = !owner && (x.S.isBroker || BROKERISH.includes(ur.role));
-  return owner ? `<span class="own-pair ok" title="المشتري كاتب «المالك» في طلبه، والبايع متصنّف مالك">🏠 طالب «من المالك» والبايع مالك ✔</span>`
-    : broker ? `<span class="own-pair bad" title="المشتري كاتب «المالك» في طلبه، والبايع سمسار/مكتب">⚠ طالب «من المالك» والبايع سمسار/مكتب</span>`
-    : `<span class="own-pair maybe" title="المشتري كاتب «المالك» في طلبه، ومش مؤكد إن البايع مالك">🟡 طالب «من المالك» — البايع لسه مش مؤكد مالك</span>`;
-}
-function pairCard(x) {
-  const B = x.B, S = x.S, u = x.u, ev = buyerEv(B, u);
-  return `<article class="card pair${justKeys.has(MATCH.pairFbKey(x)) ? " just" : ""}" data-pair="${esc(B.key)}|${esc(u.id)}">
-    <div class="pair-score" style="--p:${x.score}">${pcount(1)}<b>${x.score}%</b><span>تطابق</span>${pairIsNew(x) ? `<em class="newbadge">🆕 جديد</em>` : ""}</div>
-    <div class="pair-side buyer" data-lkey="${esc(B.key)}">
-      ${window.FBID ? FBID.chip(B) : ""}<div class="side-h">🛒 المشتري <small>(الطالب)</small></div>
-      <div class="l-name">${esc(B.name)} ${tierChip(B)} ${B.superHot ? `<span class="l-lvl super">🔥 مهتم جدًا</span>` : `<span class="l-lvl">${LEADS.fires(B.level)} ${LEADS.levelName(B.level)}</span>`}${ownBadgeB(B, u)}</div>
-      <div class="pv"><b>${esc(B.want.text)}</b>${B.matchedAct && (B.wants || []).length > 1 ? ` <small class="muted" title="المشتري ده نازل أكتر من طلب — التطابق ده لطلب واحد منهم بالذات">🎯 طلب من ${ar(B.wants.length)} طلبات</small>` : ""}</div>
-      ${ev.text ? `<div class="muted ellip pq">«${OHS(ev.text, 150)}»</div>` : ""}
-      <div class="muted">${B.range ? `💰 ${B.range.min === B.range.max ? "حوالي " + PH.fmtPrice(B.range.min) : PH.fmtPrice(B.range.min) + " – " + PH.fmtPrice(B.range.max)}` : "💰 ميزانيته مش واضحة"} · 🕒 ${relDay(B.last)} · ${B.posts} بوست</div>
-      <div class="contact">${telBtns(B)}${buyerLinks(B, u)}<button class="btn sm primary" data-pairsend="buyer">📤 ابعتله الوحدة</button></div>
-    </div>
-    <div class="pair-side seller" data-skey="${esc(S.key)}">
-      ${window.FBID ? FBID.chip(S) : ""}<div class="side-h">🏷 البايع <small>(العارض)</small> ${roleBadge(S)}${ownBadgeU(u, S)}</div>
-      <div class="l-name">${esc(S.name)}</div>
-      <div class="pv"><b>${esc(uLine(u))}</b></div>
-      <div class="muted ellip">${OHS(u.text, 150)}</div>
-      <div class="contact">${telBtns(S)}${sellerLinks(S, u)}<button class="btn sm" data-pairsend="seller">📤 كلّمه عن المشتري</button>${crmBtn(u.id, S.key)}</div>
-    </div>
-    <div class="pair-why"><span>✔ ${x.why.map(esc).join(" · ")}</span><span class="pm-cmp pair-cmp" title="ليه اتطابقوا؟ ✔ مناسب · ≈ قريب · ✖ مش مناسب · ❔ العرض ماكتبهاش">${cmpChips(x)}</span>${ownPair(x)}<span class="pair-acts">${fbBtns(x)}${dealBtn(x)}</span></div>
-  </article>`;
-}
-// ===== 📞 دوّر على أرقام اللي من غير رقم في التطابقات =====
-// أول حاجة: أي رقم الشخص كاتبه بنفسه في أي بوست/تعليق عندنا بيتجاب أوتوماتيك (المحرك). اللي لسه من غير رقم: بنفتح بوستاته ونقرا تعليقاته وردوده.
+// Matching UI: matches/model.js
+// Matching UI: matches/controller.js
+// Matching UI: matches/cards.js
 function deepTargetOf(P) {
   const urls = [], add = (u) => { if (u && !urls.includes(u)) urls.push(u); }, acts = P.acts || [];
   for (const a of acts) if (a.kind === "request") add(a.postUrl); // بوستاته هو الأول (غالبًا بيكتب رقمه في تعليق على بوسته)
@@ -1356,317 +1218,10 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("#mDeepAll")) deepRun(deepTargetsFrom(pairFiltered(), 60));
 });
 // ================= 🗂 تجميع التطابقات: الشخص ومعاه كل اللي متطابقين معاه في كارت واحد + نافذة التفاصيل =================
-const pcount = (n, w) => `<i class="pcount" title="متطابق مع ${n}"><b>${ar(n)}</b><small>${w || "متطابق مع"}</small></i>`;
-// 🆕 جديد = نزل (الوحدة أو طلب المشتري) بعد آخر مرة شفت فيها شاشة التطابق، وفي آخر ٤٨ ساعة
-const pairNewAt = (x) => (x._na != null ? x._na : (x._na = Math.max(x.u.ts || 0, (buyerEv(x.B, x.u) || {}).ts || 0)));
-const pairIsNew = (x) => { const t = pairNewAt(x); return t > matchSeenAt && t > Date.now() - NEW_WIN; };
-function markMatchesSeen() { matchSeenAt = Date.now(); try { localStorage.setItem("alaaMatchSeen", String(matchSeenAt)); } catch {} }
-function cardOf(c) {
-  if (c.g && c.side === "S") { // 🔢 كارت بايع: الوحدات بالترتيب (الأقوى أول) وتحت كل وحدة مشتريها مترتبين
-    const ix = new Map(unitStats(c).map((r, i) => [r.u.id, i]));
-    c.items = c.items.slice().sort((a, b) => ix.get(a.u.id) - ix.get(b.u.id) || (b.fb || 0) - (a.fb || 0) || b.score - a.score);
-  }
-  c.best = Math.max(...c.items.map((x) => x.score)); c.fb = c.items.some((x) => x.fb === 1) ? 1 : 0;
-  c.newN = c.items.filter(pairIsNew).length; c.newAt = Math.max(...c.items.map(pairNewAt));
-  c.head = c.g ? c.items[0][c.side === "B" ? "B" : "S"] : null;
-  return c;
-}
-// كل طرف (مشتري أو بايع) عنده ٢ متطابقين أو أكتر = كارت واحد؛ كل تطابق في كارت واحد بس (الأكبر الأول)
-function matchCards(list) {
-  const tr = (c) => Math.min(...c.items.map((x) => tierRank(x.B.btier))); // «الكل»: الأنضف الأول (موثّق ← صافي ← مشتبه ← مكتب)
-  const cr = (c) => Math.min(...c.items.map(comboOrd)); // 🧪 صافي↔صافي الأول ← مشتري صافي↔مكتب ← مشتري مشتبه↔مالك ← مشتبه↔مكتب (بعد اللي قيّمته انت)
-  const sortFn = state.mSort === "new" ? (a, b) => b.newAt - a.newAt || b.best - a.best : (a, b) => (state.mTier === "all" && state.mCombo === "all" ? tr(a) - tr(b) : 0) || b.fb - a.fb || (state.mCombo === "all" ? cr(a) - cr(b) : 0) || b.best - a.best || b.items.length - a.items.length;
-  if (!grpOn) {
-    const arr = list.map((x) => cardOf({ g: false, items: [x] }));
-    return state.mSort === "new" || state.mCombo === "all" ? arr.sort(sortFn) : arr;
-  }
-  const mk = (side) => { const m = new Map(); for (const x of list) { const k = x[side].key; let r = m.get(k); if (!r) m.set(k, (r = { side, key: k, pairs: [], best: 0 })); r.pairs.push(x); if (x.score > r.best) r.best = x.score; } return [...m.values()]; };
-  const parties = [...mk("B"), ...mk("S")].sort((a, b) => b.pairs.length - a.pairs.length || b.best - a.best || (a.side === "B" ? -1 : 1));
-  const taken = new Set(), cards = [];
-  for (const P of parties) {
-    const mine = P.pairs.filter((x) => !taken.has(x));
-    if (mine.length < 2) continue;
-    mine.forEach((x) => taken.add(x));
-    cards.push(cardOf({ g: true, side: P.side, key: P.key, items: mine.sort((a, b) => (b.fb || 0) - (a.fb || 0) || b.score - a.score) }));
-  }
-  for (const x of list) if (!taken.has(x)) cards.push(cardOf({ g: false, items: [x] }));
-  return cards.sort(sortFn);
-}
-const uKind = (u) => { const L = u.land || {}; return [(UNIT1[u.category] || "وحدة") + (L.type ? " " + L.type : ""), u.rooms ? u.rooms + " غرف" : "", u.finishing || ""].filter(Boolean).join(" · "); };
-const uShort = (u) => [u.region, u.areaM2 ? u.areaM2 + " م²" : "", u.price ? PH.fmtPrice(u.price) : ""].filter(Boolean).join(" · ");
-const rngTxt = (r) => (r.min === r.max ? PH.fmtPrice(r.min) : PH.fmtPrice(r.min) + " – " + PH.fmtPrice(r.max));
-// 🏷 الوحدات اللي ليها مشترين في كارت بايع: كل وحدة + عدد مشتريها + أفضل نسبة (عشان البايع اللي عنده وحدات كتير ما يتلخبطش)
-function unitStats(c) {
-  const m = new Map();
-  for (const x of c.items) { let r = m.get(x.u.id); if (!r) m.set(x.u.id, (r = { u: x.u, n: 0, best: 0 })); r.n++; if (x.score > r.best) r.best = x.score; }
-  return [...m.values()].sort((a, b) => b.best - a.best || b.n - a.n);
-}
-const unitUrlOf = (u) => ((u.kind === "comment" ? u.commentUrl || u.url : u.url) || "");
-const unitLnk = (u, label = u.kind === "comment" ? "🔗 التعليق" : "🔗 المنشور") => lnk(unitUrlOf(u), label, "btn sm lnk pg-ulink"); // 🔗 رابط منشور كل وحدة (لو البايع نازل أكتر من وحدة)
-const unitNo = (i) => `<i class="pg-un" title="ترتيب الوحدة">${ar(i + 1)}</i>`;
-// الصفوف بتاعة وحدة واحدة داخل كارت بايع (c.items مترتّبة وحدة وحدة فهي متجاورة)
-const rowsOfUnit = (c, id) => c.items.filter((x) => x.u.id === id);
-const buyerWord = (n) => (n === 1 ? "مشتري واحد" : n === 2 ? "مشتريين" : n > 10 ? "مشتري" : "مشترين");
-const unitCountHtml = (r) => `<span class="pg-uc">🛒 ${r.n === 1 ? "" : ar(r.n) + " "}${buyerWord(r.n)} · أفضل <b>${ar(r.best)}%</b></span>`;
-// صف مصغّر للطرف التاني: السكور + الاسم + التفاصيل (الوحدة أو الطلب) + رقم/رابط — وبيفتح النافذة على نفس التطابق
-function pmRow(c, x, rank) {
-  const isB = c.side === "B", P = isB ? x.S : x.B, u = x.u, nw = pairIsNew(x);
-  const lvl = (isB ? roleBadge(P) + ownBadgeU(u, P)
-    : tierChip(P) + (P.superHot ? `<span class="l-lvl super">🔥 مهتم جدًا</span>` : `<span class="l-lvl">${LEADS.fires(P.level)}</span>`) + ownBadgeB(P, u));
-  const multiReq = isB && c.items.some((y) => y.B.want.text !== x.B.want.text);
-  const det = isB ? uLine(u) + (multiReq ? " ← لطلب «" + x.B.want.text.replace(/^عايز يشتري /, "") + "»" : "") : `${P.want.text.replace(/^عايز يشتري /, "")}${P.range ? " · 💰 " + rngTxt(P.range) : ""}`;
-  const ev = isB ? null : buyerEv(P, u), txt = isB ? (u.text || "") : (ev && ev.text) || "";
-  const snip = HAS_OWN ? OWNMK.snip(txt, 110) : String(txt).replace(/\s+/g, " ").slice(0, 110);
-  const href = primaryUrl(x, isB ? "S" : "B");
-  return `<div class="pm-row ${isB ? "seller" : "buyer"}${nw ? " new" : ""}" data-pair="${esc(x.B.key)}|${esc(u.id)}">
-    <b class="pm-sc" style="--p:${x.score}">${x.score}%</b>
-    <div class="pm-main">
-      <div class="pm-top">${rank ? `<i class="pm-rank" title="ترتيب المشتري تحت الوحدة دي">#${ar(rank)}</i>` : ""}<span class="pm-name">${isB ? "🏷" : "🛒"} ${esc(P.name)}</span>${lvl}${nw ? `<em class="newbadge">🆕 جديد</em>` : ""}<small class="pm-time">🕒 ${relDay(P.last)}</small></div>
-      <div class="pm-det">${esc(det)}</div>
-      ${!isB ? `<div class="pm-cmp" title="ليه اتطابقوا؟ ✔ مناسب · ≈ قريب · ✖ مش مناسب">${cmpChips(x)}</div>` : ""}
-      ${snip ? `<div class="pm-txt">«${OHS(snip, 110)}»</div>` : ""}${ownPair(x)}
-    </div>
-    <div class="pm-acts">${telBtns(P)}${isB ? lnk(href, u.kind === "comment" ? "🔗 التعليق" : "🔗 العرض") : buyerLinkList(P, u).filter((l) => !/البروفايل/.test(l.label)).slice(0, 2).map((l) => lnk(l.href, l.label)).join("") || lnk(href, "🔗 الطلب")}</div>
-  </div>`;
-}
-// كارت مشتري ليه أكتر من طلب: بنكتب الطلبات اللي اتطابقت (مش طلب واحد بس)
-const reqLine = (c, H) => { const ts = [...new Set(c.items.map((x) => x.B.want.text))]; return ts.length > 1 ? ts.slice(0, 3).map((t) => t.replace(/^عايز يشتري /, "")).join("  ‖  ") : H.want.text; };
-function groupCard(c) {
-  const H = c.head, isB = c.side === "B", n = c.items.length, SHOW = n <= 5 ? n : 4;
-  const word = isB ? (n > 10 ? "بايع" : "بايعين") : (n > 10 ? "مشتري" : "مشترين");
-  const st = isB ? null : unitStats(c);
-  let rows, more;
-  if (isB) {
-    rows = `<div class="pm-list">${c.items.slice(0, SHOW).map((x) => pmRow(c, x)).join("")}</div>`;
-    more = n > SHOW ? `<button class="pm-more" data-grpopen>＋ ${ar(n - SHOW)} عرض كمان — افتح النافذة وشوف الكل</button>` : "";
-  } else { // 🔢 كل وحدة (بالترتيب) وتحتها مشتريها مترتّبين، وعلى كل وحدة وكل مشتري رابط منشوره
-    const MAXU = 3, PERU = st.length === 1 ? SHOW : 2;
-    rows = `<div class="pg-ublocks">${st.slice(0, MAXU).map((r, i) => {
-      const all = rowsOfUnit(c, r.u.id), shown = all.slice(0, PERU);
-      return `<div class="pg-ublock"><div class="pg-uhead">${unitNo(i)}<b>${esc(uLine(r.u))}</b>${unitCountHtml(r)}${unitLnk(r.u)}</div>
-        <div class="pm-list">${shown.map((x, j) => pmRow(c, x, j + 1)).join("")}</div>
-        ${all.length > shown.length ? `<button class="pm-more" data-grpopen>＋ ${ar(all.length - shown.length)} ${all.length - shown.length > 10 ? "مشتري" : "مشترين"} كمان على الوحدة دي</button>` : ""}</div>`;
-    }).join("")}</div>`;
-    more = st.length > MAXU ? `<button class="pm-more" data-grpopen>＋ ${ar(st.length - MAXU)} ${st.length - MAXU === 1 ? "وحدة تانية" : "وحدات تانية"} ليها مشترين — افتح النافذة وشوف الكل</button>` : "";
-  }
-  let head;
-  if (isB) {
-    const ev = buyerEv(H, c.items[0].u);
-    head = `<div class="pair-side buyer pg-head">${window.FBID ? FBID.chip(H) : ""}<div class="side-h">🛒 المشتري <small>(الطالب)</small></div>
-      <div class="l-name">${esc(H.name)} ${tierChip(H)} ${H.superHot ? `<span class="l-lvl super">🔥 مهتم جدًا</span>` : `<span class="l-lvl">${LEADS.fires(H.level)} ${LEADS.levelName(H.level)}</span>`}${ownBadgeB(H, c.items[0].u)}</div>
-      <div class="pv"><b>${esc(reqLine(c, H))}</b></div>
-      <div class="pg-fact">${c.items.some((y) => y.B.want.text !== H.want.text) ? "💰 الميزانية بتختلف حسب الطلب" : H.range ? `💰 ${rngTxt(H.range)}` : "💰 ميزانيته مش واضحة"}</div>
-      ${ev.text ? `<div class="pq">«${OHS(ev.text, 160)}»</div>` : ""}
-      <div class="muted">🕒 ${relDay(H.last)} · ${ar(H.posts)} بوست</div>
-      <div class="contact">${telBtns(H)}${buyerLinks(H, c.items[0].u)}</div></div>`;
-  } else {
-    const us = st.map((r) => r.u);
-    const warnL = (H.rneg || []).find((t) => /^⚠/.test(t));
-    head = `<div class="pair-side seller pg-head">${window.FBID ? FBID.chip(H) : ""}<div class="side-h">🏷 البايع <small>(العارض)</small> ${roleBadge(H)}</div>
-      <div class="l-name">${esc(H.name)}</div>
-      ${warnL ? `<div class="pg-warn">${esc(warnL)}</div>` : ""}
-      <div class="pv pg-uh"><b>🏷 ${st.length > 1 ? `${ar(st.length)} وحدات ليها مشترين — كل وحدة وتحتها مشتريها بالترتيب` : "وحدة واحدة ليها مشترين"}</b></div>
-      <div class="muted">🕒 ${relDay(H.last)} · إجمالي وحداته المعروضة ${ar(H.units.length)}${st.length < H.units.length ? ` (${ar(st.length)} منها بس ليها مشترين)` : ""}</div>
-      <div class="contact">${telBtns(H)}${sellerLinks(H, us[0])}</div></div>`;
-  }
-  return `<article class="card pair pgroup${c.items.some((x) => justKeys.has(MATCH.pairFbKey(x))) ? " just" : ""}${c.newN ? " hasnew" : ""}" data-grp="${c.side}|${esc(c.key)}" tabindex="0" role="button" title="دوس عشان تشوف تفاصيل التطابق مع الكل">
-    <div class="pair-score pg-score" style="--p:${c.best}">${pcount(n, word + " متطابقين")}<b>${c.best}%</b><span>أفضل تطابق</span>${c.newN ? `<em class="newbadge">🆕 ${ar(c.newN)} جديد</em>` : ""}</div>
-    ${head}
-    <div class="pair-side pg-with"><div class="pg-title">${isB ? "🏷 العروض المناسبة له" : "🛒 مشتريين كل وحدة (بالأقوى الأول)"} <b>${ar(n)}</b></div>
-      ${rows}${more}
-      <div class="contact"><button class="btn primary sm" data-grpopen>🔍 كل التفاصيل (${ar(n)})</button></div></div>
-  </article>`;
-}
-const CMP_KEYS = ["reg", "money", "area", "rooms", "fin", "lt", "corner"];
-function cmpChips(x) {
-  const c = x.comps || {};
-  const u = x.unk || [];
-  return CMP_KEYS.filter((k) => typeof c[k] === "number").map((k) => { const v = c[k], cl = u.includes(k) ? "unk" : v >= 0.8 ? "ok" : v >= 0.5 ? "mid" : "bad"; return `<span class="cmp ${cl}"${cl === "unk" ? ' title="الطلب حدّده والعرض ماكتبهوش — مش متأكدين"' : ""}>${cl === "ok" ? "✔" : cl === "mid" ? "≈" : cl === "unk" ? "❔" : "✖"} ${FB_NAMES[k] || k}${cl === "unk" ? " (مش مكتوب)" : ""}</span>`; }).join("");
-}
-const wantCols = (B) => { const o = (B.want && B.want.obj) || {}; return { det: String((B.want && B.want.text) || "").replace(/^عايز يشتري /, ""), reg: (o.regions || []).join(" / ") || "—", area: o.area ? "حوالي " + o.area + " م²" : "—", price: B.range ? rngTxt(B.range) : o.budget ? PH.fmtPrice(o.budget) : "—" }; };
-const unitCols = (u) => ({ det: uKind(u), reg: u.region || "—", area: u.areaM2 ? u.areaM2 + " م²" : "—", price: u.price ? PH.fmtPrice(u.price) : "—" });
-// 📦 كل وحدة في مربع: مشتريها بأرقامهم + رابط البوست/التعليق + كتب إيه + عايز إيه + الميزانية + التطابق
-const phonesCell = (P) => { const ph = (P.phones || []).slice(0, 3).map((t) => `<a class="btn sm wa" href="${PH.waLink(t)}" target="_blank" rel="noopener" dir="ltr">💬 ${esc(t)}</a>`).join(""); return ph || telBtns(P) || `<span class="muted">مفيش رقم</span>`; };
-function unitBoxes(c, lim = 1e9) {
-  const cl = (x, k) => { const v = (x.comps || {})[k]; return typeof v !== "number" ? "" : v >= 0.8 ? "ok" : v >= 0.5 ? "mid" : "bad"; };
-  const by = new Map(); for (const x of c.items.slice(0, lim)) { if (!by.has(x.u.id)) by.set(x.u.id, []); by.get(x.u.id).push(x); }
-  const stM = new Map(unitStats(c).map((r) => [r.u.id, r]));
-  return `<div class="gu-boxes">${[...by.values()].map((arr, i) => {
-    const u = arr[0].u, r = stM.get(u.id) || { n: arr.length, best: arr[0].score, u };
-    const rows = arr.map((x, j) => {
-      const P = x.B, ev = buyerEv(P, u), k = wantCols(P), bl = buyerLinkList(P, u).filter((l) => l.href), snip = String(ev.text || "").replace(/\s+/g, " ").trim().slice(0, 170);
-      return `<tr data-pair="${esc(P.key)}|${esc(u.id)}"><td class="gu-n">#${ar(j + 1)}</td>
-        <td><b>${esc(P.name)}</b> ${P.superHot ? `<span class="l-lvl super">💎</span>` : `<span class="l-lvl">${LEADS.fires(P.level)}</span>`}<div class="gu-lk">${bl.map((l) => lnk(l.href, l.label)).join("")}</div></td>
-        <td class="gu-ph">${phonesCell(P)}</td>
-        <td class="${cl(x, "reg")}">${esc(k.det)}${k.reg !== "—" ? `<br><small>📍 ${esc(k.reg)}</small>` : ""}${k.area !== "—" ? `<br><small>📐 ${esc(k.area)}</small>` : ""}</td>
-        <td class="gu-tx">${snip ? `«${esc(snip)}»` : `<span class="muted">—</span>`}</td>
-        <td class="${cl(x, "money")}">${esc(k.price)}</td>
-        <td><b>${x.score}%</b></td></tr>`;
-    }).join("");
-    return `<section class="gu-box"><div class="gu-h">${unitNo(i)}<b>${esc(uLine(u))}</b>${unitCountHtml(r)}${unitLnk(u)}</div>
-      <div class="gtable-wrap"><table class="gtable gu"><thead><tr><th></th><th>المشتري / الرابط</th><th>رقمه</th><th>عايز إيه</th><th>كتب إيه</th><th>الميزانية</th><th>التطابق</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
-  }).join("")}</div>`;
-}
-function cmpTable(c, lim = 1e9) {
-  const isB = c.side === "B", H = c.head;
-  const cl = (x, k) => { const v = (x.comps || {})[k]; return typeof v !== "number" ? "" : v >= 0.8 ? "ok" : v >= 0.5 ? "mid" : "bad"; };
-  const uniq = (a) => [...new Set(a.filter((v) => v && v !== "—"))].join("، ") || "—";
-  const hd = isB ? wantCols(H) : null;
-  const row = (x) => { const P = isB ? x.S : x.B, k = isB ? unitCols(x.u) : wantCols(x.B);
-    return `<tr data-pair="${esc(x.B.key)}|${esc(x.u.id)}"><td>${primaryUrl(x, isB ? "S" : "B") ? `<a href="${esc(primaryUrl(x, isB ? "S" : "B"))}" target="_blank" rel="noopener" title="افتح المنشور/التعليق"><b>${esc(P.name)}</b> 🔗</a>` : `<b>${esc(P.name)}</b>`}</td><td>${esc(k.det)}</td><td class="${cl(x, "reg")}">${esc(k.reg)}</td><td class="${cl(x, "area")}">${esc(k.area)}</td><td class="${cl(x, "money")}">${esc(k.price)}</td><td><b>${x.score}%</b></td></tr>`; };
-  if (!isB) return unitBoxes(c, lim);
-  return `<div class="gtable-wrap"><table class="gtable"><thead><tr><th>${isB ? "البايع" : "المشتري"}</th><th>${isB ? "الوحدة" : "بيطلب"}</th><th>المنطقة</th><th>المساحة</th><th>${isB ? "السعر" : "الميزانية"}</th><th>التطابق</th></tr></thead><tbody>
-    <tr class="head"><td>🛒 ${esc(H.name)}<br><small>المطلوب</small></td><td>${esc(hd.det)}</td><td>${esc(hd.reg)}</td><td>${esc(hd.area)}</td><td>${esc(hd.price)}</td><td>—</td></tr>
-    ${c.items.slice(0, lim).map(row).join("")}</tbody></table></div>`;
-}
-function gmRow(c, x, rank) {
-  const isB = c.side === "B", B = x.B, S = x.S, u = x.u, ev = buyerEv(B, u), nw = pairIsNew(x);
-  const main = isB
-    ? `<div class="gm-name">🏷 <b>${esc(S.name)}</b> ${S.owner ? `<span class="badge b-owner">مالك</span>` : ""}${ownBadgeU(u, S, true)}${nw ? ` <em class="newbadge">🆕 جديد</em>` : ""}</div>
-       <div class="pv"><b>${esc(uLine(u))}</b></div>
-       <div class="muted ellip">${OHS(u.text, 170)}</div>`
-    : `<div class="gm-name">🛒 <b>${esc(B.name)}</b> ${B.superHot ? `<span class="l-lvl super">💎</span>` : `<span class="l-lvl">${LEADS.fires(B.level)}</span>`}${ownBadgeB(B, u)}${nw ? ` <em class="newbadge">🆕 جديد</em>` : ""}</div>
-       <div class="pv"><b>${esc(B.want.text)}</b></div>
-       ${ev.text ? `<div class="muted ellip pq">«${OHS(ev.text, 150)}»</div>` : ""}
-       <div class="muted">${B.range ? `💰 ${rngTxt(B.range)}` : "💰 ميزانيته مش واضحة"} · 🕒 ${relDay(B.last)} · 🏷 الوحدة: ${esc(uLine(u))}</div>`;
-  const acts = isB
-    ? `${telBtns(S)}${sellerLinks(S, u)}<button class="btn sm" data-pairsend="seller">📤 كلّمه عن المشتري</button>${crmBtn(u.id, S.key)}`
-    : `${telBtns(B)}${buyerLinks(B, u)}${lnk(primaryUrl(x, "S"), "🔗 الوحدة")}<button class="btn sm primary" data-pairsend="buyer">📤 ابعتله الوحدة</button>`;
-  return `<div class="gm-row ${isB ? "seller" : "buyer"}${justKeys.has(MATCH.pairFbKey(x)) ? " just" : ""}" data-pair="${esc(B.key)}|${esc(u.id)}">
-    <div class="gm-score"><b>${x.score}%</b>${rank ? `<small class="gm-rank" title="ترتيب المشتري تحت الوحدة دي">#${ar(rank)}</small>` : ""}</div>
-    <div class="gm-main">${main}<div class="gm-cmp">${cmpChips(x)}</div><div class="muted sm">✔ ${x.why.map(esc).join(" · ")}</div>${ownPair(x)}</div>
-    <div class="gm-acts">${acts}<span class="pair-acts">${fbBtns(x)}${dealBtn(x)}</span></div></div>`;
-}
-function groupMsg(c) {
-  const isB = c.side === "B", H = c.head, list = c.items.slice(0, 5);
-  const first = (n) => (PH.extractPhones(n).length || /^[a-z0-9._]+$/i.test(n) ? "" : " أستاذ " + n.split(/\s+/)[0]);
-  const sign = myName ? "\n" + myName : "";
-  if (isB) return `أهلًا${first(H.name)} 👋\nبخصوص اللي بتدور عليه (${H.want.text.replace(/^عايز يشتري /, "")})، عندي ${c.items.length} وحدات مناسبة:\n${list.map((x, i) => `${i + 1}) ${uLine(x.u)}`).join("\n")}\n\nتحب أبعتلك التفاصيل ونحدد معاد معاينة؟${sign}`;
-  return `أهلًا${first(H.name)} 👋\nعندي ${c.items.length} عملاء جادين بيدوروا على مواصفات زي وحداتك:\n${list.map((x, i) => `${i + 1}) ${String(x.B.want.text).replace(/^عايز يشتري /, "")}`).join("\n")}\n\nلسه متاحة؟ ينفع نتكلم في التفاصيل ونحدد معاينة؟${sign}`;
-}
-function groupModalHtml(c) {
-  const isB = c.side === "B", H = c.head, n = c.items.length, word = isB ? "بايعين" : "مشترين";
-  const newN = c.items.filter(pairIsNew).length, lim = Math.max(grpMax, 1);
-  const head = isB
-    ? `<div class="grp-head buyer"><div class="side-h">🛒 المشتري <small>(الطالب)</small></div>
-        <div class="l-name">${esc(H.name)} ${tierChip(H)} ${H.superHot ? `<span class="l-lvl super">🔥 مهتم جدًا</span>` : `<span class="l-lvl">${LEADS.fires(H.level)} ${LEADS.levelName(H.level)}</span>`}</div>
-        <div class="pv"><b>${esc(H.want.text)}</b></div>
-        <div class="muted">${H.range ? `💰 ${rngTxt(H.range)}` : "💰 ميزانيته مش واضحة"} · 🕒 ${relDay(H.last)} · ${ar(H.posts)} بوست</div>
-        <div class="contact">${telBtns(H)}${buyerLinks(H, c.items[0].u)}<button class="btn sm primary" data-gsendall>📤 ابعتله كل الوحدات (${ar(n)})</button></div></div>`
-    : `<div class="grp-head seller"><div class="side-h">🏷 البايع <small>(العارض)</small> ${roleBadge(H)}</div>
-        <div class="l-name">${esc(H.name)}</div>
-        ${(H.rneg || []).find((t) => /^⚠/.test(t)) ? `<div class="pg-warn">${esc((H.rneg || []).find((t) => /^⚠/.test(t)))}</div>` : ""}
-        <div class="pg-uh">${unitStats(c).length > 1 ? `الوحدات اللي ليها مشترين (${ar(unitStats(c).length)}):` : "الوحدة المتطابقة:"}</div>
-        <div class="pg-units">${unitStats(c).map((r, i) => `<div class="pv pg-unit">${unitNo(i)}<b>${esc(uLine(r.u))}</b>${unitCountHtml(r)}${unitLnk(r.u)}</div>`).join("")}</div>
-        <div class="muted">🕒 ${relDay(H.last)} · إجمالي وحداته المعروضة ${ar(H.units.length)}</div>
-        <div class="contact">${telBtns(H)}${sellerLinks(H, c.items[0].u)}<button class="btn sm primary" data-gsendall>📤 كلّمه عن المشترين (${ar(n)})</button></div></div>`;
-  return `${head}
-    <div class="grp-sum"><span class="pcount-inline"><b>${ar(n)}</b> ${word} متطابقين</span><span>⭐ أفضل تطابق <b>${c.best}%</b></span>${newN ? `<span>🆕 <b>${ar(newN)}</b> جديد</span>` : ""}</div>
-    <details class="how"><summary>❓ إزاي التطابق اتحسب؟ <small>(دوس تشوف)</small></summary>
-      <div>كل مشتري بيتقارن بكل وحدة عند البايع، وبناخد <b>أنسب وحدة</b> ليه. النسبة من 100 بتتجمع من:
-        <b>المنطقة</b> (الأهم) · <b>الميزانية مقابل السعر</b> · <b>المساحة</b> · <b>عدد الغرف</b> · <b>التشطيب</b>.
-        العلامات جنب كل مشتري: <span class="cmp ok">✔ مناسب</span> <span class="cmp mid">≈ قريب</span> <span class="cmp bad">✖ مش مناسب</span>.
-        حي جنب الحي المطلوب بيوقف عند 69% كحد أقصى، وحي تاني خالص مبيتطابقش. المعلومة الناقصة (مفيش مساحة مثلًا) بتاخد درجة متوسطة، وكل ما المشتري يحدد تفاصيل أكتر النسبة بتبقى أدق.
-        لو الوحدة مكتوب فيها «من المالك» بتزيد نقط قليلة. وتقييمك 👍/👎 بيعلّم البرنامج يرتّب أحسن.</div></details>
-    ${cmpTable(c, lim)}
-    ${isB ? `<div class="gm-list">${c.items.slice(0, lim).map((x) => gmRow(c, x)).join("")}</div>` : (() => {
-      const shown = c.items.slice(0, lim);
-      return unitStats(c).map((r, i) => { const rs = shown.filter((x) => x.u.id === r.u.id); if (!rs.length) return "";
-        return `<section class="gm-unit" data-unit="${esc(r.u.id)}"><div class="gm-uh">${unitNo(i)}<div class="gm-uhm"><b>${esc(uLine(r.u))}</b><span class="muted ellip">${esc((r.u.text || "").replace(/\s+/g, " ").slice(0, 150))}</span></div>${unitCountHtml(r)}${unitLnk(r.u)}</div>
-          <div class="gm-list">${rs.map((x, j) => gmRow(c, x, j + 1)).join("")}</div></section>`; }).join("");
-    })()}
-    ${n > lim ? `<button class="btn more" data-gmore>عرض الباقي (${ar(n - lim)} ${isB ? "عرض" : "طلب"})</button>` : ""}
-    <div class="mfoot"><span class="muted">اللي بتضغطه (👍/👎 أو ⚡ صفقة بضغطة) بيتسجل على التطابق ده بالظبط — والنافذة بتتحدث لوحدها لما يوصل داتا جديدة.</span><button class="btn" data-gclose>اقفل</button></div>`;
-}
-let grpFocus = "", grpMax = 40;
-function openGroup(side, key, focus) { grpOpen = { side, key }; grpHtml = ""; grpFocus = focus || ""; grpMax = 40; $("grpModal").hidden = false; refreshGroupModal(); }
-function closeGroup() { grpOpen = null; grpHtml = ""; $("grpModal").hidden = true; $("grpBody").innerHTML = ""; }
-function refreshGroupModal() {
-  if (!grpOpen) return;
-  const cards = lastCards || matchCards(pairFiltered());
-  let c = cards.find((k) => k.g && k.side === grpOpen.side && k.key === grpOpen.key);
-  if (!c) { // الكارت اتفك (اتشال تطابق): نعرض اللي فاضل للشخص ده
-    const items = pairFiltered().filter((x) => x[grpOpen.side].key === grpOpen.key).sort((a, b) => (b.fb || 0) - (a.fb || 0) || b.score - a.score);
-    if (!items.length) { closeGroup(); return toast("مفيش تطابقات تانية للشخص ده"); }
-    c = cardOf({ g: true, side: grpOpen.side, key: grpOpen.key, items });
-  }
-  if (grpFocus) { const i = c.items.findIndex((x) => x.B.key + "|" + x.u.id === grpFocus); if (i >= grpMax) grpMax = i + 10; }
-  const html = groupModalHtml(c);
-  if (html === grpHtml) return;
-  grpHtml = html;
-  const sc = $("grpModal"), top = sc.scrollTop;
-  $("grpBody").innerHTML = html;
-  $("grpTitle").textContent = `🤝 ${c.head.name} — متطابق مع ${ar(c.items.length)} ${c.side === "B" ? "بايعين" : "مشترين"}`;
-  sc.scrollTop = top;
-  if (grpFocus) { const f = [...$("grpBody").querySelectorAll(".gm-row")].find((r) => r.dataset.pair === grpFocus); grpFocus = ""; if (f) { f.classList.add("focus"); f.scrollIntoView({ block: "center" }); } }
-  grpCur = c;
-}
-document.addEventListener("click", async (e) => {
-  const t = e.target;
-  const ma = t.closest("[data-mact]");
-  if (ma) { // أزرار شاشة «مفيش تطابق»
-    const a = ma.dataset.mact;
-    if (a === "min50") { state.mMin = 50; $("mMin").value = "50"; }
-    else if (a === "buyer1") { state.mBuyer = 1; $("mBuyer").value = "1"; }
-    else if (a === "clear") { Object.assign(state, { mMin: 85, mCat: "all", mTier: "all", mCombo: "all", mRegion: "", mBuyer: 1, mOwner: false, mPhones: false, mNewOnly: false, mq: "" }); $("mMin").value = "85"; $("mBuyer").value = "1"; $("mOwner").checked = false; $("mPhones").checked = false; $("mNewOnly").checked = false; }
-    state.mShown = 40; return render();
-  }
-  if (t.closest("[data-mseen]")) { e.stopPropagation(); markMatchesSeen(); render(); return toast("✔ تمام — علّمت الجديد إنك شفته"); }
-  const nk = t.closest("[data-mnewk]"); if (nk) { state.mNewOnly = !state.mNewOnly; $("mNewOnly").checked = state.mNewOnly; state.mShown = 40; return render(); }
-  if (!$("grpModal").hidden) {
-    if (t.id === "grpModal" || t.closest("[data-gclose]")) return closeGroup();
-    if (t.closest("[data-gsendall]") && grpCur) return sendTo(grpCur.head, groupMsg(grpCur));
-    if (t.closest("[data-gmore]")) { grpMax += 60; grpHtml = ""; return refreshGroupModal(); }
-    return;
-  }
-  const card = t.closest("[data-grp]");
-  if (card && !t.closest("a,input,textarea,select") && (!t.closest("button") || t.closest("[data-grpopen]"))) { const [side, ...k] = card.dataset.grp.split("|"); const row = t.closest(".pm-row"); openGroup(side, k.join("|"), row ? row.dataset.pair : ""); }
-});
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && grpOpen && $("dealModal").hidden) return closeGroup();
-  if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-grp]")) { e.preventDefault(); const [side, ...k] = e.target.dataset.grp.split("|"); openGroup(side, k.join("|")); }
-});
-$("mGroup").checked = grpOn;
-$("mGroup").addEventListener("change", (e) => { grpOn = e.target.checked; try { localStorage.setItem("alaaGrpOn", grpOn ? "1" : "0"); } catch {} persistViewPrefs(); state.mShown = 40; render(); });
-$("mNewOnly").addEventListener("change", (e) => { state.mNewOnly = e.target.checked; state.mShown = 40; render(); });
-$("mSort").addEventListener("change", (e) => { state.mSort = e.target.value; state.mShown = 40; render(); });
-document.addEventListener("visibilitychange", () => { if (document.hidden && state.view === "matches") markMatchesSeen(); });
-window.addEventListener("pagehide", () => { if (state.view === "matches") markMatchesSeen(); });
-
-// ⚡ تطابق لحظي: أي طلب/عرض/مشتري/بايع جديد بيتقارن بالقديم فورًا — من غير ما نستنى الحساب الكامل (اللي بيلحقه بعد ثواني ويصحّح)
-const pkOf = (p) => p._pk || (p._pk = LEADS.personOfPost(p));
-function fastPairs(keep, gone) {
-  if (!FULL || !FULL.pairs || !compiledG || !LEADS.personOfPost) return;
-  const comp = compiledG, wm = (learnInfo && learnInfo.wm) || null;
-  let pr = FULL.pairs.filter((x) => !gone.has(x.u.id));
-  const fresh = [...keep.values()].filter((p) => p.sender);
-  if (!fresh.length) { FULL.pairs = pr; return; }
-  const people = new Set(fresh.map(pkOf));
-  const sub = FULL.items.filter((p) => p.sender && people.has(pkOf(p)));
-  const okCat = (L) => !L.categories.length || L.categories.some((c) => comp.cats.includes(c));
-  const Lp = LEADS.buildLeads(sub, {}, comp, leadMeta).filter((L) => okCat(L));
-  const Sp = LEADS.buildSellers(sub, {}, comp, leadMeta).map((S) => ({ ...S, units: S.units.filter((u) => comp.cats.includes(u.category)) })).filter((S) => S.units.length);
-  const buyerOk = MATCH.pairBuyerOk, sellerOk = (S) => S.status !== "hidden";
-  const nbKeys = new Set(Lp.map((L) => L.key)), nsKeys = new Set(Sp.map((S) => S.key));
-  const Bnew = Lp.filter(buyerOk), Snew = Sp.filter(sellerOk);
-  const Sall = FULL.sellers.filter((S) => sellerOk(S) && !nsKeys.has(S.key)).concat(Snew);
-  const Ball = FULL.leads.filter((L) => buyerOk(L) && !nbKeys.has(L.key)).concat(Bnew);
-  const opt = { min: 50, perBuyer: 6, wm };
-  const np = MATCH.pairUp(Bnew, Sall, opt).concat(MATCH.pairUp(Ball, Snew, opt));
-  const now = Date.now(), seen = new Set(), fp = [];
-  for (const x of np) { const k = MATCH.pairFbKey(x); if (seen.has(k)) continue; seen.add(k); fp.push({ ...x, fresh: now }); }
-  pr = pr.filter((x) => !nbKeys.has(x.B.key) && !seen.has(MATCH.pairFbKey(x)));
-  // أشخاص جداد خالص: يظهروا في قوايم المشترين/البايعين على طول
-  const hasL = new Set(FULL.leads.map((L) => L.key)), hasS = new Set(FULL.sellers.map((S) => S.key));
-  const addL = Lp.filter((L) => !hasL.has(L.key)), addS = Sp.filter((S) => !hasS.has(S.key));
-  if (addL.length) FULL.leads = FULL.leads.concat(addL);
-  if (addS.length) FULL.sellers = FULL.sellers.concat(addS);
-  // كل مشتري ليه أحسن ٦ بايعين بس
-  const per = new Map(), merged = pr.concat(fp).sort((a, b) => b.score - a.score || b.B.score - a.B.score), out = [];
-  for (const x of merged) { const n = per.get(x.B.key) || 0; if (n >= 6 * Math.min(3, Math.max(1, (x.B.wants || []).length)) && !x.fb) continue; per.set(x.B.key, n + 1); out.push(x); } // أكتر من طلب = مساحة أكبر (زي pairUp)
-  FULL.pairs = out;
-}
-
+// Matching UI: matches/model.js
+// Matching UI: matches/cards.js
+// Matching UI: matches/controller.js
+// Matching UI: matches/model.js
 function pairByEl(el) { const s = el.closest("[data-pair]").dataset.pair, i = s.lastIndexOf("|"), bk = s.slice(0, i), uid = s.slice(i + 1); return pairs.find((x) => x.B.key === bk && x.u.id === uid); } // مفتاح المشتري ممكن فيه | (اسم «محمد | عقارات»)، ومعرّف الوحدة hash من غير |
 const uLineSafe = (u) => uLine({ ...u, land: { ...(u.land || {}), plot: "" } }); // نفس السطر بس من غير رقم القطعة (الرسالة الأولى للمشتري)
 // ✉ رسالة المالك من outreach.js: الحي والنوع ومساحة الطلب من التطابق نفسه (من غير رقم القطعة ولا اسم المشتري ولا ميزانيته)، و٤ صياغات (الافتراضي بيتحدد من المالك والوحدة)
@@ -1698,185 +1253,8 @@ async function copyPlotFile(u, B) {
 }
 // ================= ⚡ العرض السريع: صف لكل مشتري + أحسن ٣ قطع + واتساب بضغطة =================
 // الواتساب بيفتح الشات برسالة جاهزة (من غير رقم القطعة) — مفيش حاجة بتتبعت لوحدها، انت اللي بتدوس إرسال.
-const FAST_N = 3;
-const fastMeta = (B) => leadMeta[B.key] || {};
-const fastTalked = (B) => { const m = fastMeta(B); return !!(m.talkedAt || REPORT.stageOf(m) !== "new"); }; // «اتكلمت» = علّمتها بإيدك أو المرحلة اتغيّرت من «جديد»
-const fastTalkAt = (B) => { const m = fastMeta(B); return m.talkedAt || m.lastMsg || 0; };
-// تحديث فوري على الشاشة + حفظ بالدور (عشان ضغطتين ورا بعض على مشتريين مختلفين ما يمسحوش بعض)
-function fastSave(key, patch) {
-  leadMeta[key] = { ...(leadMeta[key] || {}), ...patch, at: Date.now() };
-  fastMetaQ = fastMetaQ.then(() => setLeadMeta(key, patch)).catch((er) => console.warn("fastSave", er));
-  return fastMetaQ;
-}
-function fastRows(list) {
-  const m = new Map();
-  for (const x of list) { let r = m.get(x.B.key); if (!r) m.set(x.B.key, (r = { B: x.B, xs: [] })); r.xs.push(x); }
-  const rows = [];
-  for (const r of m.values()) {
-    const seen = new Set();
-    r.xs = r.xs.sort((a, b) => (b.fb || 0) - (a.fb || 0) || b.score - a.score || (b.u.ts || 0) - (a.u.ts || 0)).filter((x) => !seen.has(x.u.id) && seen.add(x.u.id));
-    r.best = r.xs[0].score; r.fb = r.xs.some((x) => x.fb === 1) ? 1 : 0; r.talked = fastTalked(r.B); r.newN = r.xs.filter(pairIsNew).length;
-    rows.push(r);
-  }
-  const tr = (r) => (state.mTier === "all" && state.mCombo === "all" ? tierRank(r.B.btier) : 0); // «الكل»: الأنضف الأول
-  rows.sort(state.mSort === "new"
-    ? (a, b) => a.talked - b.talked || (b.B.last || 0) - (a.B.last || 0) || b.best - a.best
-    : (a, b) => a.talked - b.talked || tr(a) - tr(b) || b.fb - a.fb || b.best - a.best || (b.B.last || 0) - (a.B.last || 0)); // اللي اتكلمت معاهم ينزلوا تحت
-  return rows;
-}
-function fastUnit(r, x, i) {
-  const B = r.B, S = x.S, u = x.u, sent = (fastMeta(B).sentU || []).includes(u.id), nw = pairIsNew(x), hasPh = !!(B.phones && B.phones[0]);
-  const href = primaryUrl(x, "S");
-  const sellerRef = window.FBID ? FBID.raw(S) : null;
-  const sellerId = sellerRef ? FBID.numOf(sellerRef) : /^\d{5,}$/.test(String(S.uid || "")) ? String(S.uid) : "";
-  return `<div class="fu${sent ? " opened" : ""}${nw ? " new" : ""}" data-pair="${esc(B.key)}|${esc(u.id)}">
-    <i class="fu-k" title="دوس ${ar(i + 1)} على الكيبورد عشان تبعتها">${ar(i + 1)}</i>
-    <b class="fu-sc" style="--p:${x.score}">${x.score}%</b>
-    <div class="fu-m">
-      <div class="fu-t">${esc(uLine(u))}${nw ? ` <em class="newbadge">🆕 جديد</em>` : ""}</div>
-      <div class="fu-seller-id muted">آيدي البايع: ${sellerId ? `<bdi dir="ltr">${esc(sellerId)}</bdi>` : "غير متاح"}</div>
-      <div class="fu-l2"><span class="fu-w muted">🏷 ${esc(S.name)} ${roleBadge(S)} · 🕒 ${relDay(u.ts)}</span><span class="fu-cmp" title="ليه اتطابقوا؟ ✔ مناسب · ≈ قريب · ✖ مش مناسب · ❔ العرض ماكتبهاش">${cmpChips(x)}</span></div>
-    </div>
-    <div class="fu-a"><button class="btn sm ${sent ? "" : hasPh ? "wa primary" : "primary"}" data-fsend="${esc(u.id)}" title="${hasPh ? "يفتح واتساب برسالة جاهزة من غير رقم القطعة — انت اللي بتدوس إرسال" : "مفيش رقم: بينسخ الرسالة ويفتح الشات/البروفايل"}">${sent ? "✔ اتفتحت — تاني؟" : hasPh ? "💬 ابعتها" : "📋 انسخ وافتح الشات"}</button>${lnk(href, u.kind === "comment" ? "🔗 تعليقه (عرض)" : "🔗 العرض", "btn sm lnk")}</div>
-  </div>`;
-}
-function fastRow(r) {
-  const B = r.B, talked = r.talked, tAt = fastTalkAt(B);
-  return `<article class="fr${talked ? " talked" : ""}${r.fb ? " fbk" : ""}${B.key === fastCur ? " cur" : ""}" data-fkey="${esc(B.key)}" tabindex="-1">
-    <div class="fr-b">
-      <div class="fr-n"><span class="fr-name">🛒 ${esc(B.name)}</span>${window.FBID ? FBID.chip(B, { inline: true }) : ""} ${tierChip(B)} ${B.superHot ? `<span class="l-lvl super">🔥 مهتم جدًا</span>` : `<span class="l-lvl">${LEADS.fires(B.level)} ${LEADS.levelName(B.level)}</span>`}${r.newN ? ` <em class="newbadge">🆕 ${ar(r.newN)} جديد</em>` : ""}</div>
-      <div class="fr-w"><b>${esc(reqLine({ items: r.xs }, B))}</b></div>
-      <div class="fr-i muted">${B.range ? `💰 ${rngTxt(B.range)}` : "💰 ميزانيته مش واضحة"} · 🕒 ${relDay(B.last)}${B.posts ? ` · ${ar(B.posts)} بوست` : ""}${talked ? ` · ✅ اتكلمت${tAt ? " " + relDay(tAt) : ""}` : ""}</div>
-      <div class="fr-c">${telBtns(B)}${buyerLinkList(B, r.xs[0].u).filter((l) => !/البروفايل/.test(l.label)).slice(0, 2).map((l) => lnk(l.href, l.label)).join("")}<button class="btn sm ${talked ? "" : "primary"}" data-ftalk title="الكيبورد: C">${talked ? "↩️ لسه ما كلمتوش" : "✅ اتكلمت"}</button><button class="btn sm" data-fdet title="الكيبورد: D">📋 كل التطابقات (${ar(r.xs.length)})</button></div>
-    </div>
-    <div class="fr-us">${r.xs.slice(0, FAST_N).map((x, i) => fastUnit(r, x, i)).join("")}${r.xs.length > FAST_N ? `<button class="pm-more" data-fdet>＋ ${ar(r.xs.length - FAST_N)} قطعة كمان — افتح كل التطابقات</button>` : ""}</div>
-  </article>`;
-}
-function renderFast(list) {
-  const all = fastRows(list), nTalk = all.filter((r) => r.talked).length, rows = fastF === "new" ? all.filter((r) => !r.talked) : all;
-  fastRowsNow = rows;
-  if (!rows.some((r) => r.B.key === fastCur)) fastCur = rows.length ? rows[0].B.key : ""; // أول صف متحدد من الأول (بيتبعه الكيبورد)
-  const bar = $("mFastBar"); bar.hidden = false;
-  bar.innerHTML = `<div class="fq-top"><span class="fq-lbl">⚡ العرض السريع</span>
-      <button class="tab ${fastF === "new" ? "on" : ""}" data-ffilter="new" title="المشترين اللي لسه ما علّمتش إنك كلمتهم">لسه ما كلمتوش<small>${ar(all.length - nTalk)}</small></button>
-      <button class="tab ${fastF === "all" ? "on" : ""}" data-ffilter="all">الكل<small>${ar(all.length)}</small></button>
-      <span class="fq-keys muted"><kbd>↑</kbd><kbd>↓</kbd> تنقّل · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> ابعت القطعة · <kbd>Enter</kbd> ابعت الأولى · <kbd>C</kbd> اتكلمت · <kbd>D</kbd> كل التطابقات</span></div>
-    <div class="fq-note muted">الواتساب بيفتح الشات برسالة جاهزة <b>من غير رقم القطعة</b> — مفيش حاجة بتتبعت لوحدها، انت اللي بتدوس إرسال.</div>`;
-  $("mCount").textContent = `${all.length} مشتري · ${list.length} مطابقة` + (nTalk ? ` · ✅ ${nTalk} اتكلمت معاهم` : "") + (state.mq ? ` — بحث: «${state.mq}» ` : "");
-  if (!rows.length) {
-    $("mList").innerHTML = all.length && fastF === "new" ? `<div class="empty"><b>🎉 كلمت كل المشترين اللي ظاهرين</b><div style="margin-top:8px"><button class="btn sm" data-ffilter="all">اعرض الكل (${ar(all.length)})</button></div></div>` : matchEmpty();
-    if (window.FBID) FBID.sec("matches", $("mList"), [{ label: "المشترين", items: all.map((r) => r.B) }]);
-    return;
-  }
-  $("mList").innerHTML = rows.slice(0, state.mShown).map(fastRow).join("") + (rows.length > state.mShown ? `<button class="btn more" data-mmore>عرض المزيد (${rows.length - state.mShown})</button>` : "");
-  if (window.FBID) FBID.sec("matches", $("mList"), [{ label: "المشترين", items: all.map((r) => r.B) }]);
-}
-// تحريك التحديد (من غير إعادة رسم): الصف المتحدد عليه .cur
-function fastFocus(key, scroll = true) {
-  fastCur = key;
-  let hit = null;
-  for (const el of document.querySelectorAll("#mList .fr")) { const on = el.dataset.fkey === key; el.classList.toggle("cur", on); if (on) hit = el; }
-  if (hit && scroll) hit.scrollIntoView({ block: "nearest" });
-  return hit;
-}
-const fastRowOf = (key) => fastRowsNow.find((r) => r.B.key === key);
-// 💬 افتح واتساب برسالة القطعة دي (من غير رقم القطعة) — لازم تتنادي مباشرة من الضغطة عشان المتصفح ما يمنعش فتح الشات
-async function fastSend(key, uid) {
-  const r0 = fastRowOf(key); if (!r0) return;
-  const x0 = r0.xs.find((y) => y.u.id === uid); if (!x0) return;
-  await copyPlotFile(x0.u, r0.B); // 🖼 صورة ملف القطعة (لو معروفة) قبل ما الشات يفتح
-  const r = fastRowOf(key) || r0, x = r.xs.find((y) => y.u.id === uid) || x0;
-  sendTo(r.B, pairMsg(x, "buyer", true), true); // true = من غير ما نغيّر مرحلة المشتري (ده بيتحدد بزرار «اتكلمت»)
-  const sent = [...new Set([...(fastMeta(r.B).sentU || []), uid])].slice(-60);
-  fastSave(r.B.key, { sentU: sent });
-  const cur = fastCur; renderFast(pairFiltered()); fastFocus(cur, false);
-}
-// ✅ اتكلمت / ↩️ لسه ما كلمتوش — وبعدها التحديد بيروح على المشتري اللي بعده (اللي كان تحته بيطلع مكانه)
-function fastTalk(key) {
-  const r = fastRowOf(key); if (!r) return;
-  const st = REPORT.stageOf(fastMeta(r.B)), idx = fastRowsNow.indexOf(r);
-  if (r.talked) { // رجّعه «لسه ما كلمتوش»: ينفع بس لو المرحلة لسه «كلمته» أو «جديد»
-    if (st !== "new" && st !== "contacted") return toast("المشتري ده في مرحلة «" + (REPORT.STAGES[st] || st) + "» — غيّرها من المتابعة");
-    fastSave(key, { talkedAt: 0, ...(st === "contacted" ? { stage: "new" } : {}) });
-    fastCur = key;
-  } else {
-    fastSave(key, { talkedAt: Date.now(), lastMsg: Date.now(), ...(st === "new" ? { stage: "contacted" } : {}) });
-    const nx = fastRowsNow[idx + 1] || fastRowsNow[idx - 1]; fastCur = nx ? nx.B.key : key; // اللي بعده (أو اللي قبله لو ده الأخير)
-  }
-  renderFast(pairFiltered()); fastFocus(fastCur, true);
-}
-document.addEventListener("click", (e) => {
-  const t = e.target;
-  if (state.view !== "matches" || !fastOn) return;
-  const ff = t.closest("[data-ffilter]");
-  if (ff) { fastF = ff.dataset.ffilter === "new" ? "new" : "all"; try { localStorage.setItem("alaaFastF", fastF); } catch {} state.mShown = 40; return renderFast(pairFiltered()); }
-  const row = t.closest("#mList .fr"); if (!row) return;
-  const key = row.dataset.fkey;
-  const sd = t.closest("[data-fsend]"); if (sd) { e.preventDefault(); fastFocus(key, false); return fastSend(key, sd.dataset.fsend); }
-  if (t.closest("[data-ftalk]")) { e.preventDefault(); return fastTalk(key); }
-  if (t.closest("[data-fdet]")) { e.preventDefault(); fastFocus(key, false); return openGroup("B", key); }
-  if (!t.closest("a,button,input,textarea,select") && key !== fastCur) fastFocus(key, false); // دوسة على الصف نفسه = تحديده
-});
-// ⌨️ الكيبورد (مش وانت بتكتب في خانة ولا وفي نافذة مفتوحة). بنستعمل مكان الحرف (code) عشان يشتغل والكيبورد عربي كمان
-document.addEventListener("keydown", (e) => {
-  if (!fastOn || state.view !== "matches" || e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
-  const a = document.activeElement; if (a && a.matches && a.matches("input,textarea,select,[contenteditable='true']")) return;
-  if (document.querySelector(".modal:not([hidden])")) return;
-  const rows = fastRowsNow; if (!rows.length) return;
-  const i = Math.max(0, rows.findIndex((r) => r.B.key === fastCur)), c = e.code || "";
-  const go = (n) => { const r = rows[n]; if (!r) return; e.preventDefault(); fastFocus(r.B.key, true); };
-  if (c === "ArrowDown" || c === "KeyJ") { if (i >= rows.length - 1 || i >= state.mShown - 1) { if (rows.length > state.mShown) { e.preventDefault(); state.mShown += 40; renderFast(pairFiltered()); fastFocus(rows[i + 1] ? rows[i + 1].B.key : fastCur, true); } return; } return go(i + 1); }
-  if (c === "ArrowUp" || c === "KeyK") return go(i - 1);
-  if (c === "Home") return go(0);
-  const dg = /^(?:Digit|Numpad)([1-9])$/.exec(c);
-  if (dg && +dg[1] <= FAST_N) { const x = rows[i].xs[+dg[1] - 1]; if (x) { e.preventDefault(); fastSend(rows[i].B.key, x.u.id); } return; }
-  if (c === "Enter" || c === "NumpadEnter") { if (e.target && e.target.closest && e.target.closest("a,button")) return; const x = rows[i].xs[0]; if (x) { e.preventDefault(); fastSend(rows[i].B.key, x.u.id); } return; }
-  if (c === "KeyC") { e.preventDefault(); return fastTalk(rows[i].B.key); }
-  if (c === "KeyD") { e.preventDefault(); return openGroup("B", rows[i].B.key); }
-});
-$("mFast").checked = fastOn;
-$("mFast").addEventListener("change", (e) => { fastOn = e.target.checked; try { localStorage.setItem("alaaFastOn", fastOn ? "1" : "0"); } catch {} state.mShown = 40; render(); });
-
-// ================= 🧠 التعلّم من 👍/👎 على التطابق =================
-const FB_NAMES = { reg: "المنطقة", money: "الميزانية/الأوفر", area: "المساحة", rooms: "عدد الغرف", fin: "التشطيب", lt: "نوع الأرض", corner: "الناصية" };
-const fbBtns = (x) => { const r = matchFb[MATCH.pairFbKey(x)]; return `<span class="fb" title="قيّم التطابق: 👍 بيفضّله ويتعلّم منه، 👎 بيخفيه ويتعلّم منه"><button class="fbb ${x.fb === 1 ? "on" : ""}" data-pairfb="1">👍</button><button class="fbb" data-pairfb="-1">👎</button></span>`; };
-async function ratePair(x, v) {
-  const key = MATCH.pairFbKey(x);
-  const { matchFb: m = {} } = await chrome.storage.local.get("matchFb");
-  if (m[key] && m[key].v === v) { delete m[key]; toast("اتشال التقييم"); }
-  else {
-    m[key] = { k: "pair", v, at: Date.now(), updatedAt: Date.now(), comps: x.comps || {}, score: x.base || x.score, adj: !!x.adj, cat: x.u.category, bName: x.B.name, sName: x.S.name, unit: uLine(x.u) };
-    toast(v === 1 ? "👍 تمام — هفضّل التطابقات اللي زيها" : "👎 اتشال من التطابقات — وهتعلّم منه");
-  }
-  await chrome.storage.local.set({ matchFb: m });
-  matchFb = m; applyView(); render();
-}
-function renderLearn() {
-  const el = $("mLearn"); if (!el) return;
-  const L = learnInfo, hid = Object.entries(matchFb).filter(([, r]) => r && r.k === "pair" && r.v === -1);
-  const need = L.n < 8 ? `محتاج ${8 - L.n} تقييم كمان على الأقل` : L.up < 3 ? `محتاج ${3 - L.up} 👍 كمان` : L.dn < 3 ? `محتاج ${3 - L.dn} 👎 كمان` : "";
-  const det = Object.entries(L.detail || {}).map(([k, d]) => `${FB_NAMES[k] || k} ${d.m > 1 ? "⬆️" : "⬇️"}×${d.m}`).join(" · ");
-  el.innerHTML = `<div class="learn-h"><b>🧠 التعلّم من تقييمك</b> <span class="muted">${L.n ? `اتعلّم من ${L.n} تقييم (👍 ${L.up} · 👎 ${L.dn})` : "قيّم التطابقات بـ 👍/👎 والبرنامج بيتعلّم ويظبط الترتيب — 👎 بيخفي التطابق، 👍 بيفضّله ويرفعه."}</span></div>
-    ${L.n ? `<div class="learn-b">${L.on ? `ضبط الميزان تلقائيًا: ${det}` : `لسه ما غيّرتش الميزان — ${need || "تقييماتك لسه ما بينتش فرق واضح بين اللي بتحبه واللي بتكرهه"}`}
-      ${hid.length ? ` · <button class="btn sm" data-fbshow>👎 المخفي (${hid.length}) ${state.mShowHid ? "▲" : "▼"}</button>` : ""} · <button class="btn sm danger" data-fbreset title="يمسح كل التقييمات ويرجّع الميزان الأصلي">🧹 صفّر التعلّم</button></div>` : ""}
-    ${state.mShowHid && hid.length ? `<div class="learn-hid">${hid.map(([k, r]) => `<div class="hidrow"><span><b>${esc(r.bName || "")}</b> ⟷ <b>${esc(r.sName || "")}</b> · ${esc(r.unit || "")}</span><button class="btn sm" data-fbrestore="${esc(k)}">↩️ رجّعه</button></div>`).join("")}</div>` : ""}`;
-}
-document.addEventListener("click", async (e) => {
-  const t = e.target;
-  const fb = t.closest("[data-pairfb]");
-  if (fb) { const x = pairByEl(fb); if (x) await ratePair(x, +fb.dataset.pairfb); return; }
-  if (t.closest("[data-fbshow]")) { state.mShowHid = !state.mShowHid; return renderLearn(); }
-  const rs = t.closest("[data-fbrestore]");
-  if (rs) { const { matchFb: m = {} } = await chrome.storage.local.get("matchFb"); delete m[rs.dataset.fbrestore]; await chrome.storage.local.set({ matchFb: m }); matchFb = m; applyView(); render(); return toast("↩️ رجع التطابق"); }
-  if (t.closest("[data-fbreset]")) {
-    const n = Object.keys(matchFb).length;
-    if (!n || !confirm(`تمسح كل التقييمات (${n}) وترجّع الميزان الأصلي؟ التطابقات المخفية هترجع.`)) return;
-    await chrome.storage.local.set({ matchFb: {} }); matchFb = {}; applyView(); render(); toast("🧹 اتصفّر التعلّم");
-  }
-});
-
-// ================= ⚡ صفقة بضغطة + 💼 الصفقات =================
-// صفقة = (مشتري + بايع + وحدة). بتتسجل بضغطة من التطابق، وبتتابع مراحلها والعمولة. محفوظة في pipeDeals (متزامنة ومعمولها نسخة احتياطية)
+// Matching UI: matches/fast.js
+// Matching UI: matches/controller.js
 const DSTAGES = { contacted: "كلمتهم", viewing: "معاينة", negotiating: "تفاوض", won: "اتقفلت ✅", lost: "وقعت ❌" };
 const DORDER = ["new", "contacted", "viewing", "negotiating", "won"];
 const dealIdOf = (x) => x.B.key + "|" + x.u.id;
@@ -3514,10 +2892,7 @@ document.addEventListener("click", async (e) => {
   const ts = t.closest("[data-src]"); if (ts) { state.src = ts.dataset.src; state.shown = PAGE; return render(); }
   const tt = t.closest("[data-type]"); if (tt) { state.type = tt.dataset.type; state.shown = PAGE; return render(); }
   const tc = t.closest("[data-cat]"); if (tc) { state.cat = tc.dataset.cat; state.shown = PAGE; return render(); }
-  const mt = t.closest("[data-mtier]"); if (mt) { state.mTier = mt.dataset.mtier; state.mCombo = "all"; try { localStorage.setItem("alaaMTier", state.mTier); localStorage.setItem("alaaMCombo", "all"); } catch {} state.mShown = 40; return render(); }
-  const mcb = t.closest("[data-mcombo]"); if (mcb) { state.mCombo = ["t1", "t2", "t3"].includes(mcb.dataset.mcombo) ? mcb.dataset.mcombo : "all"; try { localStorage.setItem("alaaMCombo", state.mCombo); } catch {} state.mShown = 40; return render(); }
   const tpu = t.closest("[data-pur]"); if (tpu) { state.pur = ["pure", "suspect", "office"].includes(tpu.dataset.pur) ? tpu.dataset.pur : "all"; state.shown = PAGE; return render(); }
-  const mc = t.closest("[data-mcat]"); if (mc) { state.mCat = mc.dataset.mcat; return render(); }
   const sc = t.closest("[data-ssrc]"); if (sc) { state.sSrc = sc.dataset.ssrc; return render(); }
   const gz = t.closest("[data-gz]"); if (gz) { state.guideZone = gz.dataset.gz; return renderGuide(); }
   if (t.closest("[data-showold]")) { state.postDays = 0; $("postDays").value = "0"; return render(); }
@@ -3589,7 +2964,7 @@ $("q").addEventListener("input", (e) => { state.q = e.target.value; state.shown 
 for (const [id, key] of [["regionSel", "region"], ["groupSel", "group"], ["sortSel", "sort"]])
   $(id).addEventListener("change", (e) => { state[key] = e.target.value; state.shown = PAGE; render(); });
 $("ownF").addEventListener("change", (e) => { state.ownF = e.target.value; state.shown = PAGE; render(); });
-for (const [id, key] of [["onlyDeals", "onlyDeals"], ["hideDups", "hideDups"], ["hideDone", "hideDone"], ["withPhone", "withPhone"], ["withMatch", "withMatch"], ["onlyNew", "onlyNew"], ["mHideDone", "mHideDone"]])
+for (const [id, key] of [["onlyDeals", "onlyDeals"], ["hideDups", "hideDups"], ["hideDone", "hideDone"], ["withPhone", "withPhone"], ["withMatch", "withMatch"], ["onlyNew", "onlyNew"]])
   $(id).addEventListener("change", (e) => { state[key] = e.target.checked; state.shown = PAGE; render(); });
 $("moreBtn").addEventListener("click", () => { state.shown += PAGE; render(); });
 $("lMore").addEventListener("click", () => { state.lShown += 60; render(); });
@@ -3687,7 +3062,7 @@ $("lExport").addEventListener("click", () => {
   download(`عملاء-مهتمين_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}.csv`, "\ufeff" + rows.join("\r\n"), "text/csv;charset=utf-8");
   toast(`اتصدر ${list.length} عميل`);
 });
-$("filtersBtn").addEventListener("click", () => document.querySelector("#v-posts .bar").classList.toggle("show"));
+$("filtersBtn").addEventListener("click", () => togglePostsFilters());
 
 $("exportBtn").addEventListener("click", () => {
   const list = filtered();
@@ -3754,9 +3129,6 @@ document.addEventListener("click", async (e) => {
   const cb = t.closest("[data-crm]"); if (cb) return crmRegister(cb.dataset.crm, cb.dataset.crms || "");
   const sl = t.closest("[data-stolist]");
   if (sl) { const p = byId.get(sl.dataset.stolist); if (!p) return; return addSlotFromPost(p, "offer"); }
-  const ps = t.closest("[data-pairsend]"); if (ps) { const x = pairByEl(ps); if (x) { if (ps.dataset.pairsend === "buyer") await copyPlotFile(x.u, x.B); return sendTo(ps.dataset.pairsend === "buyer" ? x.B : x.S, pairMsg(x, ps.dataset.pairsend)); } }
-  if (t.closest("[data-mmore]")) { state.mShown += 40; return render(); }
-  const gq = t.closest("[data-gomq]"); if (gq) { state.mq = gq.dataset.gomq; state.mMin = 50; $("mMin").value = "50"; return render(); }
   const acm = t.closest("[data-adcomments]"); if (acm) return startPostJob(acm.dataset.adcomments);
   const ap = t.closest("[data-apkey]");
   if (ap && t.closest("[data-aptoggle]")) { const k = "ap:" + ap.dataset.apkey; state.open.has(k) ? state.open.delete(k) : state.open.add(k); return render(); }
@@ -3774,13 +3146,13 @@ async function startPostJob(url) {
 $("postGo").addEventListener("click", () => startPostJob($("postUrl").value.trim()));
 $("postTool").addEventListener("toggle", () => renderPostTool());
 $("sq").addEventListener("input", (e) => { state.sq = e.target.value; state.sShown = 60; renderSoon(); });
-$("mSearch").addEventListener("input", (e) => { state.mq = e.target.value; state.mShown = 40; renderSoon(); });
+
 $("tq").addEventListener("input", (e) => { state.tq = e.target.value; renderSoon(); });
 $("mdq").addEventListener("input", (e) => { state.mdq = e.target.value; renderSlots(); });
 $("ssq").addEventListener("input", (e) => { state.ssq = e.target.value; renderSaved(); });
-for (const [id, key, num] of [["sRegion", "sRegion"], ["sDays", "sDays", 1], ["sSort", "sSort"], ["mMin", "mMin", 1], ["mBuyer", "mBuyer", 1], ["mRegion", "mRegion"]])
+for (const [id, key, num] of [["sRegion", "sRegion"], ["sDays", "sDays", 1], ["sSort", "sSort"]])
   $(id).addEventListener("change", (e) => { state[key] = num ? +e.target.value : e.target.value; state.sShown = 60; state.mShown = 40; render(); });
-for (const id of ["sPhone", "sPriced", "sWithBuyers", "mOwner", "mPhones"])
+for (const id of ["sPhone", "sPriced", "sWithBuyers"])
   $(id).addEventListener("change", (e) => { state[id] = e.target.checked; state.sShown = 60; render(); });
 $("sOnlyArea").addEventListener("change", (e) => { state.sOnlyArea = e.target.checked; setAreaOn(e.target.checked); syncAreaBoxes(); state.sShown = 60; render(); });
 // كل خانات «📍 منطقتي بس» في الصفحات بتشتغل مع بعض على نفس الفلتر
@@ -3799,14 +3171,7 @@ $("sExport").addEventListener("click", () => {
     S.regions.join(" / "), S.priceRange ? S.priceRange.min : "", S.priceRange ? S.priceRange.max : "", S.units.map(uLine).join(" || "), S.units.map((u) => u.url).filter(Boolean).join(" "), (buyersBySeller.get(S.key) || []).length, new Date(S.last).toLocaleDateString("ar-EG-u-nu-latn")].map(q).join(","));
   download(`بايعين-محتملين_${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8"); toast(`اتصدر ${list.length} بايع`);
 });
-$("mExport").addEventListener("click", () => {
-  const list = pairFiltered(); if (!list.length) return toast("مفيش تطابقات تتصدر");
-  const q = csvQ;
-  const rows = [["التطابق %", "المشتري", "رقم المشتري", "بروفايل المشتري", "عايز إيه", "ميزانيته", "البايع", "مالك؟", "رقم البايع", "بروفايل البايع", "الوحدة", "لينك العرض", "ليه"].join(",")];
-  for (const x of list) rows.push([x.score, x.B.name, x.B.phones.map((n) => "'" + n).join(" / "), LEADS.profileLink(x.B), x.B.want.text, x.B.range ? x.B.range.mid : "", x.S.name, x.S.band && typeof ROLE !== "undefined" ? ROLE.sellerBadge(x.S).t.replace(/ ✎/, "") : x.S.owner ? "مالك" : x.S.isBroker ? "سمسار" : "",
-    x.S.phones.map((n) => "'" + n).join(" / "), LEADS.profileLink(x.S), uLine(x.u), x.u.url || "", x.why.join(" · ")].map(q).join(","));
-  download(`تطابقات_${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8"); toast(`اتصدر ${list.length} تطابق`);
-});
+
 $("govSel").addEventListener("change", () => { $("k-regions").value = PH.regionsFor($("govSel").value).join("\n"); renderFocusBox([]); });
 $("focusMode").addEventListener("change", () => renderFocusBox((settings && settings.focus) || []));
 $("regionsReset").addEventListener("click", () => { $("k-regions").value = PH.regionsFor($("govSel").value).join("\n"); renderFocusBox([]); });
@@ -3855,6 +3220,8 @@ window.addEventListener("hashchange", () => {
   const v = ({ "#leads": "leads", "#new": "posts", "#deals": "posts", "#today": "today", "#sellers": "sellers", "#matches": "matches", "#saved": "saved", "#pipe": "pipe", "#crm": "crm", "#pick": "pick", "#publish": "publish", "#spread": "spread", "#funnel": "funnel", "#wasend": "wasend", "#passport": "passport", "#atlas": "atlas", "#marketing": "marketing", "#extract": "extract" })[h];
   if (v) { if (v !== state.view && visitedViews.has(v)) { refreshInto(v, h); return; } state.view = v; render(); }
 });
+initMatchControls();
+initFastMatches();
 load().then(() => { if (location.hash === "#settings-area") window.dispatchEvent(new HashChangeEvent("hashchange")); else if (VIEW_FROM_V === "settings") { try { fillSettings(); } catch {} } });
 
 
@@ -4279,7 +3646,7 @@ document.addEventListener("click", async (e) => {
   toast(r && r.ok ? `🧠 خلص — حلّل ${r.r.done} شخص` : "❌ " + ((r && r.error) || "مفيش رد"));
 });
 
-document.addEventListener("click", (e) => { if (e.target.closest("[data-mownerk]")) { state.mOwner = !state.mOwner; $("mOwner").checked = state.mOwner; state.mShown = 40; render(); } });
+
 
 
 // ================= 📋 الطلب ⟷ العرض: كل طلب شراء قصاده أنسب العروض =====
