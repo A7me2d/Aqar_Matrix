@@ -1,0 +1,16 @@
+/* Electron's titlebar environment variables reserve the native caption area.
+   Keep the RTL toolbar inside the usable area, including at custom zoom/DPI. */
+html.window-caption-visible body.ui56.pg-shell #r1 {
+  width:env(titlebar-area-width,100%);
+  margin-left:env(titlebar-area-x,0px);
+  margin-right:0;
+}
+html.window-chrome body.ui56.pg-shell #r1 {
+  app-region:drag;
+  -webkit-app-region:drag;
+  padding-inline:12px;
+}
+html.window-chrome #r1 :is(button,input,select,a,[role=button],#tabs) {
+  app-region:no-drag;
+  -webkit-app-region:no-drag;
+}

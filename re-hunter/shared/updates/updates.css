@@ -5,6 +5,7 @@
   font:inherit; font-size:12px; cursor:pointer; white-space:nowrap;
 }
 #workspaceHeader #releaseUpdate svg { width:17px; height:17px; flex:none; }
+#workspaceHeader #releaseUpdate[hidden] { display:none!important; }
 #workspaceHeader #releaseUpdate[data-state=available] {
   color:var(--hue,var(--sg-blue))!important; border-color:currentColor!important;
   background:color-mix(in srgb,var(--hue,var(--sg-blue)) 10%,var(--surface))!important;

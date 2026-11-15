@@ -1,4 +1,5 @@
 :host { display:block; flex:none; position:relative; }
+:host([hidden]) { display:none; }
 .update-status {
   @apply inline-flex items-center justify-center gap-2;
   min-height:34px; padding:6px 10px; border:1px solid var(--aqm-line); border-radius:8px;

@@ -1,10 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
 import { LegacyEngineService } from '../../core/services/legacy-engine.service';
 
-@Component({selector:'aqm-update-status',standalone:true,templateUrl:'./update-status.component.html',styleUrl:'./update-status.component.scss'})
+@Component({selector:'aqm-update-status',standalone:true,templateUrl:'./update-status.component.html',styleUrl:'./update-status.component.scss',host:{'[hidden]':'!visible()'}})
 export class UpdateStatusComponent {
   readonly engine = inject(LegacyEngineService);
   readonly busy = computed(()=>['downloading','verifying','installing'].includes(this.engine.releaseUpdate().state));
+  readonly visible = computed(()=>this.engine.releaseUpdate().state==='available' || this.busy() || (this.engine.releaseUpdate().state==='error' && !!this.engine.releaseUpdate().canRetry));
   readonly percent = computed(()=>Math.max(0,Math.min(100,Math.round(this.engine.releaseUpdate().percent || 0))));
   readonly size = computed(()=>{
     const info=this.engine.releaseUpdate();

@@ -12,6 +12,7 @@
   function publish() {
     if (button) {
       button.dataset.state = info.state;
+      button.hidden=!(info.state==='available' || busy() || (info.state==='error' && info.canRetry));
       button.disabled = info.state === 'checking' || busy();
       button.title = [info.message,info.currentVersion ? `نسختك: ${info.currentVersion}` : ''].filter(Boolean).join('\n');
       button.querySelector('[data-update-label]').textContent = labels[info.state] || labels.error;

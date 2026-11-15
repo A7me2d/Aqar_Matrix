@@ -37,10 +37,12 @@ const TOP_APP = 56; // لوحة التحكم وصفحة البداية: من غ�
 // 🔠 حجم الكلام (من لوحة التحكم) — بيكبّر شريط البرنامج وصفحة البداية بنفس النسبة
 let SCALE = 1.1;
 const sc = (n) => Math.round(n * SCALE);
+const windowChrome = require('./window-chrome/main')({platform:process.platform,height:()=>sc(TOP_APP)-1});
 const topOf = (t) => (t && (t.kind === "dash" || t.kind === "home") ? sc(TOP_APP) : sc(TOP));
 function applyScale(s) {
   s = Math.max(0.9, Math.min(1.4, +s || 1.1)); SCALE = s;
   if (mainWin && !mainWin.isDestroyed()) mainWin.webContents.setZoomFactor(s);
+  windowChrome.apply(mainWin);
   popClose();
   for (const t of tabs.values()) if ((t.kind === "home" || t.kind === "dash") && !t.view.webContents.isDestroyed()) t.view.webContents.setZoomFactor(s);
   layout();
@@ -449,6 +451,10 @@ function setupIpc() {
   ipcMain.handle("app:link", (e, o) => (o ? ((o.off || o.mode === "remote") ? setLink(o) : peersApi("add", o)) : linkInfo()));
   ipcMain.handle("app:firewall", () => openFirewall(remoteSrv ? remoteSrv.info().port : 8787));
   ipcMain.handle("app:remote", (e, patch) => (remoteSrv ? (patch ? remoteSrv.set(patch) : remoteSrv.info()) : null));
+  ipcMain.handle('app:windowChrome',(event,colors)=>{
+    if(!mainWin || event.sender!==mainWin.webContents) return {enabled:false};
+    return windowChrome.apply(mainWin,colors);
+  });
   ipcMain.handle('app:release', async (event, action) => {
     if(action==='download') return desktopRelease.download();
     if(action!=='manual') return desktopRelease.check();
@@ -1090,6 +1096,7 @@ function createMain() {
   mainWin = new BrowserWindow({
     width: 1400, height: 900, minWidth: 900, minHeight: 600, show: false, title: "Aqar Matrix — منصة العقارات",
     icon: WIN_ICON, backgroundColor: "#ffffff", autoHideMenuBar: true,
+    ...windowChrome.options(),
     webPreferences: { preload: path.join(APPDIR, "preload.js"), additionalArguments: ["--alaa-role=shell", `--alaa-engine=${ENGINE}`, `--alaa-version=${VERSION}`], contextIsolation: false, sandbox: false, backgroundThrottling: false },
   });
   Menu.setApplicationMenu(null);

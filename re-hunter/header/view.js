@@ -32,7 +32,7 @@
   mode.setAttribute("aria-label", "تبديل الوضع الفاتح والغامق");
   tools.replaceChildren(area, mode, menu, save);
   const releaseButton=document.createElement('button');
-  releaseButton.type='button'; releaseButton.id='releaseUpdate'; releaseButton.disabled=true;
+  releaseButton.type='button'; releaseButton.id='releaseUpdate'; releaseButton.disabled=true; releaseButton.hidden=true;
   releaseButton.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/></svg><span data-update-label aria-live="polite">جاري فحص التحديث…</span>';
   tools.prepend(releaseButton);
   put("headerThemeSlot", theme);
