@@ -1,4 +1,6 @@
 :host { display:block; height:100%; }
+.engine-stage {position:relative;flex:1;min-height:0;overflow:hidden;}
+.engine-stage>.engine-frame {display:block;width:100%;height:100%;}
 .workspace { display:grid; grid-template-columns:244px minmax(0,1fr); height:100dvh; color:var(--aqm-ink); background:var(--aqm-canvas); }
 .workspace[data-theme=dark] { --aqm-canvas:#111821; --aqm-surface:#18212d; --aqm-ink:#e1e8f2; --aqm-muted:#94a3b8; --aqm-line:#2b3747; --aqm-accent:#85adf3; color-scheme:dark; }
 .sidebar { display:flex; flex-direction:column; min-height:0; border-inline-end:1px solid var(--aqm-line); z-index:50; }

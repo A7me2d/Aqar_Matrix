@@ -1,0 +1,11 @@
+@if (error()) {
+  <div class="loading-mask error-mask" role="alert">
+    <b>الصفحة محتاجة محاولة تانية</b><p>{{ error() }}</p>
+    <button type="button" (click)="retry.emit()">إعادة المحاولة</button>
+  </div>
+} @else if (active()) {
+  <div class="loading-mask" role="status" aria-live="polite">
+    <span class="loading-spinner" aria-hidden="true"></span>
+    <span>جاري تحميل {{ title() }}…</span>
+  </div>
+}

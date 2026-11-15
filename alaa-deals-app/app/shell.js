@@ -39,7 +39,7 @@ function renderTabs(list) {
   const a = list.find((t) => t.active);
   document.body.classList.toggle("compact", !!a && (a.kind === "dash" || a.kind === "home"));
   if (a) {
-    const local = a.url.startsWith("file:");
+    const local = a.kind==='dash' || a.kind==='home' || a.url.startsWith("file:");
     $("addr").value = local ? "" : a.url;
     $("addr").placeholder = local ? (a.kind === "dash" ? "📊 لوحة التحكم — كل الطلبات والعروض والعملاء" : "🏠 صفحة البداية") : "";
     $("addr").disabled = local;

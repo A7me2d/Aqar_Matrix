@@ -1,6 +1,6 @@
 # Integrated window controls
 
-Windows uses Electron's native Window Controls Overlay in the existing 56px
+Windows uses Electron's native Window Controls Overlay in the compact 44px
 application toolbar. The OS title bar is hidden; minimize, maximize/restore,
 Snap Layouts and close stay native. Other platforms retain their standard frame.
 

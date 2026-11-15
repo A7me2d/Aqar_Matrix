@@ -32,8 +32,8 @@ const AUMID = "com.alaa.deals";
 // أيقونة النافذة على ويندوز: ملف ICO القياسي (BMP للأحجام الصغيرة + PNG لـ256) — مش PNG. ده اللي بيمنع «الورقة البيضا» في شريط المهام
 const ICO_PATH = (() => { try { return [path.join(process.resourcesPath || "", "icon.ico"), path.join(APPDIR, "..", "build", "icon.ico")].find((x) => fs.existsSync(x)) || ""; } catch { return ""; } })();
 const WIN_ICON = (() => { try { if (process.platform === "win32" && ICO_PATH) { const i = nativeImage.createFromPath(ICO_PATH); if (!i.isEmpty()) return i; } } catch {} return ICON; })();
-const TOP = 96; // ارتفاع الشريط اللي فوق (للمواقع)
-const TOP_APP = 56; // لوحة التحكم وصفحة البداية: من غير شريط العنوان
+const TOP = 84; // compact application bar + browser navigation row
+const TOP_APP = 44;
 // 🔠 حجم الكلام (من لوحة التحكم) — بيكبّر شريط البرنامج وصفحة البداية بنفس النسبة
 let SCALE = 1.1;
 const sc = (n) => Math.round(n * SCALE);
@@ -72,6 +72,17 @@ app.userAgentFallback = UA;
 
 let store, alarms, ses, mainWin, bgWin, tray, remoteSrv, workspaceSrv;
 let workspaceBase = '', workspaceCode = '';
+const loadingSurfaces = require('./loading/surfaces')({
+  WebContentsView,getWindow:()=>mainWin,getActive:()=>tabs.get(activeId),headerHeight:topOf,
+  mode:()=>{
+    const value=store?.get(['uiMode']).uiMode;
+    if(value==='dark') return 'dark';
+    const hour=new Date().getHours();
+    return value==='auto' && (hour<6 || hour>=18) ? 'dark' : 'light';
+  },
+  seen:()=>!!appSettings.startupWelcomeSeen,
+  markSeen:()=>{appSettings.startupWelcomeSeen=true;saveSettings();},
+});
 const desktopRelease = require('./desktop-updates')({
   supported:app.isPackaged && process.platform==='win32' && !process.env.PORTABLE_EXECUTABLE_DIR,
   catalog:releaseUpdates,
@@ -564,8 +575,9 @@ function makeTab(kind, { url, file, role = "page", title, auto, order, bg } = {}
   // إطار أداة المساعد ما يتنقلش لأي صفحة تانية (ولا حتى file:// غير sandbox.html)
   wc.on("will-frame-navigate", (e) => { try { if (isSandboxFrame(e.frame) && !SBX_RX.test(String(e.url || ""))) { e.preventDefault(); global.__sbxNav = (global.__sbxNav || 0) + 1; } } catch {} });
   wc.on("page-title-updated", (e, ti) => { if (kind === "aux") { t.title = (auto ? "🔄 " : "") + ti.slice(0, 40); pushTabs(); } });
-  wc.on("did-start-loading", pushTabs);
-  wc.on("did-stop-loading", () => { t.loaded = true; pushTabs(); });
+  wc.on("did-start-loading", () => {pushTabs();loadingSurfaces.loading(t);});
+  wc.on("did-stop-loading", () => { t.loaded = true; pushTabs(); loadingSurfaces.loading(t); });
+  wc.on('did-fail-load',()=>loadingSurfaces.clearPage(t.id));
   if (auto) { const lo = () => setPrio(wc, "low"); wc.on("did-start-navigation", lo); wc.on("did-finish-load", lo); setTimeout(lo, 800); } // 🐢 تابات الأتمتة (بتتنقل بين مواقع = بروسيس جديد) بأولوية أقل
   if (kind === "home" || kind === "dash") wc.on("did-finish-load", () => wc.setZoomFactor(SCALE));
   wc.on("did-navigate", pushTabs);
@@ -611,6 +623,7 @@ function activate(id, keepPop) {
   // كل التابات بتفضل شغالة ورا بعض (عشان السحب يكمل)، والتاب المختار بيتحط فوق
   mainWin.contentView.addChildView(t.view);
   if (keepPop && popKind && pop && !pop.webContents.isDestroyed()) mainWin.contentView.addChildView(pop); // قفل صفحة من القايمة: القايمة تفضل مفتوحة فوق
+  loadingSurfaces.loading(t);loadingSurfaces.layout();
   pushTabs();
   if (!keepPop && !t.view.webContents.isDestroyed()) t.view.webContents.focus();
   if (t.auto) { t.auto = false; } // (احتياط) تاب اتفتح من الأتمتة وإنت فعّلته بنفسك ← بقى تابك
@@ -687,9 +700,10 @@ function layoutOne(t) {
 function layout() {
   if (!mainWin || mainWin.isDestroyed()) return;
   const [w, h] = mainWin.getContentSize();
-  // التابات اللي ورا بتبدأ تحت الشريط كله (88) — عشان لوحة التحكم (اللي بتبدأ من 48) ماتبانش من ورا شريط العنوان لما تفتح فيسبوك
+  // Background tabs stay below the full toolbar; the active workspace uses the compact bar.
   for (const t of tabs.values()) { const y = t.id === activeId ? topOf(t) : sc(TOP); t.view.setBounds({ x: 0, y, width: w, height: Math.max(100, h - y) }); }
   if (popKind && pop && !pop.webContents.isDestroyed()) mainWin.contentView.addChildView(pop);
+  loadingSurfaces.layout();
 }
 function waSend(url, active = true) {
   const u = new URL(url);
@@ -1109,7 +1123,11 @@ function createMain() {
   mainWin.on("unmaximize", layout);
   mainWin.webContents.on("before-input-event", keys);
   ctxmenu.attach(mainWin.webContents, { Menu, clipboard, BrowserWindow, win: mainWin, openUrl: (u) => openUrl(u, { active: true }) });
-  mainWin.once("ready-to-show", () => { if (!START_HIDDEN || TEST) { mainWin.show(); if (!TEST) mainWin.maximize(); } layout(); });
+  mainWin.once("ready-to-show", () => {
+    if (!START_HIDDEN || TEST) {mainWin.show();if (!TEST) mainWin.maximize();loadingSurfaces.loading(tabs.get(activeId));loadingSurfaces.startup();}
+    layout();
+  });
+  mainWin.once('closed',()=>loadingSurfaces.dispose());
   mainWin.on("session-end", () => { try { store && store.flush(); } catch {} }); // إطفاء/تسجيل خروج ويندوز: before-quit مش بيتبعت
   mainWin.on("close", (e) => {
     if (quitting) return;
@@ -1133,7 +1151,7 @@ function createBg() {
   { const lo = () => setPrio(bgWin.webContents, "low"); bgWin.webContents.on("did-finish-load", lo); bgWin.webContents.on("render-process-gone", () => setTimeout(lo, 3000)); setTimeout(lo, 1500); setInterval(lo, 60e3); }
   bgWin.webContents.on("render-process-gone", () => setTimeout(() => { if (!bgWin.isDestroyed()) bgWin.reload(); }, 2000));
 }
-function showMain() { if (!mainWin || mainWin.isDestroyed()) return; if (mainWin.isMinimized()) mainWin.restore(); mainWin.show(); mainWin.focus(); }
+function showMain() { if (!mainWin || mainWin.isDestroyed()) return; if (mainWin.isMinimized()) mainWin.restore(); mainWin.show(); mainWin.focus(); loadingSurfaces.loading(tabs.get(activeId));loadingSurfaces.startup(); }
 function createTray() {
   if (TEST) return;
   tray = new Tray(nativeImage.createFromPath(path.join(APPDIR, "tray.png")));

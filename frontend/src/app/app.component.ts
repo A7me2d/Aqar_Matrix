@@ -9,14 +9,18 @@ import { WorkspaceActionsComponent } from './shared/workspace-actions/workspace-
 import { PaginationComponent } from './shared/pagination/pagination.component';
 import { SidebarMoreComponent } from './shared/sidebar-more/sidebar-more.component';
 import { UpdateStatusComponent } from './shared/update-status/update-status.component';
+import { StartupWelcomeService } from './core/services/startup-welcome.service';
+import { StartupWelcomeComponent } from './shared/startup-welcome/startup-welcome.component';
+import { ViewLoaderComponent } from './shared/view-loader/view-loader.component';
 
 @Component({
   selector:'aqm-root', standalone:true,
-  imports:[RouterLink,RouterLinkActive,RouterOutlet,IconComponent,WorkspaceActionsComponent,PaginationComponent,SidebarMoreComponent,UpdateStatusComponent],
+  imports:[RouterLink,RouterLinkActive,RouterOutlet,IconComponent,WorkspaceActionsComponent,PaginationComponent,SidebarMoreComponent,UpdateStatusComponent,StartupWelcomeComponent,ViewLoaderComponent],
   templateUrl:'./app.component.html', styleUrl:'./app.component.scss',
 })
 export class AppComponent implements AfterViewInit {
   readonly engine = inject(LegacyEngineService);
+  readonly welcome = inject(StartupWelcomeService);
   readonly features = FEATURES;
   readonly sidebarQuery = signal('');
   readonly sidebarCollapsed = signal((() => { try { return localStorage.getItem('aqm:sidebar:compact') === '1'; } catch { return false; } })());

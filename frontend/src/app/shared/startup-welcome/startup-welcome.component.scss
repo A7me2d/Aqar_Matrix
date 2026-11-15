@@ -1,0 +1,12 @@
+:host {display:contents;}
+.welcome-screen { @apply fixed inset-0 grid place-items-center; z-index:200; padding:24px; background:var(--aqm-canvas); color:var(--aqm-ink); }
+.welcome-content { @apply flex flex-col items-center; text-align:center; animation:welcome-enter .25s ease-out; }
+.welcome-logo { @apply grid place-items-center; width:124px; height:104px; margin-bottom:28px; border-radius:20px; background:#f3f5f7; }
+.welcome-logo img { width:96px; height:72px; object-fit:contain; }
+.welcome-greeting { margin:0 0 7px; color:var(--aqm-muted); font-size:16px; }
+h1 { margin:0; font-size:32px; font-weight:800; line-height:1.5; }
+.welcome-message { margin:12px 0 28px; color:var(--aqm-muted); font-size:14px; line-height:1.9; }
+.welcome-spinner { width:24px; height:24px; border:2px solid var(--aqm-line); border-top-color:var(--aqm-accent); border-radius:50%; animation:welcome-spin .9s linear infinite; }
+@keyframes welcome-enter { from {opacity:0;transform:translateY(6px)} to {opacity:1;transform:translateY(0)} }
+@keyframes welcome-spin { to {transform:rotate(360deg)} }
+@media(prefers-reduced-motion:reduce) { .welcome-content,.welcome-spinner {animation:none} }

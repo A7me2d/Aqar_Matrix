@@ -1,0 +1,17 @@
+:root {--canvas:#f3f5f7;--ink:#172436;--muted:#647286;--line:#dde3eb;--accent:#245eb3;color-scheme:light;}
+:root[data-mode=dark] {--canvas:#111821;--ink:#e1e8f2;--muted:#94a3b8;--line:#2b3747;--accent:#85adf3;color-scheme:dark;}
+*{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden}
+body{display:grid;place-items:center;padding:24px;background:var(--canvas);color:var(--ink);font:14px/1.8 Cairo,Tahoma,Arial,sans-serif;user-select:none;}
+main{display:flex;flex-direction:column;align-items:center;text-align:center;}
+.company-logo{display:grid;place-items:center;width:124px;height:104px;margin-bottom:28px;border-radius:20px;background:#f3f5f7;}
+.company-logo img{object-fit:contain;}
+.greeting{margin:0 0 7px;color:var(--muted);font-size:16px;}
+h1{margin:0;font-size:32px;line-height:1.5;font-weight:800;}
+.message{margin:12px 0 28px;color:var(--muted);}
+.spinner{width:24px;height:24px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .85s linear infinite;}
+.page-content{color:var(--muted);font-size:13px;}
+.page-content p{margin:12px 0 0;}
+.welcome-content{animation:enter .25s ease-out;}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spinner,.welcome-content{animation:none}}

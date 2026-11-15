@@ -402,8 +402,8 @@
       <div class="fn-tabs">${tabs.map(([k, n, c]) => `<button type="button" class="tab ${S.tab === k ? "on" : ""}" data-ftab="${k}">${n}${c ? `<small>${en(c)}</small>` : ""}</button>`).join("")}</div>
       <div id="fnlBody">${S.tab === "in" ? tabIn() : S.tab === "post" ? tabPost() : S.tab === "msg" ? tabMsg() : S.tab === "eval" ? tabEval() : S.tab === "stat" ? tabStat() : S.tab === "qr" ? tabQr() : tabSet()}</div>`;
   }
-  window.renderFunnel = function renderFunnel() { if (!S.ready) { load().then(() => { if (active()) paint(); }); return; } paint(); };
-  window.renderTodayPlan = function renderTodayPlan() { if (!S.ready) { load().then(() => { S.plan = planNow(true); paintPlan(); }); return; } S.plan = planNow(true); paintPlan(); };
+  window.renderFunnel = function renderFunnel() { if (!S.ready) return load().then(() => { if (active()) paint(); }); paint(); };
+  window.renderTodayPlan = function renderTodayPlan() { if (!S.ready) return load().then(() => { S.plan = planNow(true); paintPlan(); }); S.plan = planNow(true); paintPlan(); };
 
   // ===== أحداث =====
   async function setStage(id, s) { S.I = F.setStage(S.I, id, s, Date.now()); await save("funnelIn", S.I); badge(); paint(); }

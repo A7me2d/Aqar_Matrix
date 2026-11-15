@@ -5,9 +5,45 @@
   const views=new Set(['workspace-tools','home','today','leads','sellers','posts','listings','atlas','pick','extract','publish','spread','funnel','wasend','matches','pipe','saved','stats','settings','aitools']);
   const allowedView=view=>typeof view==='string' && (views.has(view) || [...document.querySelectorAll('#navTools button[data-view]')].some(button=>button.dataset.view===view));
   let ready=false, navigating=false, lastView='', lastContext='';
+  let navigationToken=0,renderTasks=null;
   document.documentElement.dataset.aqmEmbedded='true';
   document.body.id='aqmEmbeddedRoot';
   const send=(type,extra={})=>window.parent.postMessage({channel:CHANNEL,type,...extra},location.origin);
+  const paint=()=>new Promise(resolve=>requestAnimationFrame(resolve));
+  // Async feature renderers resolve only after their initial data has been painted.
+  for(const name of ['renderHome','renderAtlas','renderExtract','renderPick','renderPublish','renderSpread','renderFunnel','renderTodayPlan','renderWasend','renderSettingsStatus','fillSettings']) {
+    const original=window[name]; if(typeof original!=='function') continue;
+    window[name]=function(...args) {
+      const result=original.apply(this,args);
+      if(renderTasks && result && typeof result.then==='function') {
+        renderTasks.push(Promise.resolve(result).then(value=>({error:name==='renderAtlas' && value===false ? new Error('تعذّر تحميل الأطلس.') : null}),error=>({error})));
+      }
+      return result;
+    };
+  }
+  async function navigate(message) {
+    const token=++navigationToken;
+    navigating=true;
+    try {
+      // Give the parent loader a paint before synchronous card calculations begin.
+      await paint(); await paint();
+      if(token!==navigationToken) return;
+      const tasks=[]; renderTasks=tasks;
+      try { window.AQMOpenView(message.view); } finally { renderTasks=null; }
+      const results=await Promise.all(tasks);
+      const failed=results.find(result=>result.error);
+      if(failed) throw failed.error;
+      await paint();
+      if(token!==navigationToken) return;
+      lastView=message.view;
+      send('navigated',{view:message.view,requestId:message.requestId});
+    } catch(error) {
+      if(token===navigationToken) {
+        console.error('view navigation',message.view,error);
+        send('error',{view:message.view,requestId:message.requestId,message:'تعذّر تحميل بيانات الصفحة. حاول مرة تانية.'});
+      }
+    } finally { if(token===navigationToken) navigating=false; }
+  }
   function palette() {
     const css=getComputedStyle(document.body);
     const keys={canvas:'--bg',surface:'--surface',ink:'--text',muted:'--muted',line:'--border',accent:'--sg-blue',onAccent:'--on'};
@@ -49,11 +85,7 @@
       context(); return;
     }
     if(message.type!=='navigate' || !allowedView(message.view) || !ready) return;
-    try {
-      navigating=true; window.AQMOpenView(message.view); lastView=message.view;
-      send('navigated',{view:message.view});
-    } catch(error) { send('error',{message:String(error.message || error)}); }
-    finally { navigating=false; }
+    navigate(message);
   });
   new MutationObserver(()=>{ if(ready) context(); }).observe(document.documentElement,{attributes:true,attributeFilter:['data-mode','data-sgv','data-style','data-scol','data-look','data-form','data-pal','data-theme']});
   const tools=document.getElementById('navTools');

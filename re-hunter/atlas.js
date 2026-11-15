@@ -1954,12 +1954,12 @@
     const r = root(); if (!r) return;
     if (!S.entered) { S.entered = true; enter(); } else requestAnimationFrame(() => size());
     if (S.ready) { loadUnits(); return; }
-    loadData().then((D) => {
+    return loadData().then((D) => {
       S.ready = true; const ld = $("atlLoad"); if (ld) ld.remove();
       size(); if (!S.placed && S.W) { S.placed = true; Object.assign(S.v, fitBox(D.core, 0.05)); }
       renderBar(); renderSide(); kick(); loadUnits(); mkLoad().then(() => renderSide()); cairoLoad().then(() => { kick(); if (S.pf) pfRedraw(); });
       const go = S.pending; S.pending = null; if (go) window.ATLAS.focus(go);
-    }).catch((e) => { const ld = $("atlLoad"); if (ld) ld.textContent = "مقدرتش أحمّل المخطط: " + (e && e.message || e); });
+    }).catch((e) => { const ld = $("atlLoad"); if (ld) ld.textContent = "مقدرتش أحمّل المخطط: " + (e && e.message || e); return false; });
   };
   // 🖼 صورة ملف القطعة من أي شاشة تانية (التطابق → «ابعتها»): القطعة بتتحدد من كود AM في نص العرض، أو من (الحي + المجاورة + رقم القطعة) لو الرقم ده بيحدد قطعة واحدة بس.
   // plotRef: متزامنة وخفيفة (من غير ما تحمّل الأطلس) — بترجّع null لو العرض مش معروف قطعته؛ plotFile: بتحمّل الأطلس وترسم الصورة وترجّع PNG (أو null)
