@@ -1,20 +1,21 @@
-/* Application-level tabs are a quiet title bar; the workspace owns page headings. */
-html body.ui56.pg-shell #r1 {height:44px;gap:8px;padding-inline:12px;border-bottom:1px solid var(--line);}
-html body.ui56.pg-shell .brand {gap:7px;font-size:13px;line-height:1.3;margin-inline-end:8px;padding:0;}
-html body.ui56.pg-shell .brand .alogo {width:27px;}
-html body.ui56.pg-shell .brand small {display:none;}
-html body.ui56.pg-shell.compact .brand>div {display:none;}
-html body.ui56.pg-shell #tabs {align-self:center;gap:4px;flex:0 1 auto;min-width:0;}
-html body.ui56.pg-shell .tab {align-self:center;min-height:30px;height:30px;padding:5px 10px;gap:6px;border:0;border-radius:7px;font-size:12px;font-weight:600;line-height:1.5;box-shadow:none;}
-html body.ui56.pg-shell .tab .ic2 {font-size:15px;}
-html body.ui56.pg-shell .tab .i54 {--ic:16px;}
-html body.ui56.pg-shell .tab .car {width:11px;height:11px;}
-html body.ui56.pg-shell .tab .car svg {width:11px;height:11px;}
-html body.ui56.pg-shell .tab.on,html body.ui56.pg-shell .tab.dd.open {background:var(--soft);color:var(--ink);box-shadow:none;}
-html body.ui56.pg-shell .dots {gap:3px;}
-html body.ui56.pg-shell .dots i {width:5px;height:5px;}
-html body.ui56.pg-shell .badge {min-width:17px;height:17px;padding:0 4px;font-size:10px;}
-html body.ui56.pg-shell .sep {height:17px;margin-inline:4px;opacity:.65;}
-html body.ui56.pg-shell #r1 .ic {width:30px;height:30px;border-radius:7px;}
-html body.ui56.pg-shell #r1 .b {min-height:30px;padding:5px 10px;font-size:12px;}
-@media(min-width:700px) {html body.ui56.pg-shell #tHome .t,html body.ui56.pg-shell #tDash .t,html body.ui56.pg-shell #ddPlat .t {display:inline;}}
+/* Keep shell geometry above theme variants (including sign): the native
+   content view starts at 44px, so themes must not grow the title bar. */
+html:root body.ui56.pg-shell #r1 {height:44px;gap:8px;padding-inline:12px;border-bottom:1px solid var(--line);}
+html:root body.ui56.pg-shell .brand {gap:7px;font-size:13px;line-height:1.3;margin-inline-end:8px;padding:0;}
+html:root body.ui56.pg-shell .brand .alogo {width:27px;}
+html:root body.ui56.pg-shell .brand small {display:none;}
+html:root body.ui56.pg-shell.compact .brand>div {display:none;}
+html:root body.ui56.pg-shell #tabs {align-self:center;gap:4px;flex:0 1 auto;min-width:0;}
+html:root body.ui56.pg-shell .tab {align-self:center;min-height:30px;height:30px;padding:5px 10px;gap:6px;border:0;border-radius:7px;font-size:12px;font-weight:600;line-height:1.5;box-shadow:none;}
+html:root body.ui56.pg-shell .tab .ic2 {font-size:15px;}
+html:root body.ui56.pg-shell .tab .i54 {--ic:16px;}
+html:root body.ui56.pg-shell .tab .car {width:11px;height:11px;}
+html:root body.ui56.pg-shell .tab .car svg {width:11px;height:11px;}
+html:root body.ui56.pg-shell .tab.on,html:root body.ui56.pg-shell .tab.dd.open {background:var(--soft);color:var(--ink);box-shadow:none;}
+html:root body.ui56.pg-shell .dots {gap:3px;}
+html:root body.ui56.pg-shell .dots i {width:5px;height:5px;}
+html:root body.ui56.pg-shell .badge {min-width:17px;height:17px;padding:0 4px;font-size:10px;}
+html:root body.ui56.pg-shell .sep {height:17px;margin-inline:4px;opacity:.65;}
+html:root body.ui56.pg-shell #r1 .ic {width:30px;height:30px;border-radius:7px;}
+html:root body.ui56.pg-shell #r1 .b {min-height:30px;padding:5px 10px;font-size:12px;}
+@media(min-width:700px) {html:root body.ui56.pg-shell #tHome .t,html:root body.ui56.pg-shell #tDash .t,html:root body.ui56.pg-shell #ddPlat .t {display:inline;}}
