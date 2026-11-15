@@ -1,0 +1,8 @@
+<section class="workspace-actions" [class.compact]="compact()" aria-label="أدوات مساحة العمل">
+  <button type="button" class="area-button" (click)="run('area')" [disabled]="engine.status() !== 'ready'" [attr.aria-label]="'تغيير منطقة العمل: ' + engine.area()" [title]="engine.area()"><aqm-icon name="pin" /><span>{{ engine.area() }}</span></button>
+  <div class="actions-row">
+    <button type="button" class="theme-button" (click)="engine.action('theme')" [disabled]="engine.status() !== 'ready'" [attr.aria-label]="engine.theme() === 'dark' ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الغامق'" title="تبديل الوضع"><aqm-icon [name]="engine.theme() === 'dark' ? 'sun' : 'moon'" /></button>
+    <a routerLink="/workspace-tools" (click)="openContent.emit()" aria-label="أدوات مساحة العمل" title="أدوات مساحة العمل"><aqm-icon name="tools" /><span>أدوات</span></a>
+    <button type="button" class="save-button" (click)="engine.action('save')" [disabled]="engine.status() !== 'ready'" aria-label="حفظ البيانات" title="حفظ البيانات (Ctrl+S)"><aqm-icon name="save" /><span>حفظ</span></button>
+  </div>
+</section>

@@ -1,0 +1,17 @@
+@if(groups().length) {
+  <details class="more-menu" [class.compact]="compact()" [class.active]="active()" [open]="!compact() && (active() || !!query().trim())">
+    <summary (click)="compact() ? expand.emit() : null" title="المزيد من الأدوات"><aqm-icon name="more" /><span class="more-label">المزيد</span><aqm-icon name="chevron" class="more-arrow" /></summary>
+    <div class="submenu-list">
+      @for(group of groups();track group.id) {
+        <details class="submenu" [open]="!!query().trim() || group.active">
+          <summary><span>{{ group.label }}</span><aqm-icon name="chevron" /></summary>
+          <div class="submenu-links">
+            @for(feature of group.items;track feature.path) {
+              <a [routerLink]="'/' + feature.path" (click)="navigate.emit(feature.view)" routerLinkActive="selected" ariaCurrentWhenActive="page"><aqm-icon [name]="feature.icon" /><span>{{ feature.title }}</span></a>
+            }
+          </div>
+        </details>
+      }
+    </div>
+  </details>
+}

@@ -1,0 +1,19 @@
+:is(#v-posts,#v-leads,#v-sellers) .list.aqm-card-grid {
+  display:grid!important;
+  grid-template-columns:repeat(var(--aqm-grid-columns,3),minmax(0,1fr))!important;
+  gap:16px;
+  align-items:start;
+}
+.aqm-card-grid > .empty { grid-column:1 / -1; }
+:is(#aqmApp,#aqmEmbeddedRoot) :is(#v-leads,#v-sellers).aqm-product-view .aqm-card-grid > .card.lead {
+  display:flex!important;
+  flex-direction:column!important;
+  gap:12px;
+  padding:16px;
+  min-width:0;
+}
+:is(#v-posts,#v-leads,#v-sellers) .aqm-card-grid > .card { min-width:0; overflow-wrap:anywhere; }
+:is(#v-leads,#v-sellers) .aqm-card-grid .pf-row { grid-template-columns:minmax(0,1fr)!important; }
+:is(#v-leads,#v-sellers) .aqm-card-grid .acts { flex-wrap:wrap; gap:6px; }
+:is(#v-leads,#v-sellers) .aqm-card-grid .l-name { font-size:16px; }
+html[data-aqm-embedded="true"] .aqm-page-controls { display:none!important; }

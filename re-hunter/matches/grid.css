@@ -1,0 +1,34 @@
+/* Matching card internals; the outer responsive grid is shared/card-grid. */
+#v-matches #mList.aqm-card-grid {
+  display:grid!important; grid-template-columns:repeat(var(--aqm-grid-columns,3),minmax(0,1fr))!important;
+  gap:16px!important; align-items:stretch; scroll-margin-block-start:20px;
+}
+#v-matches #mList.aqm-card-grid>.fr { display:flex!important; flex-direction:column!important; min-width:0; border-radius:12px!important; }
+#v-matches #mList.aqm-card-grid .fr-b { padding:16px; gap:9px; border-inline-end:0; border-bottom:1px solid var(--border); }
+#v-matches #mList.aqm-card-grid .fr-name { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:16px!important; line-height:1.55; }
+#v-matches #mList.aqm-card-grid .fr-w { font-size:13px; line-height:1.7; }
+#v-matches #mList.aqm-card-grid .match-facts { gap:10px; }
+#v-matches #mList.aqm-card-grid .match-facts dt { font-size:10px; }
+#v-matches #mList.aqm-card-grid .match-facts dd { font-size:12px; margin-top:3px; }
+#v-matches #mList.aqm-card-grid .match-eyebrow { font-size:10px; }
+#v-matches #mList.aqm-card-grid .fr-c { margin-top:0; padding-top:3px; gap:6px; }
+#v-matches #mList.aqm-card-grid .fr .btn { font-size:11px!important; padding:6px 9px!important; min-height:32px!important; }
+#v-matches #mList.aqm-card-grid .fr-us { padding:14px 16px; gap:0; }
+#v-matches #mList.aqm-card-grid .fr-offers-heading { padding-bottom:8px; }
+#v-matches #mList.aqm-card-grid .fr-offers-heading b { font-size:12px; }
+#v-matches #mList.aqm-card-grid .fr-offers-heading span { font-size:10px; }
+#v-matches #mList.aqm-card-grid .fu { grid-template-columns:40px minmax(0,1fr); gap:9px; padding-block:12px; }
+#v-matches #mList.aqm-card-grid .fu-t { font-size:13px; line-height:1.7; }
+#v-matches #mList.aqm-card-grid .fu-l2 { gap:4px 8px; font-size:11px; }
+#v-matches #mList.aqm-card-grid .fu-sc b { font-size:14px; }
+#v-matches #mList.aqm-card-grid .fu-seller-id { font-size:10px; }
+#v-matches #mList.aqm-card-grid .match-details>summary { font-size:11px; }
+#v-matches #mList.aqm-card-grid .fu-a { grid-column:1/-1; padding-inline-start:49px; gap:6px; }
+#v-matches #mList.aqm-card-grid .card.pair {
+  grid-template-columns:minmax(0,1fr)!important; grid-template-areas:"score" "buyer" "seller" "why"!important;
+  padding:16px!important; gap:12px!important; min-width:0;
+}
+#v-matches #mList.aqm-card-grid .card.pair.pgroup { grid-template-areas:"score" "head" "with"!important; }
+#v-matches #mList.aqm-card-grid :is(.pair-side,.pg-head,.pg-with,.pm-row) { min-width:0; overflow-wrap:anywhere; }
+#v-matches #mList.aqm-card-grid .pm-acts { flex-wrap:wrap; }
+#v-matches #mList.aqm-card-grid .empty { grid-column:1/-1; }

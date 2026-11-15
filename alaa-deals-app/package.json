@@ -13,6 +13,8 @@
     "ws": "8.18.3"
   },
   "scripts": {
+    "dev:ui": "npm --prefix ../frontend start",
+    "build:ui": "node scripts/publish-ui.cjs",
     "build:posts": "node scripts/build-posts.cjs",
     "dev:posts": "node scripts/build-posts.cjs --watch --sync",
     "sync": "node scripts/sync-engine.js",

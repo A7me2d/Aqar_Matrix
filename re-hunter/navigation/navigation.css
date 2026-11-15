@@ -1,13 +1,17 @@
 /* Navigation owns its layout across the existing appearance presets. */
 html.aqm-navigation #side { z-index:90!important; }
+html.aqm-navigation[data-aqm-embedded=true] #side > #nav#nav#nav { display:none!important; }
 html.aqm-navigation #side + .app-main {
   margin-inline:auto!important; width:100%!important; max-width:1280px!important;
   padding-bottom:calc(var(--dkh,76px) + 48px + env(safe-area-inset-bottom))!important;
 }
-#side > #nav {
+/* Outrank the old appearance layouts, which also set both vertical edges. */
+html.aqm-navigation #side > #nav#nav#nav {
   pointer-events:auto!important;
   --nav-accent:var(--hue,var(--primary,#2563eb));
   position:fixed!important; inset:auto!important; top:auto!important;
+  inset-block-start:auto!important; inset-block-end:calc(16px + env(safe-area-inset-bottom))!important;
+  inset-inline-start:auto!important; inset-inline-end:auto!important;
   bottom:calc(16px + env(safe-area-inset-bottom))!important;
   left:50%!important; right:auto!important; transform:translateX(-50%)!important;
   display:block!important; width:min(880px,calc(100vw - 32px))!important;

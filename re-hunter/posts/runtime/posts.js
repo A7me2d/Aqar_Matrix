@@ -210,10 +210,9 @@ function renderPosts() {
   $("oldNote").innerHTML = hiddenOld ? `📦 فيه <b>${hiddenOld}</b> طلب/عرض أقدم من ${state.postDays} يوم متخزنين ومستخبيين <button class="btn sm" data-showold>اعرضهم</button>` : "";
   if (!items.length) $("list").innerHTML = `<div class="empty posts-empty"><span class="posts-empty-symbol" aria-hidden="true">▤</span><h3>لسه مفيش طلبات أو عروض</h3><p>البوستات اللي بتسحبها من مصادر العقارات هتظهر هنا، وتقدر تبحث فيها وتراجع تفاصيلها.</p></div>`;
   else if (!list.length) $("list").innerHTML = `<div class="empty posts-empty"><span class="posts-empty-symbol" aria-hidden="true">⌕</span><h3>مفيش منشورات مطابقة للبحث</h3><p>جرّب كلمة تانية، أو وسّع المنطقة والفترة، أو شيل بعض الفلاتر.</p><div><button type="button" class="btn primary" data-post-reset>تصفير البحث</button><button type="button" class="btn" data-post-filters-open>راجع الفلاتر</button></div></div>`;
-  else $("list").innerHTML = list.slice(0, state.shown).map((p) => card(p, { sgn: true })).join("");
+  AQMPagedViews.set("posts",{listId:"list",items:list,renderItem:(p) => card(p,{sgn:true}),signature:AQMPagedViews.signature(state),emptyHTML:list.length ? "" : $("list").innerHTML});
   if (window.FBID) FBID.sec("posts", $("list"), [{ label: "الطالبين", items: list.filter((p) => p.type === "request") }, { label: "العارضين", items: list.filter((p) => p.type !== "request") }]); // 🆔 نسخ كل الآيديات
-  $("moreBtn").hidden = list.length <= state.shown;
-  $("moreBtn").textContent = `عرض المزيد (${list.length - state.shown} كمان)`;
+  $("moreBtn").hidden = true;
 }
 
 
@@ -297,7 +296,6 @@ function initPostsControls() {
   }
   $("onlyBS").addEventListener("change", () => { state.onlyBS = $("onlyBS").checked; setAreaOn(state.onlyBS); syncAreaBoxes(); state.shown = PAGE; render(); });
   $("postDays").addEventListener("change", () => { state.postDays = Number($("postDays").value); state.shown = PAGE; render(); });
-  $("moreBtn").addEventListener("click", () => { state.shown += PAGE; render(); });
   $("filtersBtn").addEventListener("click", () => togglePostsFilters());
   $("exportBtn").addEventListener("click", exportPosts);
   $("postGo").addEventListener("click", () => startPostJob($("postUrl").value.trim()));

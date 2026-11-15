@@ -1,0 +1,50 @@
+<div class="workspace" [attr.data-theme]="engine.theme()" [style.--aqm-canvas]="engine.palette()['canvas']" [style.--aqm-surface]="engine.palette()['surface']" [style.--aqm-ink]="engine.palette()['ink']" [style.--aqm-muted]="engine.palette()['muted']" [style.--aqm-line]="engine.palette()['line']" [style.--aqm-accent]="engine.palette()['accent']" [style.--aqm-on-accent]="engine.palette()['onAccent']" [class.is-collapsed]="sidebarCollapsed()" [class.mobile-open]="mobileMenuOpen()">
+  <a href="#workspaceContent" (click)="$event.preventDefault(); focusContent()" class="skip-link">تخطي إلى المحتوى</a>
+  @if (mobileMenuOpen()) { <button type="button" class="sidebar-backdrop" (click)="mobileMenuOpen.set(false)" aria-label="إغلاق قائمة الأقسام"></button> }
+  <aside id="workspaceSidebar" class="sidebar border-line bg-surface" [attr.inert]="isMobile() && !mobileMenuOpen() ? '' : null">
+    <div class="brand-row">
+      <a routerLink="/matches" (click)="select('matches')" class="brand" aria-label="Aqar Matrix الرئيسية">
+        <img class="brand-logo" src="/d/brand/aqar-mark.svg" alt="" width="46" height="35">
+        <span class="brand-copy"><b dir="ltr">Aqar Matrix</b><small>مساحة العمل العقارية</small></span>
+      </a>
+      <button type="button" class="icon-button mobile-close" (click)="mobileMenuOpen.set(false)" aria-label="إغلاق قائمة الأقسام"><aqm-icon name="close" /></button>
+    </div>
+    <label class="sidebar-search"><aqm-icon name="search" /><input type="search" placeholder="ابحث عن أداة…" aria-label="البحث في أقسام العمل" [value]="sidebarQuery()" (input)="sidebarQuery.set($any($event.target).value)"></label>
+    <nav class="sidebar-navigation" aria-label="أقسام العمل">
+      @for (group of navigation(); track group.id) {
+        <div class="nav-group">
+          <h2>{{ group.label }}</h2>
+          @for (feature of group.items; track feature.path) {
+            <a [routerLink]="'/' + feature.path" (click)="select(feature.view)" routerLinkActive="active" ariaCurrentWhenActive="page" [attr.aria-label]="feature.title" [title]="feature.title" class="nav-link">
+              <aqm-icon [name]="feature.icon" /><span class="nav-label">{{ feature.title }}</span><span class="nav-active-dot" aria-hidden="true"></span>
+            </a>
+          }
+        </div>
+      }
+      <aqm-sidebar-more [compact]="sidebarCollapsed() && !isMobile()" [query]="sidebarQuery()" (navigate)="select($event)" (expand)="expandSidebar()" />
+    </nav>
+    <footer class="sidebar-footer">
+      <a routerLink="/settings" (click)="select('settings')" routerLinkActive="active" class="nav-link" aria-label="الإعدادات" title="الإعدادات"><aqm-icon name="settings" /><span class="nav-label">الإعدادات</span></a>
+      <aqm-workspace-actions [compact]="sidebarCollapsed() && !isMobile()" (openContent)="mobileMenuOpen.set(false)" />
+      <div class="sidebar-connection" role="status" aria-live="polite" [class.connected]="engine.status() === 'ready'" [attr.title]="engine.status() === 'ready' ? 'متصل ببيانات المشروع' : 'الاتصال ببيانات المشروع'"><span class="connection-dot" aria-hidden="true"></span><span class="nav-label">{{ engine.status() === 'ready' ? 'متصل ببيانات المشروع' : engine.status() === 'error' ? 'الاتصال غير متاح' : 'جاري الاتصال…' }}</span></div>
+    </footer>
+  </aside>
+  <main id="workspaceContent" class="workspace-main min-w-0" tabindex="-1">
+    <header class="workspace-header">
+      <div class="heading-start">
+        <button type="button" class="icon-button sidebar-toggle" (click)="toggleSidebar()" aria-controls="workspaceSidebar" [attr.aria-expanded]="isMobile() ? mobileMenuOpen() : !sidebarCollapsed()" aria-label="فتح أو تصغير قائمة الأقسام" title="قائمة الأقسام"><aqm-icon name="menu" /></button>
+        <div class="page-heading"><h1>{{ engine.selected().title }}</h1></div>
+      </div>
+    </header>
+    <router-outlet />
+    @if (engine.status() === 'error') {
+      <div class="connection-error" role="alert"><span>{{ engine.error() }}</span><div class="flex items-center gap-4"><a href="/d/" target="_blank" rel="noopener" class="text-accent underline">فتح لوحة التحكم</a><button type="button" (click)="engine.reconnect()">إعادة الاتصال</button></div></div>
+    }
+    <iframe #engineFrame [src]="frameUrl" (load)="engine.reconnect()" [title]="'مساحة عمل ' + engine.selected().title" class="engine-frame"></iframe>
+    @if (engine.pagination()?.view === engine.selected().view) {
+      @if (engine.pagination(); as page) {
+        @if (page.totalItems > 0) { <aqm-pagination [state]="page" [label]="'صفحات ' + engine.selected().title" (pageChange)="engine.goPage($event)" /> }
+      }
+    }
+  </main>
+</div>

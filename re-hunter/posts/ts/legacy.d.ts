@@ -42,3 +42,5 @@ declare function copyText(text: string): Promise<any>;
 declare function setAreaOn(value: boolean): void;
 declare function syncAreaBoxes(): void;
 interface Window { AQMPostsPage: PostsPageApi; FBID?: any; __AQM_KEEP?: any; }
+
+declare const AQMPagedViews: { signature(source: any, prefix?: string): string; set(view: string, options: {listId: string; items: any[]; renderItem: (item: any) => string; signature: string; emptyHTML: string}): void };

@@ -33,4 +33,13 @@
   tools.replaceChildren(area, mode, menu, save);
   put("headerThemeSlot", theme);
   ["thmBtn", "styBtn", "thmPop", "styPop"].forEach((id) => { const element = byId(id) || theme.querySelector("#" + id); if (element) theme.appendChild(element); });
+  const page=document.createElement('section');
+  page.id='v-workspace-tools'; page.className='view'; page.hidden=true;
+  const content=document.createElement('main'); content.className='wrap';
+  content.appendChild(menu.querySelector('#headerToolsPanel'));
+  page.appendChild(content); document.querySelector('.app-main').appendChild(page);
+  page.addEventListener('keydown',event=>{
+    if(event.target.id==='autoPill' && (event.key==='Enter' || event.key===' ')) { event.preventDefault(); event.target.click(); }
+  });
+  menu.querySelector('summary').addEventListener('click',event=>{event.preventDefault();window.AQMOpenView?.('workspace-tools');});
 })();

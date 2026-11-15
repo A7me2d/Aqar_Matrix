@@ -2,41 +2,62 @@
 // Classic scripts share the existing dashboard state; see matches/README.md.
 
 const matchExpanded = new Set();
+let lastMatchListHTML = '';
 function setMatchList(html) {
   const list = $("mList");
+  if (html === lastMatchListHTML && list.firstElementChild) return;
+  lastMatchListHTML = html;
   list.innerHTML = html;
   list.querySelectorAll("details[data-match-detail]").forEach((el) => { el.open = matchExpanded.has(el.dataset.matchDetail); });
 }
 document.addEventListener("toggle", (e) => {
   const el = e.target;
   if (!el.matches || !el.matches("#mList details[data-match-detail]") || !el.isConnected) return;
-  if (el.open) matchExpanded.add(el.dataset.matchDetail); else matchExpanded.delete(el.dataset.matchDetail);
+  if (el.open) {
+    matchExpanded.add(el.dataset.matchDetail);
+    if (matchExpanded.size > 256) matchExpanded.delete(matchExpanded.values().next().value);
+  } else matchExpanded.delete(el.dataset.matchDetail);
 }, true);
 function renderMatchSummary() {
-  const strong = pairs.filter((x) => x.score >= 70);
+  let strongCount=0, ownerCount=0, hotCount=0, newCount=0;
+  const buyers=new Set(), sellersNow=new Set(), units=new Set();
+  for (const pair of pairs) {
+    if (pair.score < 70) continue;
+    strongCount++; buyers.add(pair.B.key); sellersNow.add(pair.S.key); units.add(pair.u.id);
+    if(pair.S.owner) ownerCount++;
+    if(pair.B.superHot) hotCount++;
+    if(pairIsNew(pair)) newCount++;
+  }
   const metric = (n, label) => `<div class="match-metric"><b>${ar(n)}</b><span>${label}</span></div>`;
-  $("mKpis").innerHTML = `<div class="match-metrics">${metric(strong.length, "تطابق قوي · ٧٠٪ فأكثر")}${metric(new Set(strong.map((x) => x.B.key)).size, "مشتري ليه عروض مناسبة")}${metric(new Set(strong.map((x) => x.S.key)).size, "بايع ليه مشترين مناسبين")}${metric(new Set(strong.map((x) => x.u.id)).size, "عرض متطابق")}</div>
-    <div class="match-kpi-actions"><button type="button" class="btn sm ${state.mOwner ? "on" : ""}" data-mownerk aria-pressed="${state.mOwner}">مع المالك: ${ar(strong.filter((x) => x.S.owner).length)}</button><span class="muted">مهتمين جدًا: ${ar(strong.filter((x) => x.B.superHot).length)}</span><button type="button" class="btn sm ${state.mNewOnly ? "on" : ""}" data-mnewk aria-pressed="${state.mNewOnly}">الجديد: ${ar(strong.filter(pairIsNew).length)}</button><button type="button" class="btn sm" data-mseen>علّم الجديد كمقروء</button></div>`;
+  $("mKpis").innerHTML = `<div class="match-metrics">${metric(strongCount, "تطابق قوي · ٧٠٪ فأكثر")}${metric(buyers.size, "مشتري ليه عروض مناسبة")}${metric(sellersNow.size, "بايع ليه مشترين مناسبين")}${metric(units.size, "عرض متطابق")}</div>
+    <div class="match-kpi-actions"><button type="button" class="btn sm ${state.mOwner ? "on" : ""}" data-mownerk aria-pressed="${state.mOwner}">مع المالك: ${ar(ownerCount)}</button><span class="muted">مهتمين جدًا: ${ar(hotCount)}</span><button type="button" class="btn sm ${state.mNewOnly ? "on" : ""}" data-mnewk aria-pressed="${state.mNewOnly}">الجديد: ${ar(newCount)}</button><button type="button" class="btn sm" data-mseen>علّم الجديد كمقروء</button></div>`;
 }
 function renderMatches() {
+  // Bounded to this render: reuse identical filtered lists for counts and tabs.
+  const filteredLists = new Map();
+  const selectPairs = (ignore = {}) => {
+    const key = Object.keys(ignore).filter(key => ignore[key]).sort().join('|');
+    if (!filteredLists.has(key)) filteredLists.set(key,pairFiltered(ignore));
+    return filteredLists.get(key);
+  };
   $("mGroup").disabled = fastOn;
   $("mClassSummary").textContent = "تصنيف الأطراف: " + (state.mCombo !== "all" ? COMBO_TABS[state.mCombo] : TIER_TABS[state.mTier]);
   { const mi = $("mSearch"); if (mi && mi.value !== (state.mq || "")) mi.value = state.mq || ""; }
-  const all = pairFiltered({ cat: true });
-  const list = pairFiltered();
+  const all = selectPairs({ cat: true });
+  const list = selectPairs();
   renderMatchSummary();
   { // 🧪 مستوى التطابق: العدّادات بتتحسب من غير فلتر المشتري ومن غير فلتر المستوى نفسه
-    const allC = pairFiltered({ tier: true, combo: true }), cc = (k) => allC.filter((x) => comboOf(x) === k).length;
-    const nAllC = pairFiltered({ combo: true }).length;
+    const allC = selectPairs({ tier: true, combo: true }), cc = (k) => allC.filter((x) => comboOf(x) === k).length;
+    const nAllC = selectPairs({ combo: true }).length;
     const CD = { all: ["📋", "الكل", "كل التطابقات (حسب نوع المشتري تحت)"], t1: ["💎", "صافي ↔ صافي", "مشتري صافي مع بايع مالك — أنضف تطابق"], t2: ["🟢", "مشتري صافي ↔ مكتب/سمسار", "المشتري صافي والبايع مشتبه أو مكتب أو سمسار"], t3: ["🟠", "مشتبه ↔ مكتب/سمسار", "المشتري مشتبه أو مكتب والبايع مكتب أو سمسار"] };
     $("mComboTabs").innerHTML = lvlHtml("🧪 مستوى التطابق", "اختار تركيبة المشتري والبايع اللي عايز تشوفها", Object.keys(COMBO_TABS).map((k) => ({ k, ic: CD[k][0], t: CD[k][1], d: CD[k][2], n: k === "all" ? nAllC : cc(k) })), state.mCombo, "mcombo");
   }
-  { const allT = pairFiltered({ tier: true, combo: true }), cnt = (k) => allT.filter((x) => tierSel(k, x.B.btier)).length, tOn = (k) => state.mCombo === "all" && state.mTier === k;
+  { const allT = selectPairs({ tier: true, combo: true }), cnt = (k) => allT.filter((x) => tierSel(k, x.B.btier)).length, tOn = (k) => state.mCombo === "all" && state.mTier === k;
     $("mTierTabs").innerHTML = `<span class="tier-lbl">🛒 نوع المشتري</span>` + Object.entries(TIER_TABS).map(([k, v]) => `<button class="tab ${tOn(k) ? "on" : ""}" role="tab" aria-selected="${tOn(k)}" data-mtier="${k}">${v}<small>${cnt(k)}</small></button>`).join("");
     const note = { pure: "مشترين كاتبين طلبهم بأنفسهم من غير أي علامة سمسرة، أو أكدوا على واتساب (💎).", suspect: "مشترين مش واضح هما فعلًا المشتري ولا بيجمعوا عروض لعميل — اتأكد منهم قبل ما تضيّع وقت.", office: "ناس شكلهم مكاتب أو سماسرة أو تجار بيطلبوا بكميات (أو قالوا هما كده) — ظاهرين هنا بس مش في «صافي».", all: "كل المشترين مرتبين: موثّق ← صافي ← مشتبه ← مكتب/سمسار." }[state.mTier] || "";
     const n0 = cnt(state.mTier), others = Object.keys(TIER_TABS).filter((k) => k !== state.mTier && k !== "all" && cnt(k) > 0);
     if (state.mCombo !== "all") { // مستوى مختار: بنشرح معناه، ولو فاضي نقترح المستويات اللي فيها تطابقات
-      const C = typeof ROLE !== "undefined" ? ROLE.COMBOS[state.mCombo] : null, allC2 = pairFiltered({ tier: true, combo: true }), c2 = (k) => allC2.filter((x) => comboOf(x) === k).length;
+      const C = typeof ROLE !== "undefined" ? ROLE.COMBOS[state.mCombo] : null, allC2 = selectPairs({ tier: true, combo: true }), c2 = (k) => allC2.filter((x) => comboOf(x) === k).length;
       const oth = Object.keys(COMBO_TABS).filter((k) => k !== "all" && k !== state.mCombo && c2(k) > 0);
       $("mTierNote").innerHTML = `<span class="muted">${esc(C ? C.d : "")} — بيتجاهل فلتر نوع المشتري اللي تحت.</span>` + (!c2(state.mCombo) && oth.length ? ` <b>مفيش هنا دلوقتي —</b> ${oth.map((k) => `<button class="btn sm" data-mcombo="${k}">${COMBO_TABS[k]} (${ar(c2(k))})</button>`).join(" ")}` : "");
     } else $("mTierNote").innerHTML = `<span class="muted">${esc(note)}</span>` + (!n0 && others.length ? ` <b>مفيش هنا دلوقتي —</b> ${others.map((k) => `<button class="btn sm" data-mtier="${k}">${TIER_TABS[k]} (${ar(cnt(k))})</button>`).join(" ")}` : ""); }
@@ -51,11 +72,11 @@ function renderMatches() {
   $("mCount").textContent = `${list.length} مطابقة` + (grpOn ? ` في ${cards.length} كارت${nG ? ` (${nG} مجمّعين)` : ""}` : "") + (nNew ? ` · 🆕 ${nNew} جديد` : "") + (state.mq ? ` — بحث: «${state.mq}» ` : "");
   deepMatchUI(list);
   if (!list.length) {
-    setMatchList(matchEmpty());
+    clearMatchCollection(matchEmpty());
     if (window.FBID) FBID.sec("matches", $("mList"), []);
     return;
   }
-  setMatchList(cards.slice(0, state.mShown).map((c) => (c.g ? groupCard(c) : pairCard(c.items[0]))).join("") + (cards.length > state.mShown ? `<button class="btn more" data-mmore>عرض المزيد (${cards.length - state.mShown})</button>` : ""));
+  setMatchCollection(cards, c => c.g ? groupCard(c) : pairCard(c.items[0]), grpOn ? 'grouped' : 'individual');
   if (window.FBID) FBID.sec("matches", $("mList"), [{ label: "المشترين", items: uniqBy(list.map((x) => x.B), (b) => b.key) }, { label: "البايعين", items: uniqBy(list.map((x) => x.S), (s) => s.key) }]);
 }
 // 🏠 «المالك» في التطابق: تصنيف نص الوحدة (البايع) ونص طلب المشتري + هل الاتنين متفقين (طالب من المالك ⟷ البايع مالك)
@@ -90,10 +111,10 @@ document.addEventListener("click", async (e) => {
     if (a === "min50") { state.mMin = 50; $("mMin").value = "50"; }
     else if (a === "buyer1") { state.mBuyer = 1; $("mBuyer").value = "1"; }
     else if (a === "clear") { Object.assign(state, { mMin: 85, mCat: "all", mTier: "all", mCombo: "all", mRegion: "", mBuyer: 1, mOwner: false, mPhones: false, mNewOnly: false, mq: "" }); $("mMin").value = "85"; $("mBuyer").value = "1"; $("mOwner").checked = false; $("mPhones").checked = false; $("mNewOnly").checked = false; }
-    state.mShown = 40; return render();
+    resetMatchPage(); return render();
   }
   if (t.closest("[data-mseen]")) { e.stopPropagation(); markMatchesSeen(); render(); return toast("✔ تمام — علّمت الجديد إنك شفته"); }
-  const nk = t.closest("[data-mnewk]"); if (nk) { state.mNewOnly = !state.mNewOnly; $("mNewOnly").checked = state.mNewOnly; state.mShown = 40; return render(); }
+  const nk = t.closest("[data-mnewk]"); if (nk) { state.mNewOnly = !state.mNewOnly; $("mNewOnly").checked = state.mNewOnly; resetMatchPage(); return render(); }
   if (!$("grpModal").hidden) {
     if (t.id === "grpModal" || t.closest("[data-gclose]")) return closeGroup();
     if (t.closest("[data-gsendall]") && grpCur) return sendTo(grpCur.head, groupMsg(grpCur));
@@ -153,10 +174,10 @@ document.addEventListener("click", async (e) => {
 
 function initMatchControls() {
 $("mGroup").checked = grpOn;
-$("mGroup").addEventListener("change", (e) => { grpOn = e.target.checked; try { localStorage.setItem("alaaGrpOn", grpOn ? "1" : "0"); } catch {} persistViewPrefs(); state.mShown = 40; render(); });
-$("mNewOnly").addEventListener("change", (e) => { state.mNewOnly = e.target.checked; state.mShown = 40; render(); });
-$("mSort").addEventListener("change", (e) => { state.mSort = e.target.value; state.mShown = 40; render(); });
-$("mSearch").addEventListener("input", (e) => { state.mq = e.target.value; state.mShown = 40; renderSoon(); });
+$("mGroup").addEventListener("change", (e) => { grpOn = e.target.checked; try { localStorage.setItem("alaaGrpOn", grpOn ? "1" : "0"); } catch {} persistViewPrefs(); resetMatchPage(); render(); });
+$("mNewOnly").addEventListener("change", (e) => { state.mNewOnly = e.target.checked; resetMatchPage(); render(); });
+$("mSort").addEventListener("change", (e) => { state.mSort = e.target.value; resetMatchPage(); render(); });
+$("mSearch").addEventListener("input", (e) => { state.mq = e.target.value; resetMatchPage(); renderSoon(); });
 $("mExport").addEventListener("click", () => {
   const list = pairFiltered(); if (!list.length) return toast("مفيش تطابقات تتصدر");
   const q = csvQ;
@@ -166,21 +187,20 @@ $("mExport").addEventListener("click", () => {
   download(`تطابقات_${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8"); toast(`اتصدر ${list.length} تطابق`);
 });
   for (const [id, numeric] of [["mMin", true], ["mBuyer", true], ["mRegion", false]]) {
-    $(id).addEventListener("change", (e) => { state[id] = numeric ? +e.target.value : e.target.value; state.mShown = 40; render(); });
+    $(id).addEventListener("change", (e) => { state[id] = numeric ? +e.target.value : e.target.value; resetMatchPage(); render(); });
   }
   for (const id of ["mOwner", "mPhones", "mHideDone"]) {
-    $(id).addEventListener("change", (e) => { state[id] = e.target.checked; state.mShown = 40; render(); });
+    $(id).addEventListener("change", (e) => { state[id] = e.target.checked; resetMatchPage(); render(); });
   }
 
 }
 
-document.addEventListener("click", (e) => { if (e.target.closest("[data-mownerk]")) { state.mOwner = !state.mOwner; $("mOwner").checked = state.mOwner; state.mShown = 40; render(); } });
+document.addEventListener("click", (e) => { if (e.target.closest("[data-mownerk]")) { state.mOwner = !state.mOwner; $("mOwner").checked = state.mOwner; resetMatchPage(); render(); } });
 document.addEventListener("click", async (e) => {
   const t = e.target;
-  const mt = t.closest("[data-mtier]"); if (mt) { state.mTier = mt.dataset.mtier; state.mCombo = "all"; try { localStorage.setItem("alaaMTier", state.mTier); localStorage.setItem("alaaMCombo", "all"); } catch {} state.mShown = 40; return render(); }
-  const mcb = t.closest("[data-mcombo]"); if (mcb) { state.mCombo = ["t1", "t2", "t3"].includes(mcb.dataset.mcombo) ? mcb.dataset.mcombo : "all"; try { localStorage.setItem("alaaMCombo", state.mCombo); } catch {} state.mShown = 40; return render(); }
+  const mt = t.closest("[data-mtier]"); if (mt) { state.mTier = mt.dataset.mtier; state.mCombo = "all"; try { localStorage.setItem("alaaMTier", state.mTier); localStorage.setItem("alaaMCombo", "all"); } catch {} resetMatchPage(); return render(); }
+  const mcb = t.closest("[data-mcombo]"); if (mcb) { state.mCombo = ["t1", "t2", "t3"].includes(mcb.dataset.mcombo) ? mcb.dataset.mcombo : "all"; try { localStorage.setItem("alaaMCombo", state.mCombo); } catch {} resetMatchPage(); return render(); }
   const mc = t.closest("[data-mcat]"); if (mc) { state.mCat = mc.dataset.mcat; return render(); }
   const ps = t.closest("[data-pairsend]"); if (ps) { const x = pairByEl(ps); if (x) { if (ps.dataset.pairsend === "buyer") await copyPlotFile(x.u, x.B); return sendTo(ps.dataset.pairsend === "buyer" ? x.B : x.S, pairMsg(x, ps.dataset.pairsend)); } }
-  if (t.closest("[data-mmore]")) { state.mShown += 40; return render(); }
   const gq = t.closest("[data-gomq]"); if (gq) { state.mq = gq.dataset.gomq; state.mMin = 50; $("mMin").value = "50"; return render(); }
 });

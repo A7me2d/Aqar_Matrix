@@ -28,7 +28,7 @@ const PAGE = 120;
 try { if (navigator.webdriver && localStorage.getItem("alaaCV") !== "1") document.documentElement.dataset.cv = "off"; } catch {}
 
 // 10.69: كل قسم يتفتح من الشريط الجانبي بيبدأ «كأنه عمل رفرش» — رجوعك لقسم فتحته قبل كده بيعمل رفرش للصفحة (#v=<قسم>) وميكمّلش الإجراء القديم
-const ALL_VIEWS = ["home", "today", "leads", "sellers", "posts", "listings", "atlas", "pick", "extract", "publish", "spread", "funnel", "wasend", "matches", "pipe", "saved", "stats", "settings", "aitools"];
+const ALL_VIEWS = ["workspace-tools", "home", "today", "leads", "sellers", "posts", "listings", "atlas", "pick", "extract", "publish", "spread", "funnel", "wasend", "matches", "pipe", "saved", "stats", "settings", "aitools"];
 // 10.80.57: شاشات اتدمجت/اتشالت — أي لينك أو هاش أو زرار قديم بيتحوّل للمكان الجديد: المغناطيس ← تاب في رشّحلي، سجل الـCRM ← أول مرحلة في الصفقات، جواز العقار وماركتينجي اتشالوا ← الرئيسية
 const VIEW_ALIAS = { magnet: ["pick", "mag"], crm: ["pipe", "crm"], passport: ["home", ""], marketing: ["home", ""] };
 const VIEW_FROM_V = (() => { const m = /^#v=([a-z]+)$/.exec(location.hash || ""); return m && ALL_VIEWS.includes(m[1]) ? m[1] : ""; })();
@@ -40,7 +40,7 @@ const state = {
   lCat: "all", lLvl: 1, lMoney: "", lq: "", lRegion: "", lSrc: "", lSort: "score", lMultiPost: false, lMultiGroup: false, lPhone: false,
   lHideContacted: true, lBrokers: false, lShown: 60, lOpen: new Set(), lDays: 30, lOwner: "", lKind: "all", bestFor: "", lsFilter: "active",
   sCat: "all", sKind: "all", sCls: "all", lCls: "all", clsOpen: false, sq: "", sRegion: "", sDays: 30, sSort: "score", sOnlyArea: false, sPhone: false, sPriced: false, sWithBuyers: false, sShown: 60, sOpen: new Set(),
-  mMin: 85, mBuyer: 1, mRegion: "", mOwner: false, mPhones: false, mOnlyArea: false, mShown: 80, mSort: "best", mNewOnly: false,
+  mMin: 85, mBuyer: 1, mRegion: "", mOwner: false, mPhones: false, mOnlyArea: false, mSort: "best", mNewOnly: false,
   sf: {}, mdKind: "offer", mdTab: "all",
 };
 // 🗂 تجميع التطابقات + 🆕 الجديد (لكل جهاز)
@@ -832,6 +832,7 @@ function render() {
   if (state.view === "today") renderToday();
   if (state.view === "leads") renderLeads();
   if (window.AQMNavigation) AQMNavigation.refresh(state.view);
+  window.dispatchEvent(new CustomEvent("aqm:view", { detail: { view: state.view } }));
   $("navPosts").textContent = items.length ? ar(items.filter(inArea).length) : "0";
   $("navMatches").textContent = pairs.filter((x) => x.score >= 70).length;
   if (lastRenderView === "matches" && state.view !== "matches") markMatchesSeen(); // خرجت من الشاشة = شفت اللي كان فيها
@@ -1836,11 +1837,11 @@ function renderSellers() {
   const sorters = { ai: (x, y) => ((y.ai && y.ai.buyer ? y.ai.score : -1) - (x.ai && x.ai.buyer ? x.ai.score : -1)) || y.score - x.score, score: (x, y) => y.score - x.score || y.last - x.last, recent: (x, y) => y.last - x.last, units: (x, y) => y.units.length - x.units.length, buyers: (x, y) => nb(y) - nb(x) || y.score - x.score, real: (x, y) => (y.rp || 0) - (x.rp || 0) || y.score - x.score };
   list.sort(sorters[state.sSort]);
   $("sCount").textContent = `${list.length} بايع`;
-  $("sList").innerHTML = list.length ? list.slice(0, state.sShown).map(sellerCard).join("")
+  $("sList").innerHTML = list.length ? ""
     : `<div class="empty"><b>${sellers.length ? "مفيش حد بالفلاتر دي" : "لسه مفيش بايعين"}</b>${sellers.length ? "جرّب «أي وقت» أو شيل شوية فلاتر." : "البايعين بيطلعوا من عروض البيع اللي في الجروبات، ومن التعليقات اللي فيها «عندي شقة للبيع» وزيها. اسحب جروباتك بالتعليقات."}</div>`;
+  AQMPagedViews.set("sellers",{listId:"sList",items:list,renderItem:sellerCard,signature:AQMPagedViews.signature(state,"s"),emptyHTML:$("sList").innerHTML});
   if (window.FBID) FBID.sec("sellers", $("sList"), [{ label: "كل البايعين", items: list }]);
-  $("sMore").hidden = list.length <= state.sShown;
-  $("sMore").textContent = `عرض المزيد (${list.length - state.sShown} كمان)`;
+  $("sMore").hidden = true;
 }
 function sellerCard(S) {
   const open = state.sOpen.has(S.key), ck = clsOfS(S), CC = typeof ROLE !== "undefined" && ROLE.CLS4 ? ROLE.CLS4[ck] : { ic: "", sell: "بائع", t: "" };
@@ -2068,10 +2069,9 @@ function renderLeads() {
   else if (!list.length) $("lList").innerHTML = state.lLvl === 4
     ? `<div class="empty"><b>مفيش عملاء «مهتم جدًا» لسه</b>دول اللي نزّلوا طلب بنفسهم آخر 30 يوم، أو اتفاعلوا في 4 بوستات أو أكتر (أو 3 ومعاهم كلام قوي زي «معاينة» أو «معايا كاش»). اسحب جروبات أكتر بالتعليقات، أو شوف تبويب «🔥🔥🔥 جاهزين».</div>`
     : `<div class="empty"><b>مفيش حد بالفلاتر دي</b>جرّب «🔥 مهتمين وأكتر» أو شيل شوية فلاتر.</div>`;
-  else $("lList").innerHTML = list.slice(0, state.lShown).map(leadCard).join("");
+  AQMPagedViews.set("leads",{listId:"lList",items:list,renderItem:leadCard,signature:AQMPagedViews.signature(state,"l"),emptyHTML:list.length ? "" : $("lList").innerHTML});
   if (window.FBID) FBID.sec("buyers", $("lList"), [{ label: "كل المشترين", items: list }]);
-  $("lMore").hidden = list.length <= state.lShown;
-  $("lMore").textContent = `عرض المزيد (${list.length - state.lShown} كمان)`;
+  $("lMore").hidden = true;
 }
 // 🎯 سطر التأهيل في كارت المشتري: رده على واتساب + «اتعاين فعلًا» + «اسأله دلوقتي»
 function qualLine(L) {
@@ -2831,7 +2831,6 @@ document.addEventListener("click", async (e) => {
     return handlePostCardAction(act);
   }
 });
-$("lMore").addEventListener("click", () => { state.lShown += 60; render(); });
 $("lFiltersBtn").addEventListener("click", () => document.querySelector("#v-leads .bar").classList.toggle("show"));
 $("lq").addEventListener("input", (e) => { state.lq = e.target.value; state.lShown = 60; renderSoon(); });
 for (const [id, key] of [["lRegion", "lRegion"], ["lSrc", "lSrc"], ["lSort", "lSort"]])
@@ -2983,7 +2982,7 @@ $("tq").addEventListener("input", (e) => { state.tq = e.target.value; renderSoon
 $("mdq").addEventListener("input", (e) => { state.mdq = e.target.value; renderSlots(); });
 $("ssq").addEventListener("input", (e) => { state.ssq = e.target.value; renderSaved(); });
 for (const [id, key, num] of [["sRegion", "sRegion"], ["sDays", "sDays", 1], ["sSort", "sSort"]])
-  $(id).addEventListener("change", (e) => { state[key] = num ? +e.target.value : e.target.value; state.sShown = 60; state.mShown = 40; render(); });
+  $(id).addEventListener("change", (e) => { state[key] = num ? +e.target.value : e.target.value; state.sShown = 60; render(); });
 for (const id of ["sPhone", "sPriced", "sWithBuyers"])
   $(id).addEventListener("change", (e) => { state[id] = e.target.checked; state.sShown = 60; render(); });
 $("sOnlyArea").addEventListener("change", (e) => { state.sOnlyArea = e.target.checked; setAreaOn(e.target.checked); syncAreaBoxes(); state.sShown = 60; render(); });
@@ -2994,7 +2993,6 @@ function syncAreaBoxes() {
   try { renderCatChips(); } catch {} // تنبيه «معروض X من Y» يتحدّث مع زرار «منطقتك بس»
 }
 syncAreaBoxes();
-$("sMore").addEventListener("click", () => { state.sShown += 60; render(); });
 $("sExport").addEventListener("click", () => {
   const list = sellerFiltered(); if (!list.length) return toast("مفيش حد يتصدر");
   const q = csvQ;
@@ -3055,7 +3053,12 @@ window.addEventListener("hashchange", () => {
 AQMPostsPage.init();
 initMatchControls();
 initFastMatches();
-load().then(() => { if (location.hash === "#settings-area") window.dispatchEvent(new HashChangeEvent("hashchange")); else if (VIEW_FROM_V === "settings") { try { fillSettings(); } catch {} } });
+load().then(() => {
+  if (location.hash === "#settings-area") window.dispatchEvent(new HashChangeEvent("hashchange"));
+  else if (VIEW_FROM_V === "settings") { try { fillSettings(); } catch {} }
+  window.__AQMDashboardReady = true;
+  window.dispatchEvent(new CustomEvent("aqm:dashboard-ready"));
+});
 
 
 // ================= ✏️ صحّح =================

@@ -1,0 +1,86 @@
+/* Only active inside the Angular migration shell. Standalone dashboard is intact. */
+html[data-aqm-embedded=true] #side>#nav,
+html[data-aqm-embedded=true] #hero,
+html[data-aqm-embedded=true] #welcome,
+html[data-aqm-embedded=true] #workspaceHeader .side-brand { display:none!important; }
+html[data-aqm-embedded=true] #side+.app-main { max-width:none!important; padding:16px 12px 24px!important; }
+html[data-aqm-embedded=true] #side>#workspaceHeader { top:0!important; width:100%!important; max-width:none!important; margin:0!important; border:0!important; border-bottom:1px solid var(--border)!important; border-radius:0!important; box-shadow:none!important; }
+html[data-aqm-embedded=true] #workspaceHeader .header-actions { margin-inline-start:auto!important; }
+
+/* The Angular header owns workspace actions. The old tools panel is revealed
+   inline only when the user asks for it; its original controls remain intact. */
+html[data-aqm-embedded=true] #side>#workspaceHeader:not(:has(#headerTools[open])) { display:none!important; }
+html[data-aqm-embedded=true] #side>#workspaceHeader:has(#headerTools[open]) { display:block!important; padding:16px 24px!important; background:var(--bg)!important; }
+html[data-aqm-embedded=true] #workspaceHeader .header-actions { display:block!important; }
+html[data-aqm-embedded=true] #workspaceHeader .header-actions>:not(#headerTools),
+html[data-aqm-embedded=true] #workspaceHeader #headerTools>summary { display:none!important; }
+html[data-aqm-embedded=true] #workspaceHeader #headerToolsPanel { position:static!important; width:100%!important; max-width:680px!important; max-height:none!important; margin-inline:auto; box-shadow:none!important; }
+
+/* Neutral product surfaces replace the decorative legacy theme only in Angular. */
+#aqmEmbeddedRoot {
+  --hue:var(--sg-blue,var(--a2)); --accent:var(--sg-blue,var(--a2));
+  --match-accent:var(--hue); --match-line:var(--border);
+  margin:0!important; background:var(--bg)!important; color:var(--text)!important;
+  font-family:'Cairo',Tahoma,Arial,sans-serif!important; font-size:14px!important; line-height:1.65!important;
+}
+
+/* Preserve the established default palette; other choices inherit their own tokens. */
+html[data-sgv=azure]:not([data-style]) #aqmEmbeddedRoot {
+  --bg:#f3f5f7!important; --surface:#fcfdff!important; --surface-2:#f6f8fb!important; --field:#fcfdff!important;
+  --text:#172436!important; --muted:#647286!important; --border:#dde3eb!important;
+  --sg-blue:#245eb3!important; --on:#f7faff;
+}
+html[data-mode=dark][data-sgv=azure]:not([data-style]) #aqmEmbeddedRoot {
+  --bg:#111821!important; --surface:#18212d!important; --surface-2:#1c2734!important; --field:#18212d!important;
+  --text:#e1e8f2!important; --muted:#94a3b8!important; --border:#2b3747!important;
+  --sg-blue:#85adf3!important; --on:#111821;
+}
+#aqmEmbeddedRoot {
+  --ed-ln:var(--border)!important; --ed-panel:var(--surface)!important; --ed-field:var(--field)!important;
+  color-scheme:light;
+}
+html[data-mode=dark] #aqmEmbeddedRoot { color-scheme:dark; }
+#aqmEmbeddedRoot::before,#aqmEmbeddedRoot::after { display:none!important; }
+#aqmEmbeddedRoot .app-main { background:transparent!important; }
+#aqmEmbeddedRoot .view>main.wrap { width:100%!important; max-width:1400px!important; margin-inline:auto!important; padding-inline:0!important; }
+#aqmEmbeddedRoot .btn {
+  border:1px solid var(--border)!important; border-radius:8px!important;
+  background:var(--surface)!important; color:var(--text)!important; box-shadow:none!important;
+  font-family:inherit!important; font-weight:600!important; font-size:12px!important; min-height:35px;
+}
+#aqmEmbeddedRoot .btn.primary,#aqmEmbeddedRoot .btn.pri {
+  color:var(--on,#f7faff)!important; background:var(--hue)!important; border-color:var(--hue)!important; box-shadow:none!important;
+}
+#aqmEmbeddedRoot .btn:hover { filter:brightness(.97); }
+#aqmEmbeddedRoot .btn .i54 { color:inherit!important; }
+#aqmEmbeddedRoot .btn .i54 svg { fill:none!important; }
+#aqmEmbeddedRoot :is(.panel,.card,.match-settings,.fr,.lvl-box) { background:var(--surface)!important; border-color:var(--border)!important; box-shadow:none!important; }
+#aqmEmbeddedRoot :is(.tabs,.tab,.tag-c,.chip,.pill) { box-shadow:none!important; }
+#aqmEmbeddedRoot .tabs { background:transparent!important; border:0!important; padding:0!important; border-radius:0!important; gap:6px!important; }
+#aqmEmbeddedRoot .tab {
+  background:var(--surface)!important; color:var(--muted)!important; border:1px solid var(--border)!important;
+  border-radius:8px!important; box-shadow:none!important; min-height:36px!important; padding:7px 12px!important; font-size:12px!important;
+}
+#aqmEmbeddedRoot .tab.on { color:var(--hue)!important; background:color-mix(in srgb,var(--hue) 8%,var(--surface))!important; border-color:color-mix(in srgb,var(--hue) 25%,var(--border))!important; }
+#aqmEmbeddedRoot .tab small { border:0!important; background:var(--surface-2)!important; color:var(--muted)!important; box-shadow:none!important; }
+#aqmEmbeddedRoot :is(.filters,.posts-search-row,.posts-advanced-fields) :is(input:not([type=checkbox]):not([type=radio]),select),
+#aqmEmbeddedRoot :is(#mSearch,#mMin,#mRegion,#mSort) { background:var(--surface)!important; border:1px solid var(--border)!important; border-radius:8px!important; box-shadow:none!important; min-height:40px!important; color:var(--text)!important; font-size:13px!important; }
+#aqmEmbeddedRoot #v-matches .intro { display:none!important; }
+#aqmEmbeddedRoot #v-matches .match-metrics { gap:24px!important; }
+#aqmEmbeddedRoot #v-matches .match-metric { gap:12px!important; padding:10px 0 18px!important; }
+#aqmEmbeddedRoot #v-matches .match-metric>b { font-size:27px!important; color:var(--text)!important; }
+#aqmEmbeddedRoot #v-matches .match-metric>span { font-size:12px!important; }
+#aqmEmbeddedRoot #v-matches .match-settings { border-radius:10px!important; margin-block:10px!important; }
+#aqmEmbeddedRoot #v-matches .match-settings>summary { padding:11px 14px!important; font-size:12px!important; }
+#aqmEmbeddedRoot #v-matches .filters { margin-top:16px!important; margin-bottom:12px!important; }
+#aqmEmbeddedRoot #v-matches .row-actions { gap:8px!important; margin:12px 0 18px!important; }
+#aqmEmbeddedRoot #v-matches .fr { border-radius:12px!important; border:1px solid var(--border)!important; }
+#aqmEmbeddedRoot #v-matches .fr.cur { outline:2px solid color-mix(in srgb,var(--hue) 25%,var(--border))!important; outline-offset:2px!important; box-shadow:none!important; }
+#aqmEmbeddedRoot #v-matches .fr-b { background:var(--surface-2)!important; }
+#aqmEmbeddedRoot #v-matches .fqbar { padding-block:14px!important; margin-block:18px!important; }
+#aqmEmbeddedRoot #v-matches .fq-note { font-size:11px!important; }
+#aqmEmbeddedRoot #v-matches .fr-name { font-size:18px!important; }
+#aqmEmbeddedRoot #v-matches .fbid-sec { border:1px solid var(--border)!important; background:var(--surface)!important; border-radius:8px!important; box-shadow:none!important; }
+#aqmEmbeddedRoot .web-pill.ok { display:none!important; }
+@media(min-width:901px) { html[data-aqm-embedded=true] #side+.app-main { padding:24px 28px 40px!important; } }
+@media(max-width:600px) { #aqmEmbeddedRoot #v-matches .match-metrics { gap:0 16px!important; } }

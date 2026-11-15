@@ -1,0 +1,24 @@
+@use '../../re-hunter/shared/card-grid/card-grid.css';
+@use '../../re-hunter/shared/typography/typography.css';
+@use '../../re-hunter/shared/product-ui/product-ui.css';
+@use '../../re-hunter/shared/card-grid/compact-cards.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  --aqm-canvas: #f3f5f7;
+  --aqm-surface: #fcfdff;
+  --aqm-ink: #172436;
+  --aqm-muted: #647286;
+  --aqm-line: #dde3eb;
+  --aqm-accent: #245eb3;
+  color-scheme: light;
+}
+html,body { margin:0; height:100%; }
+body { font-family:'Cairo',Tahoma,Arial,sans-serif; background:var(--aqm-canvas); color:var(--aqm-ink); }
+button,a { -webkit-tap-highlight-color:transparent; }
+:focus-visible { outline:2px solid var(--aqm-accent); outline-offset:3px; }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; } }
+

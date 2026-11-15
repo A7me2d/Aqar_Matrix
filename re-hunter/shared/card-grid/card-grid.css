@@ -1,0 +1,5 @@
+/* Opt-in grid, reusable by any engine view. Override --aqm-grid-columns if needed. */
+.aqm-card-grid { display:grid; grid-template-columns:repeat(var(--aqm-grid-columns,3),minmax(0,1fr)); align-items:stretch; gap:var(--aqm-grid-gap,16px); }
+.aqm-card-grid>.empty { grid-column:1/-1; }
+@media(max-width:1099px) { .aqm-card-grid { --aqm-grid-columns:2; } }
+@media(max-width:639px) { .aqm-card-grid { --aqm-grid-columns:1; } }

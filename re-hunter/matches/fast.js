@@ -55,13 +55,11 @@ function fastRow(r) {
       ${matchDetails("buyer:" + B.key, "بيانات المشتري وروابطه", `<div class="match-badges">${tierChip(B)}${B.superHot ? `<span class="l-lvl super">مهتم جدًا</span>` : `<span class="l-lvl">${LEADS.levelName(B.level)}</span>`}</div><p class="muted">${B.posts ? ar(B.posts) + " بوست" : ""}${talked && tAt ? " · آخر تواصل " + relDay(tAt) : ""}</p><div class="contact">${telBtns(B)}${buyerLinks(B, r.xs[0].u)}</div>`)}
       <div class="fr-c"><button class="btn sm ${talked ? "" : "primary"}" data-ftalk title="اختصار C">${talked ? "↩ لسه ما كلمتوش" : "✓ اتكلمت معاه"}</button><button class="btn sm" data-fdet title="اختصار D">كل التطابقات (${ar(r.xs.length)})</button></div>
     </div>
-    <div class="fr-us"><div class="fr-offers-heading"><b>أنسب العروض</b><span>${ar(Math.min(FAST_N, r.xs.length))} من ${ar(r.xs.length)}</span></div>${r.xs.slice(0, FAST_N).map((x, i) => fastUnit(r, x, i)).join("")}${r.xs.length > FAST_N ? `<button class="pm-more" data-fdet>عرض ${ar(r.xs.length - FAST_N)} قطعة كمان</button>` : ""}</div>
+    <div class="fr-us"><div class="fr-offers-heading"><b>أنسب عرض</b><span>من ${ar(r.xs.length)} عروض</span></div>${fastUnit(r,r.xs[0],0)}${r.xs.length > 1 ? matchDetails('offers:' + B.key, 'عروض إضافية (' + ar(r.xs.length - 1) + ')', r.xs.slice(1,FAST_N).map((x,i) => fastUnit(r,x,i+1)).join('') + (r.xs.length > FAST_N ? `<button class="pm-more" data-fdet>كل التطابقات (${ar(r.xs.length)})</button>` : '')) : ''}</div>
   </article>`;
 }
 function renderFast(list) {
   const all = fastRows(list), nTalk = all.filter((r) => r.talked).length, rows = fastF === "new" ? all.filter((r) => !r.talked) : all;
-  fastRowsNow = rows;
-  if (!rows.some((r) => r.B.key === fastCur)) fastCur = rows.length ? rows[0].B.key : ""; // أول صف متحدد من الأول (بيتبعه الكيبورد)
   const bar = $("mFastBar"); bar.hidden = false;
   bar.innerHTML = `<div class="fq-top"><span class="fq-lbl">⚡ العرض السريع</span>
       <button class="tab ${fastF === "new" ? "on" : ""}" data-ffilter="new" title="المشترين اللي لسه ما علّمتش إنك كلمتهم">لسه ما كلمتوش<small>${ar(all.length - nTalk)}</small></button>
@@ -70,11 +68,11 @@ function renderFast(list) {
     <div class="fq-note muted">الواتساب بيفتح الشات برسالة جاهزة <b>من غير رقم القطعة</b> — مفيش حاجة بتتبعت لوحدها، انت اللي بتدوس إرسال.</div>`;
   $("mCount").textContent = `${all.length} مشتري · ${list.length} مطابقة` + (nTalk ? ` · ✅ ${nTalk} اتكلمت معاهم` : "") + (state.mq ? ` — بحث: «${state.mq}» ` : "");
   if (!rows.length) {
-    setMatchList(all.length && fastF === "new" ? `<div class="empty"><b>🎉 كلمت كل المشترين اللي ظاهرين</b><div style="margin-top:8px"><button class="btn sm" data-ffilter="all">اعرض الكل (${ar(all.length)})</button></div></div>` : matchEmpty());
+    clearMatchCollection(all.length && fastF === "new" ? `<div class="empty"><b>🎉 كلمت كل المشترين اللي ظاهرين</b><div style="margin-top:8px"><button class="btn sm" data-ffilter="all">اعرض الكل (${ar(all.length)})</button></div></div>` : matchEmpty());
     if (window.FBID) FBID.sec("matches", $("mList"), [{ label: "المشترين", items: all.map((r) => r.B) }]);
     return;
   }
-  setMatchList(rows.slice(0, state.mShown).map(fastRow).join("") + (rows.length > state.mShown ? `<button class="btn more" data-mmore>عرض المزيد (${rows.length - state.mShown})</button>` : ""));
+  setMatchCollection(rows,fastRow,'fast');
   if (window.FBID) FBID.sec("matches", $("mList"), [{ label: "المشترين", items: all.map((r) => r.B) }]);
 }
 // تحريك التحديد (من غير إعادة رسم): الصف المتحدد عليه .cur
@@ -115,7 +113,7 @@ document.addEventListener("click", (e) => {
   const t = e.target;
   if (state.view !== "matches" || !fastOn) return;
   const ff = t.closest("[data-ffilter]");
-  if (ff) { fastF = ff.dataset.ffilter === "new" ? "new" : "all"; try { localStorage.setItem("alaaFastF", fastF); } catch {} state.mShown = 40; return renderFast(pairFiltered()); }
+  if (ff) { fastF = ff.dataset.ffilter === "new" ? "new" : "all"; try { localStorage.setItem("alaaFastF", fastF); } catch {} resetMatchPage(); return renderFast(pairFiltered()); }
   const row = t.closest("#mList .fr"); if (!row) return;
   const key = row.dataset.fkey;
   const sd = t.closest("[data-fsend]"); if (sd) { e.preventDefault(); fastFocus(key, false); return fastSend(key, sd.dataset.fsend); }
@@ -132,8 +130,18 @@ document.addEventListener("keydown", (e) => {
   const rows = fastRowsNow; if (!rows.length) return;
   const i = Math.max(0, rows.findIndex((r) => r.B.key === fastCur)), c = e.code || "";
   const go = (n) => { const r = rows[n]; if (!r) return; e.preventDefault(); fastFocus(r.B.key, true); };
-  if (c === "ArrowDown" || c === "KeyJ") { if (i >= rows.length - 1 || i >= state.mShown - 1) { if (rows.length > state.mShown) { e.preventDefault(); state.mShown += 40; renderFast(pairFiltered()); fastFocus(rows[i + 1] ? rows[i + 1].B.key : fastCur, true); } return; } return go(i + 1); }
-  if (c === "ArrowUp" || c === "KeyK") return go(i - 1);
+  if (c === "ArrowDown" || c === "KeyJ") {
+    if (i < rows.length - 1) return go(i + 1);
+    const page=matchPageState();
+    if (page.page < page.totalPages) { e.preventDefault(); goMatchPage(page.page+1); fastFocus(fastRowsNow[0]?.B.key || '',true); }
+    return;
+  }
+  if (c === "ArrowUp" || c === "KeyK") {
+    if (i > 0) return go(i - 1);
+    const page=matchPageState();
+    if (page.page > 1) { e.preventDefault(); goMatchPage(page.page-1); fastFocus(fastRowsNow[fastRowsNow.length-1]?.B.key || '',true); }
+    return;
+  }
   if (c === "Home") return go(0);
   const dg = /^(?:Digit|Numpad)([1-9])$/.exec(c);
   if (dg && +dg[1] <= FAST_N) { const x = rows[i].xs[+dg[1] - 1]; if (x) { e.preventDefault(); fastSend(rows[i].B.key, x.u.id); } return; }
@@ -144,5 +152,5 @@ document.addEventListener("keydown", (e) => {
 
 function initFastMatches() {
 $("mFast").checked = fastOn;
-$("mFast").addEventListener("change", (e) => { fastOn = e.target.checked; try { localStorage.setItem("alaaFastOn", fastOn ? "1" : "0"); } catch {} state.mShown = 40; render(); });
+$("mFast").addEventListener("change", (e) => { fastOn = e.target.checked; try { localStorage.setItem("alaaFastOn", fastOn ? "1" : "0"); } catch {} resetMatchPage(); render(); });
 }

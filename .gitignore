@@ -1,4 +1,7 @@
 node_modules/
+.angular/
+out-tsc/
+re-hunter/angular/
 dist/
 alaa-deals-app/app/engine/
 *.exe

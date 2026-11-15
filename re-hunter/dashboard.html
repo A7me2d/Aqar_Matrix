@@ -30,12 +30,20 @@
 <link rel="stylesheet" href="posts/runtime/posts.css">
 <link rel="stylesheet" href="navigation/navigation.css">
 <link rel="stylesheet" href="header/header.css">
+<link rel="stylesheet" href="workspace-tools/workspace-tools.css">
+<link rel="stylesheet" href="angular-bridge/embedded.css">
+<link rel="stylesheet" href="shared/card-grid/card-grid.css">
+<link rel="stylesheet" href="shared/pagination/pagination.css">
+<link rel="stylesheet" href="matches/grid.css">
+<link rel="stylesheet" href="shared/typography/typography.css">
+<link rel="stylesheet" href="shared/product-ui/product-ui.css">
+<link rel="stylesheet" href="shared/card-grid/compact-cards.css">
 <script src="sbboot.js"></script>
 <script src="keep.js"></script>
 <script src="sgv-data.js"></script>
 <script src="styles52-data.js"></script>
 </head>
-<body class="ui38 ui42 ui56 ui58">
+<body class="ui38 ui42 ui56 ui58" id="aqmApp">
 <header class="topbar" id="side">
   <div id="liveBar" class="live-bar" hidden></div>
   <div class="tb-row">
@@ -98,7 +106,7 @@
 </section>
 
 <!-- ===== العملاء المهتمين ===== -->
-<section class="view" id="v-leads" hidden>
+<section class="view aqm-product-view" id="v-leads" hidden>
   <div class="bar">
     <div class="wrap">
       <div class="intro">
@@ -161,13 +169,13 @@
     </div>
   </div>
   <main class="wrap">
-    <div class="list" id="lList"></div>
+    <div class="list aqm-card-grid" id="lList"></div>
     <button class="btn more" id="lMore" hidden>عرض المزيد</button>
   </main>
 </section>
 
 <!-- ===== البايعين المحتملين ===== -->
-<section class="view" id="v-sellers" hidden>
+<section class="view aqm-product-view" id="v-sellers" hidden>
   <div class="bar">
     <div class="wrap">
       <div class="intro">
@@ -195,7 +203,7 @@
     </div>
   </div>
   <main class="wrap">
-    <div class="list" id="sList"></div>
+    <div class="list aqm-card-grid" id="sList"></div>
     <button class="btn more" id="sMore" hidden>عرض المزيد</button>
   </main>
 </section>
@@ -243,7 +251,7 @@
   <main class="wrap" id="extRoot"></main>
 </section>
 <!-- ===== رشّحلي: ترشيح الوحدات للعميل + فرصة النهارده ===== -->
-<section class="view" id="v-pick" hidden>
+<section class="view aqm-product-view" id="v-pick" hidden>
   <main class="wrap" id="pickRoot"></main>
 </section>
 <!-- ===== 🧲 المغناطيس: وحداتك المسجّلة ↔ مشترين وعروض شبهها ===== -->
@@ -267,7 +275,7 @@
 <section class="view" id="v-posts" aria-label="الطلبات والعروض"></section>
 
 <!-- ===== المطابقات ===== -->
-<section class="view" id="v-matches" hidden>
+<section class="view aqm-product-view" id="v-matches" hidden>
   <main class="wrap">
     <div class="intro">
       <b>التطابق</b>
@@ -301,7 +309,8 @@
     <div class="row-actions"><button class="btn primary" id="mExport">⬇️ تصدير التطابقات Excel</button><button class="btn" id="mDeepAll" title="للناس اللي ظاهرين في التطابقات من غير رقم: يفتح بوستاتهم ويقرا تعليقاتهم وردودهم ويدوّر على رقم كاتبينه بنفسهم">📞 دوّر على أرقام اللي من غير رقم</button><span class="muted" id="mCount"></span></div>
     <div class="muted deep-line" id="mDeepLine" hidden></div>
     <div class="fqbar" id="mFastBar" hidden></div>
-    <div class="list" id="mList"></div>
+    <div class="list aqm-card-grid" id="mList"></div>
+    <div id="mPagination"></div>
   </main>
 </section>
 
@@ -868,6 +877,9 @@
 <script src="header/view.js"></script>
 <script src="navigation/view.js"></script>
 <script src="matches/model.js"></script>
+<script src="shared/pagination/pagination.js"></script>
+<script src="shared/pagination/collection-pager.js"></script>
+<script src="matches/pagination.js"></script>
 <script src="matches/cards.js"></script>
 <script src="matches/fast.js"></script>
 <script src="matches/controller.js"></script>
@@ -895,5 +907,6 @@
 <script src="aitool.js"></script>
 <script src="assistui.js"></script>
 <script src="assistchat.js"></script>
+<script src="angular-bridge/bridge.js"></script>
 </body>
 </html>

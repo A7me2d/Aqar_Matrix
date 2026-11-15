@@ -1,0 +1,11 @@
+<nav [attr.aria-label]="label()" class="pagination">
+  <span class="pagination-info" role="status" aria-live="polite">{{ state().from }}–{{ state().to }} من {{ state().totalItems }} <span class="pagination-size">· {{ state().pageSize }} في الصفحة</span></span>
+  <div class="pagination-controls">
+    <button type="button" [disabled]="state().page === 1" (click)="pageChange.emit(state().page - 1)" aria-label="الصفحة السابقة">السابق</button>
+    @for (page of state().pages; track $index) {
+      @if (page === null) { <span class="pagination-ellipsis" aria-hidden="true">…</span> }
+      @else { <button type="button" [attr.aria-current]="page === state().page ? 'page' : null" [attr.aria-label]="'الصفحة ' + page" (click)="pageChange.emit(page)">{{ page }}</button> }
+    }
+    <button type="button" [disabled]="state().page === state().totalPages" (click)="pageChange.emit(state().page + 1)" aria-label="الصفحة التالية">التالي</button>
+  </div>
+</nav>

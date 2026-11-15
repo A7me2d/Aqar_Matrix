@@ -14,7 +14,6 @@ function initPostsControls() {
   }
   $("onlyBS").addEventListener("change", () => { state.onlyBS = $("onlyBS").checked; setAreaOn(state.onlyBS); syncAreaBoxes(); state.shown = PAGE; render(); });
   $("postDays").addEventListener("change", () => { state.postDays = Number($("postDays").value); state.shown = PAGE; render(); });
-  $("moreBtn").addEventListener("click", () => { state.shown += PAGE; render(); });
   $("filtersBtn").addEventListener("click", () => togglePostsFilters());
   $("exportBtn").addEventListener("click", exportPosts);
   $("postGo").addEventListener("click", () => startPostJob($("postUrl").value.trim()));
