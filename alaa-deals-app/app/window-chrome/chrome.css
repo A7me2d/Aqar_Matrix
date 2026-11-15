@@ -1,9 +1,11 @@
 /* Electron's titlebar environment variables reserve the native caption area.
    Keep the RTL toolbar inside the usable area, including at custom zoom/DPI. */
 html.window-caption-visible body.ui56.pg-shell #r1 {
-  width:env(titlebar-area-width,100%);
-  margin-left:env(titlebar-area-x,0px);
-  margin-right:0;
+  width:calc(100% - var(--caption-left,0px) - var(--caption-right,150px));
+  /* Physical margins are intentional: native Windows controls are on the
+     right even though the application toolbar flows right-to-left. */
+  margin-left:var(--caption-left,0px);
+  margin-right:auto;
 }
 html.window-chrome body.ui56.pg-shell #r1 {
   app-region:drag;

@@ -6,7 +6,14 @@
   const overlay=navigator.windowControlsOverlay;
   let signature='',scheduled=false;
   function geometry() {
-    document.documentElement.classList.toggle('window-caption-visible',document.documentElement.classList.contains('window-chrome') && (overlay?.visible ?? true));
+    const root=document.documentElement;
+    root.classList.toggle('window-caption-visible',root.classList.contains('window-chrome') && (overlay?.visible ?? true));
+    const area=overlay?.getTitlebarAreaRect?.();
+    // Electron may not expose overlay geometry on the first frame. Keep a
+    // safe caption reserve until valid CSS-pixel geometry becomes available.
+    const valid=area && area.width>0 && area.height>0;
+    root.style.setProperty('--caption-left',`${valid ? Math.max(0,area.x) : 0}px`);
+    root.style.setProperty('--caption-right',`${valid ? Math.max(0,window.innerWidth-area.x-area.width) : 150}px`);
   }
   function hex(value) {
     if(!context) return null;
@@ -31,6 +38,7 @@
   const observer=new MutationObserver(schedule);
   observer.observe(document.body,{attributes:true,attributeFilter:['class','style','data-sgv']});
   overlay?.addEventListener('geometrychange',geometry);
+  window.addEventListener('resize',geometry);
   schedule();
-  window.addEventListener('pagehide',()=>{observer.disconnect();overlay?.removeEventListener('geometrychange',geometry);},{once:true});
+  window.addEventListener('pagehide',()=>{observer.disconnect();overlay?.removeEventListener('geometrychange',geometry);window.removeEventListener('resize',geometry);},{once:true});
 })();
