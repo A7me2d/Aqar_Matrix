@@ -175,6 +175,15 @@
     for (const x of g.items) { const r = raw(x); if (!r) continue; const n = numOf(r); if (n) nums.add(n); else if (isDead(r.handle)) none++; else pend.add(r.handle); }
     return { nums: [...nums], pend: pend.size, none };
   }
+  function sectionPhones(s) {
+    const phones = new Map();
+    for (const g of s.groups) for (const x of g.items) {
+      const id = numOf(raw(x)), entry = id && D.ui.get(id);
+      const phone = postPhone(x) || (entry && entry.st === "ok" ? postPhone({ phone: entry.phone }) : "");
+      if (phone) phones.set(phone.replace(/\D/g, ""), phone);
+    }
+    return [...phones.values()];
+  }
   function paintBar(s) {
     if (!s || !s.bar) return;
     const gs = s.groups.map((g) => ({ g, st: stats(g) })), multi = gs.length > 1;
@@ -184,9 +193,12 @@
       : why === "rate" ? `<span class="fbid-note">⏸ فيسبوك طلب استراحة — بيكمّل لوحده بعد شوية</span>` : "";
     const btn = (k, label, n) => `<button type="button" class="btn sm fbid-copy" data-fbcopy="${E(s.name)}|${k}" ${n ? "" : "disabled"} title="بينسخ كل آيديات «${E(label)}» اللي في القسم (مش اللي ظاهر بس) — كل رقم في سطر">📋 نسخ ${E(label)} <b>${N(n)}</b></button>`;
     const btns = multi ? gs.map((o, i) => btn(String(i), o.g.label || "", o.st.nums.length)).join("") + btn("all", "الكل", all.size) : btn("all", "كل الآيديات", all.size);
+    const phones = s.name === "matches" ? sectionPhones(s) : [];
+    const phoneBtn = s.name === "matches" ? `<button type="button" class="btn sm fbid-copy" data-fbphones="${E(s.name)}" ${phones.length ? "" : "disabled"} title="نسخ أرقام التليفون المتاحة لكل النتائج الحالية، مش الصفحة الظاهرة بس — بدون تكرار، كل رقم في سطر">📋 نسخ كل الأرقام <b>${N(phones.length)}</b></button>` : "";
     const stalled = gs.some(({ g }) => g.items.some((x) => { const r = raw(x); return r && !numOf(r) && !!conversionNote(r.handle); }));
     s.bar.innerHTML = `<span class="fbid-t">🆔 آيدي فيسبوك</span>${btns}${pend ? `<span class="fbid-pend">${stalled ? "⚠ " : ""}${N(pend)} ${stalled ? "آيدي لم يكتمل تحويلهم — راجع الحالة فوق الكارت" : "حساب في انتظار نتيجة التحويل"}</span>` : ""}${w}`;
-    s.bar.hidden = !all.size && !pend;
+    if (phoneBtn) s.bar.querySelector(".fbid-copy:last-of-type")?.insertAdjacentHTML("afterend", phoneBtn);
+    s.bar.hidden = !all.size && !pend && !phones.length;
   }
 
   // ===== نسخ =====
@@ -195,9 +207,17 @@
     try { const a = document.createElement("textarea"); a.value = t; a.style.cssText = "position:fixed;opacity:0;top:0;left:0"; document.body.appendChild(a); a.select(); const ok = document.execCommand("copy"); a.remove(); return ok; } catch { return false; }
   }
   document.addEventListener("click", (ev) => {
-    const t = ev.target && ev.target.closest ? ev.target.closest("[data-fbnum],[data-fbcopy]") : null;
+    const t = ev.target && ev.target.closest ? ev.target.closest("[data-fbnum],[data-fbcopy],[data-fbphones]") : null;
     if (!t) return;
     ev.stopPropagation(); ev.preventDefault();
+    if (t.hasAttribute("data-fbphones")) {
+      const s = S.sec[t.getAttribute("data-fbphones")];
+      if (!s) return;
+      const phones = sectionPhones(s);
+      if (!phones.length) return T("مفيش أرقام تليفون متاحة للنسخ");
+      copyText(phones.join("\n")).then((ok) => T(ok ? `📋 اتنسخ ${N(phones.length)} رقم تليفون — كل رقم في سطر` : "⚠ المتصفح منع النسخ"));
+      return;
+    }
     if (t.hasAttribute("data-fbnum")) { const n = t.getAttribute("data-fbnum"); copyText(n).then((ok) => { T(ok ? "📋 اتنسخ " + (t.getAttribute("data-phone") === "1" ? "رقم التليفون " : "الآيدي ") + n : "⚠ المتصفح منع النسخ"); if (ok) { t.classList.add("done"); setTimeout(() => t.classList.remove("done"), 900); } }); return; }
     const [name, k] = String(t.getAttribute("data-fbcopy")).split("|"), s = S.sec[name]; if (!s) return;
     const gs = k === "all" ? s.groups : [s.groups[+k]].filter(Boolean), nums = new Set(); let pend = 0;
