@@ -1,4 +1,4 @@
 // Compile Sass first, then PostCSS/Tailwind. Preflight is disabled.
-@import "cards";
-@import "screen";
+@use "cards";
+@use "screen";
 @tailwind utilities;

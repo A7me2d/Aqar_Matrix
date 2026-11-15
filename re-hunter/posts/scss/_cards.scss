@@ -28,11 +28,11 @@
 #v-posts .post-person-name>.post-eyebrow { flex-basis:100%; }
 #v-posts .post-person-name>b { font-size:15px; overflow-wrap:anywhere; }
 #v-posts .post-person-name .badge { font-size:11px; }
-#v-posts .post-person-contact { @apply tw-min-w-0; max-@apply tw-w-full; }
+#v-posts .post-person-contact { @apply tw-min-w-0; @apply tw-max-w-full; }
 #v-posts .post-person-contact .fbid-in { @apply tw-m-0; }
 #v-posts .post-person-contact .fbid-contact { @apply tw-flex-wrap; }
 #v-posts :is(.post-details,.post-more-actions) { border:0; padding:0; margin-block:0; @apply tw-min-w-0; }
-#v-posts :is(.post-details,.post-more-actions)>summary { cursor:pointer; width:fit-content; max-@apply tw-w-full; padding:8px 0; font-size:13px; line-height:1.5; @apply tw-font-semibold; color:var(--posts-accent); }
+#v-posts :is(.post-details,.post-more-actions)>summary { cursor:pointer; width:fit-content; @apply tw-max-w-full; padding:8px 0; font-size:13px; line-height:1.5; @apply tw-font-semibold; color:var(--posts-accent); }
 #v-posts .post-detail-body { @apply tw-grid; gap:16px; padding:12px 0 18px; }
 #v-posts .post-classification { @apply tw-flex tw-flex-wrap; gap:6px; }
 #v-posts .post-original { @apply tw-grid; gap:5px; max-width:75ch; font-size:14px; line-height:1.9; white-space:pre-wrap; overflow-wrap:anywhere; }
