@@ -17,3 +17,6 @@ aqm-icon { width:16px; height:16px; }
 .actions-row>a { display:flex; align-items:center; justify-content:center; gap:6px; padding:8px; border:1px solid var(--aqm-line); border-radius:8px; color:var(--aqm-ink); background:var(--aqm-surface); text-decoration:none; font-size:12px; }
 .actions-row>a aqm-icon { width:16px; height:16px; }
 .compact .actions-row>a span { display:none; }
+button,.actions-row>a { font-size:max(11px,calc(var(--sidebar-font-size,13px) - 1px)); font-weight:var(--sidebar-font-weight,600); }
+.area-button>span { white-space:normal; overflow-wrap:anywhere; }
+aqm-icon { flex:none; }

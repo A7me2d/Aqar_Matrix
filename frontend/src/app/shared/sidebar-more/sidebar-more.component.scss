@@ -18,3 +18,6 @@ summary:focus-visible { outline:2px solid var(--aqm-accent); outline-offset:2px;
 .compact>summary { justify-content:center; padding-inline:0; }
 .compact>summary .more-label,.compact>summary .more-arrow { display:none; }
 .compact .submenu-list { display:none; }
+summary,.submenu-links a { font-size:var(--sidebar-font-size,13px); font-weight:var(--sidebar-font-weight,600); overflow-wrap:anywhere; }
+.submenu>summary { font-size:max(11px,calc(var(--sidebar-font-size,13px) - 1px)); }
+summary>aqm-icon,.submenu-links aqm-icon { flex:none; }

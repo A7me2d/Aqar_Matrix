@@ -77,3 +77,8 @@ router-outlet { display:none; }
 
 .brand-logo { display:block; flex:none; width:46px; height:38px; object-fit:contain; }
 .workspace[data-theme=dark] .brand-logo { background:#f3f5f7; padding:4px; border-radius:7px; }
+
+/* User typography applies only to sidebar navigation, including its footer. */
+.sidebar .nav-link { font-size:var(--sidebar-font-size,13px); font-weight:var(--sidebar-font-weight,600); white-space:normal; overflow-wrap:anywhere; line-height:1.65; }
+.sidebar .nav-link>aqm-icon { flex:none; }
+.sidebar .nav-group h2 { font-size:max(10px,calc(var(--sidebar-font-size,13px) - 3px)); font-weight:var(--sidebar-font-weight,600); }

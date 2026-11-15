@@ -1,1 +1,16 @@
-<!-- The persistent engine supplies settings during the migration phase. -->
+<details class="sidebar-settings" open>
+  <summary>مظهر القائمة الجانبية</summary>
+  <div class="settings-controls">
+    <label for="sidebarFontSize">حجم الخط <output for="sidebarFontSize">{{ sidebar.size() }} px</output>
+      <input id="sidebarFontSize" type="range" min="11" max="20" step="1" [value]="sidebar.size()" (input)="sidebar.setSize(+$any($event.target).value)">
+    </label>
+    <label for="sidebarFontWeight">سمك الخط
+      <select id="sidebarFontWeight" [value]="sidebar.weight()" (change)="sidebar.setWeight(+$any($event.target).value)">
+        <option value="400">عادي</option><option value="500">متوسط</option><option value="600">شبه عريض</option><option value="700">عريض (Bold)</option><option value="800">عريض جدًا</option>
+      </select>
+    </label>
+    <span class="preview" [style.font-size.px]="sidebar.size()" [style.font-weight]="sidebar.weight()">الطلبات والعروض · التطابق</span>
+    <button type="button" (click)="sidebar.reset()">استعادة الافتراضي</button>
+  </div>
+  <p>التغيير فوري وبيتحفظ تلقائيًا على الجهاز ده.</p>
+</details>

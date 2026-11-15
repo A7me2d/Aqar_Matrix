@@ -1,1 +1,11 @@
-:host { display:none; }
+:host { display:block; flex:none; max-height:40dvh; overflow:auto; }
+.sidebar-settings { margin:16px 24px; padding:14px 18px; border:1px solid var(--aqm-line); border-radius:10px; background:var(--aqm-surface); }
+summary { cursor:pointer; font-size:14px; font-weight:700; }
+.settings-controls { @apply flex flex-wrap items-center gap-5; margin-top:16px; }
+label { @apply flex flex-col gap-2; min-width:160px; font-size:13px; }
+output { color:var(--aqm-muted); font-size:12px; }
+input { accent-color:var(--aqm-accent); width:100%; }
+select,button { font:inherit; color:var(--aqm-ink); background:var(--aqm-canvas); border:1px solid var(--aqm-line); border-radius:7px; padding:8px 12px; }
+button { cursor:pointer; font-size:12px; }
+.preview { overflow-wrap:anywhere; }
+p { margin:12px 0 0; color:var(--aqm-muted); font-size:12px; }

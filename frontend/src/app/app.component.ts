@@ -12,14 +12,20 @@ import { UpdateStatusComponent } from './shared/update-status/update-status.comp
 import { StartupWelcomeService } from './core/services/startup-welcome.service';
 import { StartupWelcomeComponent } from './shared/startup-welcome/startup-welcome.component';
 import { ViewLoaderComponent } from './shared/view-loader/view-loader.component';
+import { SidebarAppearanceService } from './core/services/sidebar-appearance.service';
 
 @Component({
   selector:'aqm-root', standalone:true,
+  host: {
+    '[style.--sidebar-font-size]': 'sidebarAppearance.size() + "px"',
+    '[style.--sidebar-font-weight]': 'sidebarAppearance.weight()',
+  },
   imports:[RouterLink,RouterLinkActive,RouterOutlet,IconComponent,WorkspaceActionsComponent,PaginationComponent,SidebarMoreComponent,UpdateStatusComponent,StartupWelcomeComponent,ViewLoaderComponent],
   templateUrl:'./app.component.html', styleUrl:'./app.component.scss',
 })
 export class AppComponent implements AfterViewInit {
   readonly engine = inject(LegacyEngineService);
+  readonly sidebarAppearance = inject(SidebarAppearanceService);
   readonly welcome = inject(StartupWelcomeService);
   readonly features = FEATURES;
   readonly sidebarQuery = signal('');
