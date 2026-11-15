@@ -1,5 +1,20 @@
-<button type="button" class="update-status" [class.available]="engine.releaseUpdate().state === 'available'" [disabled]="engine.status() !== 'ready' || engine.releaseUpdate().state === 'checking'" [title]="title()" (click)="engine.action('release')">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4" /></svg>
+<button type="button" class="update-status" [class.available]="engine.releaseUpdate().state === 'available'" [disabled]="engine.status() !== 'ready' || engine.releaseUpdate().state === 'checking' || busy()" [title]="title()" (click)="engine.action('release')" [attr.aria-expanded]="busy()" aria-controls="releaseProgress">
+  @if (busy()) {
+    <svg class="update-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9" opacity=".2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>
+  } @else {
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4" /></svg>
+  }
   <span aria-live="polite" aria-atomic="true">{{ label() }}</span>
   @if (engine.releaseUpdate().state === 'available') { <span class="update-dot" aria-hidden="true"></span> }
 </button>
+@if (busy()) {
+  <div id="releaseProgress" class="update-progress" role="region" aria-label="تقدم تحديث البرنامج">
+    <div class="progress-heading"><b>{{ label() }}</b><span dir="ltr">{{ percent() }}%</span></div>
+    <progress [value]="percent()" max="100" aria-label="تقدم تنزيل التحديث"></progress>
+    @if (size()) { <small dir="ltr">{{ size() }}</small> }
+    <p>{{ engine.releaseUpdate().message }}</p>
+  </div>
+}
+@if (engine.releaseUpdate().state === 'error' && engine.releaseUpdate().canRetry) {
+  <div class="update-progress update-error" role="alert">{{ engine.releaseUpdate().message }}</div>
+}

@@ -31,7 +31,7 @@ export class LegacyEngineService {
       if (!reply || reply.channel !== CHANNEL) return;
       if(reply.type === 'release') {
         const info=reply.release;
-        if(info && ['checking','latest','available','unpublished','error'].includes(info.state) && typeof info.message==='string') this.releaseUpdate.set(info);
+        if(info && ['checking','latest','available','unpublished','error','downloading','verifying','installing'].includes(info.state) && typeof info.message==='string') this.releaseUpdate.set(info);
         return;
       }
       if (reply.type === 'pagination') { this.pagination.set(reply.pagination || null); return; }

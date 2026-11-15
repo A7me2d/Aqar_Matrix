@@ -11,6 +11,10 @@
 }
 #workspaceHeader #releaseUpdate:disabled { opacity:.65; cursor:wait; }
 #workspaceHeader #releaseUpdate:focus-visible { outline:2px solid var(--hue,var(--sg-blue)); outline-offset:3px; }
+#workspaceHeader .release-progress { position:absolute; top:calc(100% + 8px); inset-inline-end:16px; width:min(330px,calc(100vw - 32px)); padding:16px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); font-size:12px; box-shadow:0 8px 28px #0002; }
+#workspaceHeader .release-progress[hidden] { display:none!important; }
+#workspaceHeader .release-progress>div { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+#workspaceHeader .release-progress progress { display:block; width:100%; height:8px; accent-color:var(--hue,var(--sg-blue)); }
 @media(max-width:760px) {
   #workspaceHeader .header-actions { flex-wrap:wrap!important; }
   #workspaceHeader #releaseUpdate { font-size:11px; }

@@ -70,6 +70,19 @@ app.userAgentFallback = UA;
 
 let store, alarms, ses, mainWin, bgWin, tray, remoteSrv, workspaceSrv;
 let workspaceBase = '', workspaceCode = '';
+const desktopRelease = require('./desktop-updates')({
+  supported:app.isPackaged && process.platform==='win32' && !process.env.PORTABLE_EXECUTABLE_DIR,
+  catalog:releaseUpdates,
+  createUpdater:()=>new (require('electron-updater').NsisUpdater)({provider:'github',owner:'A7me2d',repo:'Aqar_Matrix'}),
+  emit:state=>{ for(const wc of allWC()) { try { wc.send('app:release-state',state); } catch {} } },
+  beforeInstall:async()=>{
+    if(bgWin && !bgWin.isDestroyed() && peerSync) {
+      try { await Promise.race([toBg({type:'xsBye'}),new Promise(resolve=>setTimeout(resolve,1500))]); peerSync.now(); } catch {}
+    }
+    store.flush(); quitting=true; byeState=2;
+  },
+  onInstallError:()=>{ quitting=false; byeState=0; },
+});
 // ===== 🔄 التحديث التلقائي (من GitHub Releases) =====
 let autoUpdater = null;
 try { ({ autoUpdater } = require("electron-updater")); } catch {}
@@ -437,9 +450,10 @@ function setupIpc() {
   ipcMain.handle("app:firewall", () => openFirewall(remoteSrv ? remoteSrv.info().port : 8787));
   ipcMain.handle("app:remote", (e, patch) => (remoteSrv ? (patch ? remoteSrv.set(patch) : remoteSrv.info()) : null));
   ipcMain.handle('app:release', async (event, action) => {
+    if(action==='download') return desktopRelease.download();
+    if(action!=='manual') return desktopRelease.check();
     const info = await releaseUpdates.check();
-    if (action === 'download' && info.state === 'available' && releaseUpdates.trustedDownload(info.downloadUrl)) {
-      // Download to this Electron client's download manager. Never run the installer silently.
+    if (info.state === 'available' && releaseUpdates.trustedDownload(info.downloadUrl)) {
       event.sender.downloadURL(info.downloadUrl);
     }
     return info;
