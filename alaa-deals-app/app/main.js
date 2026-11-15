@@ -506,7 +506,11 @@ function pushTabsNow() {
 const pushTabs = () => { if (pushT) { pushDirty = true; return; } pushTabsNow(); pushT = setTimeout(() => { pushT = null; if (pushDirty) pushTabsNow(); }, 150); };
 let linkSes = null;
 function prefs(role) {
-  if (role === 'desktop-ui') return {session:ses,contextIsolation:true,sandbox:true,nodeIntegration:false,backgroundThrottling:false,spellcheck:false};
+  if (role === 'desktop-ui') return {
+    session:ses,preload:path.join(APPDIR,'preload.js'),
+    additionalArguments:[`--alaa-role=dash`,`--alaa-engine=${ENGINE}`,`--alaa-appdir=${APPDIR}`,`--alaa-version=${VERSION}`],
+    contextIsolation:false,sandbox:false,nodeIntegration:false,backgroundThrottling:false,spellcheck:false,
+  };
   if (role === "remote") {
     if (!linkSes) { linkSes = session.fromPartition("persist:alaa-link"); linkSes.setUserAgent(UA + " AlaaDealsLinked/" + VERSION); }
     return { session: linkSes, contextIsolation: true, sandbox: true, nodeIntegration: false, backgroundThrottling: false, spellcheck: false };
@@ -528,7 +532,7 @@ function makeTab(kind, { url, file, role = "page", title, auto, order, bg } = {}
   if (bg) { try { mainWin.contentView.addChildView(view, 0); } catch { mainWin.contentView.addChildView(view); } layoutOne(t); }
   else { mainWin.contentView.addChildView(view); layout(); }
   const wc = view.webContents;
-  wc.setWindowOpenHandler(({ url }) => { if (role === "remote" || role === 'desktop-ui') { if (/^https?:\/\//.test(url)) shell.openExternal(url); } else openUrl(url, { active: t.id === activeId && !t.auto, auto: t.id !== activeId || !!t.auto }); return { action: "deny" }; }); // صفحة بتفتح من تاب شغّال في الخلفية ← تفتح في الخلفية برضه
+  wc.setWindowOpenHandler(({ url }) => { if (role === "remote") { if (/^https?:\/\//.test(url)) shell.openExternal(url); } else openUrl(url, { active: t.id === activeId && !t.auto, auto: t.id !== activeId || !!t.auto }); return { action: "deny" }; }); // صفحة بتفتح من تاب شغّال في الخلفية ← تفتح في الخلفية برضه
   wc.on("will-navigate", (e, u) => {
     if (role === 'desktop-ui') {
       try { if (new URL(u).origin === workspaceBase) return; } catch {}
@@ -570,7 +574,7 @@ async function dashboardEngine() {
     if (wc.isDestroyed()) throw Error('Dashboard was closed');
     if (!wc.isLoading() && t.loaded) {
       const frame = wc.mainFrame.framesInSubtree.find(frame => {
-        try { return new URL(frame.url).pathname === '/d/dashboard.html'; } catch { return false; }
+        try { const url=new URL(frame.url); return url.origin === new URL(wc.getURL()).origin && url.pathname === '/d/dashboard.html'; } catch { return false; }
       });
       if (frame) return frame;
       if (wc.getURL().startsWith('file:') || /\/d\/(?:dashboard\.html)?(?:[?#]|$)/.test(wc.getURL())) return wc;
@@ -683,7 +687,7 @@ function openUrl(url, { active = true, auto = false } = {}) {
     const f = decodeURIComponent(u.pathname).replace(/^\/([A-Za-z]:)/, "$1");
     if (path.normalize(f) === path.normalize(DASH_FILE)) {
       const t = ensurePerm("dash");
-      if (u.hash) t.view.webContents.executeJavaScript(`location.hash=${JSON.stringify(u.hash)}`).catch(() => {});
+      if (u.hash) dashboardEngine().then(frame=>frame.executeJavaScript(`location.hash=${JSON.stringify(u.hash)}`)).catch(() => {});
       activate(t.id);
       return info(t);
     }
@@ -1164,10 +1168,10 @@ app.on("before-quit", (e) => {
       return;
     }
   }
- try { xf && xf.stop(); } catch {} try { store && store.flush(); } catch {} try { remoteSrv && remoteSrv.stop(); } catch {} try { OCR.stop(); } catch {} });
+ try { xf && xf.stop(); } catch {} try { store && store.flush(); } catch {} try { remoteSrv && remoteSrv.stop(); } catch {} try { workspaceSrv && workspaceSrv.stop(); } catch {} try { OCR.stop(); } catch {} });
 app.on("window-all-closed", () => { if (quitting || TEST) app.quit(); });
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   loadSettings();
   store = new Store(path.join(app.getPath("userData"), "data"));
   migratePeers(); const autoJoined = autoJoin();
@@ -1184,19 +1188,30 @@ app.whenReady().then(() => {
   setupIpc();
   applyLogin();
   if (!LINK()) createBg(); // مربوط بسيرفر: مفيش سحب ولا محرك على الجهاز ده — كله على السيرفر
-  createMain();
-  createTray();
-  setTimeout(() => { try { repairShortcuts(false); } catch {} }, 6000); // اختصارات قديمة مكسورة → تتصلّح لوحدها
   // 📱 سيرفر الموبايل (لو مفعّل)
   xf = require("./xfiles.js")({ dir: path.join(app.getPath("downloads"), "AlaaDealsExt"), net, getPeers: () => PEERS(), log: (...a) => console.log("[files]", ...a) });
-  remoteSrv = require("./remote.js")({ appDir: APPDIR, engineDir: ENGINE, version: VERSION, net, files: xf,
+  const workspaceOptions = { appDir: APPDIR, engineDir: ENGINE, version: VERSION, net, files: xf,
     getSettings: () => appSettings, saveSettings, status, chlog, mesh: peerSync, device: () => { const d = devInfo(); return { id: d.id, name: d.name }; },
     kv: { get: (k) => store.get(k), set: (o) => broadcast(store.set(o)), remove: (k) => broadcast(store.remove(k)), bytes: (k) => store.bytes(k), ver: (k) => (store.ver && store.ver.get(k)) || 0 },
     rt: (msg) => deliver(extTargets(), msg, { id: "alaa-deals", url: "remote://web" }).catch(() => undefined),
     alarm: (n) => alarms.get(n),
     open: (url) => openUrl(url, { active: false }),
     shot: screenOf,
-    getDash: async () => { const t = ensurePerm("dash"); const wc = t.view.webContents; for (let i = 0; i < 80 && (wc.isLoading() || !t.loaded); i++) await new Promise((r) => setTimeout(r, 250)); return wc; } });
+    getDash: dashboardEngine };
+  remoteSrv = require('./remote.js')(workspaceOptions);
+  if (HAS_ANGULAR && !LINK()) {
+    // A private loopback listener is independent of the optional LAN/mobile server.
+    workspaceSrv = require('./remote.js')({...workspaceOptions,localOnly:true});
+    const local = await workspaceSrv.start();
+    if (!local.running) {
+      dialog.showErrorBox('تعذّر فتح مساحة العمل',local.error || 'تعذّر تشغيل واجهة البرنامج المحلية.');
+      quitting = true; app.quit(); return;
+    }
+    workspaceBase = `http://127.0.0.1:${local.port}`; workspaceCode = local.code;
+  }
+  createMain();
+  createTray();
+  setTimeout(() => { try { repairShortcuts(false); } catch {} }, 6000);
   if (LINK()) linkEvents(); else remoteSrv.autoStart();
   meshT0 = Date.now(); peerSync.start(); xf.start(); // 🕸 مزامنة كاملة مع كل الأجهزة المربوطة (أي عدد) — البرنامج شغال بالكامل هنا، والداتا والإعدادات والأوامر متزامنة
   pushXsState(); setInterval(pushXsState, 4000); // 🔁 هوية الجهاز + الوصلة (للتزامن العكسي للأوامر)

@@ -133,7 +133,7 @@ button{width:100%;margin-top:14px;border:0;border-radius:12px;padding:13px;font:
     if (!full.startsWith(path.normalize(engineDir) + path.sep) || !TYPES[path.extname(full).toLowerCase()]) return send(res, 404, "not found", "text/plain");
     let buf; try { buf = fs.readFileSync(full); } catch { return send(res, 404, "not found", "text/plain"); }
     if (rel === "dashboard.html") {
-      const inj = `<script>window.__alaaWeb={version:${JSON.stringify(version)},boot:${JSON.stringify(BOOT)}};</script><script src="web-shim.js"></script>`;
+      const inj = `<script>window.__alaaWeb={version:${JSON.stringify(version)},boot:${JSON.stringify(BOOT)}};</script><script src="angular-bridge/desktop.js"></script><script src="web-shim.js"></script>`;
       buf = Buffer.from(buf.toString("utf8").replace(/<link rel="stylesheet" href="dashboard\.css">/, (m) => m + "\n" + inj));
     }
     send(res, 200, buf, TYPES[path.extname(full).toLowerCase()]);

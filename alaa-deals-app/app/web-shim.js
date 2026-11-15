@@ -2,6 +2,8 @@
 // كود خاص وسرّي: ممنوع النسخ أو التوزيع أو التعديل أو الاستخدام إلا بترخيص كتابي من المالك. Proprietary & confidential.
 // 🖥 لوحة التحكم من أي جهاز: نفس واجهات كروم (chrome.*) بس الداتا بتيجي من السيرفر وبتتزامن لحظة بلحظة
 (() => {
+  // The local Electron shell supplies its existing desktop APIs to the engine iframe.
+  if (window.alaaApp && window.chrome?.runtime?.id === 'alaa-deals') return;
   const W = window.__alaaWeb || (window.__alaaWeb = {});
   const LOCAL = new Set(["uiScale"]); // حاجات خاصة بالجهاز ده بس (حجم الخط)
   const L = { changed: [] };
