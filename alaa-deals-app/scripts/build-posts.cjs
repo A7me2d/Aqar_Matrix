@@ -14,7 +14,8 @@ async function compilePosts() {
   const html = await fs.readFile(path.join(root,'html/posts.html'),'utf8');
   const sources = await Promise.all(order.map(name=>fs.readFile(path.join(root,'ts',name+'.ts'),'utf8')));
   const js = ts.transpileModule(sources.join('\n'), {
-    compilerOptions: { target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.None }, reportDiagnostics:true,
+    // This compatibility bundle shares dashboard globals until the Angular migration finishes.
+    compilerOptions: { target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.None, ignoreDeprecations:'6.0' }, reportDiagnostics:true,
   });
   const errors = (js.diagnostics || []).filter(d=>d.category===ts.DiagnosticCategory.Error);
   if(errors.length) throw Error(errors.map(d=>ts.flattenDiagnosticMessageText(d.messageText,'\n')).join('\n'));
