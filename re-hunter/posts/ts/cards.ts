@@ -1,6 +1,6 @@
 // © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة.
-// Presentation for the posts screen. Existing data-act handlers remain in dashboard.js.
-function postCard(p, opts, { more, ms, open, cl, dupOpen }) {
+// Post card presentation. Shared card actions are defined in actions.ts.
+function postCard(p: PostRecord, opts: PostCardOptions, { more, ms, open, cl, dupOpen }: PostCardContext): string {
   const text = String(p.text || "");
   const preview = text.length > 240 ? text.slice(0, 240).trimEnd() + "…" : text;
   const specs = [

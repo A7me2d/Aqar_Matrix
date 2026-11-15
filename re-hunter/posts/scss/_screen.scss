@@ -1,0 +1,130 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة. */
+/* Posts workspace. The existing light/dark theme supplies every color. */
+body[data-pg="posts"] #hero { display:none!important; }
+#v-posts .posts-workspace { position:static!important; inset:auto!important; padding:0!important; border:0!important; border-radius:0!important; background:none!important; box-shadow:none!important; backdrop-filter:none!important; }
+#v-posts .posts-workspace>.wrap { padding:0; @apply tw-m-0; max-width:none; @apply tw-w-full; }
+#v-posts .posts-page-header { @apply tw-flex tw-flex-wrap; @apply tw-items-center; @apply tw-justify-between; @apply tw-w-full; gap:16px 24px; margin-bottom:24px; padding:8px; border-radius:12px;}
+#v-posts .posts-eyebrow { @apply tw-text-xs; @apply tw-font-semibold; color:var(--muted); }
+#v-posts .posts-page-header h1 { margin:5px 0 8px; font-size:28px; line-height:1.35; font-weight:750; color:var(--text); }
+#v-posts .posts-page-header p { @apply tw-m-0; max-width:65ch; font-size:14px; line-height:1.8; color:var(--muted); }
+#v-posts .posts-page-header .btn { padding:10px 16px; min-height:40px; border-radius:9px; font-size:14px; }
+#v-posts .posts-overview { @apply tw-grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:0; margin-bottom:24px; padding:16px 0; border-block:1px solid var(--border); }
+#v-posts .posts-metric { @apply tw-flex tw-flex-col; align-items:flex-start; gap:7px; padding:2px 20px; @apply tw-min-w-0; }
+#v-posts .posts-metric:first-child { padding-inline-start:0; }
+#v-posts .posts-metric+.posts-metric { border-inline-start:1px solid var(--border); }
+#v-posts .posts-metric>span { color:var(--muted); font-size:13px; line-height:1.6; }
+#v-posts .posts-metric>b { color:var(--text); font-size:26px; line-height:1.2; font-weight:700; font-variant-numeric:tabular-nums; }
+#v-posts .posts-controls { border:1px solid var(--border); border-radius:16px; padding:22px; background:var(--surface); }
+#v-posts .posts-control-heading { @apply tw-flex; @apply tw-items-center; @apply tw-flex-wrap; @apply tw-justify-between; gap:12px; margin-bottom:18px; }
+#v-posts .posts-control-heading h2 { @apply tw-m-0; font-size:16px; font-weight:650; color:var(--text); }
+#v-posts .posts-reset { appearance:none; border:0; background:none; padding:6px 0; font:inherit; font-size:13px; color:var(--posts-accent); cursor:pointer; }
+#v-posts .posts-reset:disabled { opacity:.45; cursor:default; }
+#v-posts .tabs { @apply tw-flex tw-flex-wrap; @apply tw-items-center; gap:6px; border:0!important; border-radius:0!important; padding:0!important; background:none!important; box-shadow:none!important; }
+#v-posts .tabs .tab { display:inline-flex; flex-direction:row; @apply tw-items-center; gap:8px; min-height:34px; @apply tw-min-w-0; padding:6px 12px!important; border:1px solid transparent!important; border-radius:8px!important; font-size:13px!important; font-weight:500!important; line-height:1.5; background:none!important; color:var(--muted)!important; box-shadow:none!important; transform:none!important; }
+#v-posts .tabs .tab::before,#v-posts .tabs .tab::after { display:none!important; }
+#v-posts .tabs .tab small { position:static!important; display:inline-flex; @apply tw-items-center; justify-content:center; min-width:18px; margin:0!important; padding:0 5px!important; border:0!important; border-radius:5px!important; background:color-mix(in srgb,var(--text) 6%,transparent)!important; color:inherit!important; font-size:11px!important; line-height:1.6; box-shadow:none!important; }
+#v-posts .tabs .tab.on { color:var(--posts-accent)!important; background:color-mix(in srgb,var(--posts-accent) 8%,var(--surface))!important; border-color:color-mix(in srgb,var(--posts-accent) 22%,var(--border))!important; font-weight:650!important; }
+#v-posts .tabs .tab:hover { color:var(--text)!important; border-color:var(--border)!important; }
+#v-posts #typeTabs { margin-bottom:20px; }
+#v-posts #typeTabs .tab { font-size:15px!important; min-height:38px; padding:7px 16px!important; }
+#v-posts .posts-search-row { @apply tw-grid; grid-template-columns:minmax(0,2fr) minmax(150px,1fr) minmax(140px,.8fr); gap:12px; margin-bottom:18px; }
+#v-posts :is(.posts-search-row,.posts-advanced-fields)>label { @apply tw-flex tw-flex-col; gap:7px; @apply tw-min-w-0; @apply tw-text-xs; font-weight:500; color:var(--muted); }
+#v-posts :is(.posts-search-row,.posts-advanced-fields) :is(input,select) { width:100%!important; max-@apply tw-w-full; @apply tw-min-w-0; min-height:43px; @apply tw-m-0; padding:9px 12px!important; border:1px solid var(--border)!important; border-radius:9px!important; background:var(--surface)!important; color:var(--text); font-size:14px!important; line-height:1.5; box-shadow:none!important; }
+#v-posts .posts-search-row input:focus-visible { outline:2px solid var(--posts-accent); outline-offset:2px; }
+#v-posts .posts-filter-row { @apply tw-flex; align-items:flex-start; gap:12px 16px; padding:12px 0; border-top:1px solid var(--border); }
+#v-posts .posts-filter-label { flex:0 0 70px; padding-top:7px; @apply tw-text-xs; color:var(--muted); }
+#v-posts .posts-filter-row>.tabs { flex:1; @apply tw-min-w-0; @apply tw-m-0; }
+#v-posts .posts-source-row { @apply tw-items-center; padding-bottom:0; }
+#v-posts .posts-source-row>.posts-filter-label { padding-top:0; }
+#v-posts #filtersBtn { display:inline-flex!important; @apply tw-items-center; justify-content:center; gap:7px; @apply tw-m-0; flex:0 0 auto; padding:8px 12px; min-height:36px; border:1px solid var(--border); border-radius:8px; font-size:13px; box-shadow:none; }
+#v-posts #filtersBtn[aria-expanded="true"] { border-color:var(--posts-accent); color:var(--posts-accent); }
+#v-posts #postsActiveCount { min-width:18px; padding:0 5px; border-radius:5px; background:color-mix(in srgb,var(--posts-accent) 10%,transparent); font-size:11px; }
+#v-posts .posts-advanced { margin-top:18px; padding-top:18px; border-top:1px solid var(--border); }
+#v-posts .posts-advanced[hidden],#v-posts #postsActiveCount[hidden],#v-posts .posts-active-filters[hidden] { display:none!important; }
+#v-posts .posts-advanced-fields { @apply tw-grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+#v-posts .posts-advanced .checks { @apply tw-grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 20px; margin:20px 0; padding:0; }
+#v-posts .posts-advanced .checks label { @apply tw-flex; @apply tw-items-center; gap:8px; @apply tw-m-0; padding:0; font-size:13px; line-height:1.6; }
+#v-posts .posts-advanced .checks input { flex:none; accent-color:var(--posts-accent); }
+#v-posts .posts-classification { border-top:1px solid var(--border); padding-top:16px; }
+#v-posts .posts-classification>h3 { font-size:14px; margin:0 0 12px; @apply tw-font-semibold; }
+#v-posts #purTabs { padding:0!important; border:0!important; background:none!important; box-shadow:none!important; border-radius:0!important; }
+#v-posts #purTabs .lvl-head { display:none; }
+#v-posts #purNote { margin-top:10px; @apply tw-text-xs; line-height:1.8; }
+#v-posts .posts-active-filters { @apply tw-flex tw-flex-wrap; gap:7px; margin-top:16px; padding-top:14px; border-top:1px solid var(--border); }
+#v-posts .posts-filter-chip { display:inline-flex; @apply tw-items-center; gap:10px; @apply tw-min-w-0; max-@apply tw-w-full; padding:5px 9px; border:1px solid var(--border); border-radius:6px; background:var(--surface-2); color:var(--text); font:inherit; @apply tw-text-xs; line-height:1.5; cursor:pointer; overflow-wrap:anywhere; }
+#v-posts .posts-filter-chip>span:first-child { @apply tw-min-w-0; text-align:start; }
+#v-posts .posts-filter-chip>span:last-child { font-size:17px; color:var(--muted); }
+#v-posts .posts-import-tool { margin:14px 0 0!important; padding:0!important; border:1px solid var(--border)!important; border-radius:12px!important; background:var(--surface)!important; box-shadow:none!important; }
+#v-posts .posts-import-tool>summary { @apply tw-flex; @apply tw-items-center; @apply tw-justify-between; gap:16px; padding:14px 18px; cursor:pointer; }
+#v-posts .posts-import-tool>summary b { font-size:14px; @apply tw-font-semibold; }
+#v-posts .posts-import-tool>summary small { display:block; @apply tw-text-xs; margin-top:4px; font-weight:400; color:var(--muted); }
+#v-posts .posts-import-tool>summary::after { content:"＋"; color:var(--muted); font-size:18px; }
+#v-posts .posts-import-tool[open]>summary::after { content:"−"; }
+#v-posts .posts-import-tool[open]>summary { border-bottom:1px solid var(--border); }
+#v-posts .posts-tool-count { margin-inline-start:auto; white-space:nowrap; @apply tw-text-xs; color:var(--muted); }
+#v-posts .posts-import-tool .tool-in { padding:18px; }
+#v-posts .posts-import-form { @apply tw-flex tw-flex-wrap; gap:12px; align-items:flex-end; }
+#v-posts .posts-import-form label { @apply tw-flex; flex:1 1 280px; flex-direction:column; gap:7px; @apply tw-min-w-0; @apply tw-text-xs; color:var(--muted); }
+#v-posts .posts-import-form input { @apply tw-w-full; @apply tw-min-w-0; padding:10px 12px; min-height:42px; font-size:14px; border-radius:8px; }
+#v-posts .posts-import-form .btn { min-height:42px; border-radius:8px; font-size:13px; }
+#v-posts .posts-job-status:not(:empty) { margin:12px 0; padding:10px 12px; border-radius:8px; background:var(--surface-2); font-size:13px; line-height:1.7; }
+#v-posts #postToolBody .card { display:flex!important; flex-direction:column!important; gap:12px; margin:12px 0 0!important; padding:16px!important; border:1px solid var(--border)!important; border-radius:10px!important; background:var(--surface)!important; box-shadow:none!important; }
+#v-posts #postToolBody .card>* { margin:0!important; }
+#v-posts #postToolBody .c-top { font-size:14px; }
+#v-posts #postToolBody .text { font-size:14px!important; line-height:1.8; }
+#v-posts #postToolBody .c-bot,#v-posts #postToolBody .acts { @apply tw-flex tw-flex-wrap; gap:8px; @apply tw-items-center; }
+#v-posts #postToolBody .btn { @apply tw-text-xs; min-height:34px; padding:7px 10px; border-radius:7px; }
+#v-posts .posts-results { max-width:none; padding:0; margin-top:26px; }
+#v-posts .posts-results-heading { @apply tw-flex tw-flex-wrap; @apply tw-items-center; @apply tw-justify-between; gap:14px; margin-bottom:16px; }
+#v-posts .posts-results-heading>div { @apply tw-flex; align-items:baseline; @apply tw-flex-wrap; gap:10px; }
+#v-posts .posts-results-heading h2 { font-size:18px; @apply tw-m-0; }
+#v-posts #countLine { color:var(--muted); font-size:13px; }
+#v-posts .posts-results-heading>label { @apply tw-flex; @apply tw-items-center; gap:10px; color:var(--muted); @apply tw-text-xs; }
+#v-posts #sortSel { min-width:160px; min-height:36px; padding:7px 10px; border-radius:8px; font-size:13px; box-shadow:none!important; }
+#v-posts #oldNote:not([hidden]) { margin:0 0 16px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); font-size:13px; line-height:1.7; }
+#v-posts .aibar:not([hidden]) { @apply tw-flex; @apply tw-items-center; @apply tw-flex-wrap; gap:10px; margin:0 0 16px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); font-size:13px; }
+#v-posts .posts-empty { @apply tw-flex tw-flex-col; @apply tw-items-center; gap:12px; padding:46px 22px; border:1px dashed var(--border); border-radius:14px; background:var(--surface); color:var(--text); text-align:center; }
+#v-posts .posts-empty-symbol { font-size:28px; line-height:1; color:var(--muted); }
+#v-posts .posts-empty h3 { @apply tw-m-0; font-size:18px; }
+#v-posts .posts-empty p { @apply tw-m-0; max-width:52ch; color:var(--muted); font-size:14px; line-height:1.8; }
+#v-posts .posts-empty>div { @apply tw-flex tw-flex-wrap; justify-content:center; gap:8px; margin-top:4px; }
+#v-posts #moreBtn:not([hidden]) { display:block; @apply tw-w-full; min-height:44px; margin-top:18px; border:1px solid var(--border); border-radius:10px; background:var(--surface); font-size:14px; box-shadow:none; }
+@media (max-width:900px) {
+  #v-posts .posts-search-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #v-posts .posts-search-row>.posts-search { grid-column:1/-1; }
+  #v-posts .posts-source-row { @apply tw-flex-wrap; }
+  #v-posts .posts-source-row>#srcTabs { flex:1 1 calc(100% - 90px); }
+  #v-posts #filtersBtn { margin-inline-start:86px; }
+  #v-posts .posts-advanced .checks { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:600px) {
+  #v-posts .posts-page-header { margin-bottom:18px; gap:12px; }
+  #v-posts .posts-page-header h1 { font-size:24px; }
+  #v-posts .posts-page-header p { font-size:13px; }
+  #v-posts .posts-page-header .btn { padding:8px 12px; @apply tw-text-xs; }
+  #v-posts .posts-overview { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px 0; padding:14px 0; margin-bottom:18px; }
+  #v-posts .posts-metric { padding-inline:12px; }
+  #v-posts .posts-metric:nth-child(4) { padding-inline-start:0; border-inline-start:0; }
+  #v-posts .posts-metric>span { font-size:11px; }
+  #v-posts .posts-metric>b { font-size:23px; }
+  #v-posts .posts-controls { padding:16px; border-radius:12px; }
+  #v-posts .posts-control-heading h2 { font-size:14px; }
+  #v-posts .posts-control-heading { gap:6px; margin-bottom:14px; }
+  #v-posts .posts-filter-row { gap:8px; @apply tw-flex-wrap; }
+  #v-posts .posts-filter-label { flex-basis:100%; padding-top:0; }
+  #v-posts .posts-source-row>#srcTabs { flex-basis:100%; }
+  #v-posts #filtersBtn { margin-inline-start:0; }
+  #v-posts .tabs .tab { padding:5px 8px!important; font-size:12px!important; }
+  #v-posts #typeTabs .tab { padding:7px 11px!important; font-size:14px!important; }
+  #v-posts .posts-advanced-fields { grid-template-columns:minmax(0,1fr); }
+  #v-posts .posts-advanced .checks { column-gap:12px; }
+  #v-posts .posts-advanced .checks label { @apply tw-text-xs; }
+  #v-posts .posts-import-tool>summary { padding:13px 14px; }
+  #v-posts .posts-import-tool>summary small { max-width:25ch; line-height:1.6; }
+  #v-posts .posts-import-tool .tool-in { padding:14px; }
+  #v-posts .posts-import-form .btn { @apply tw-w-full; }
+  #v-posts .posts-results-heading { align-items:flex-start; }
+  #v-posts .posts-results-heading>div { flex-direction:column; gap:4px; }
+  #v-posts .posts-results-heading>label { gap:6px; }
+  #v-posts #sortSel { min-width:125px; max-width:155px; }
+}

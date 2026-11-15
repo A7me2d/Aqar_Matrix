@@ -837,7 +837,7 @@ function render() {
   if (lastRenderView === "matches" && state.view !== "matches") markMatchesSeen(); // خرجت من الشاشة = شفت اللي كان فيها
   lastRenderView = state.view; try { visitedViews.add(state.view); } catch {} // أي طريقة دخلت بيها القسم (شريط جانبي/لينك/هاش) بتتحسب «دخلته»
   { const nn = pairs.filter((x) => x.score >= 70 && pairIsNew(x)).length, el = $("navMatchesNew"); if (el) { el.textContent = "🆕" + nn; el.hidden = !nn || state.view === "matches"; } }
-  if (state.view === "posts") { renderPosts(); renderPostTool(); }
+  if (state.view === "posts") AQMPostsPage.render();
   if (state.view === "matches") renderMatches();
   { const n = Object.values(pipe).filter(pActive).length; $("navPipe").textContent = n; $("navPipe").hidden = !n; }
   if (state.view === "pipe") renderPipe();
@@ -857,12 +857,6 @@ window.AQMOpenView = function (view) {
 
 // ================= الطلبات =================
 // فلتر «🏠 المالك» في الطلبات والعروض: mention = أي بوست فيه الكلمة ، وبعدها التصنيف
-const BROKERISH = ["broker", "office", "middleman"];
-function ownPassF(p, k) {
-  const r = ownOf(p);
-  if (!r.mention) return false;
-  return k === "mention" ? true : k === "owner" ? r.role === "owner" : k === "broker" ? BROKERISH.includes(r.role) : k === "wants" ? r.role === "wants-owner" : k === "unsure" ? ["unsure", "mention"].includes(r.role) : true;
-}
 // 🧪 صافي / مشتبه / مكتب لصاحب الطلب أو العرض (v10.71.5): الطلب بمستوى المشتري والعرض بمستوى البايع — من نفس التقدير اللي في خانتي المشترين والبايعين
 // 🧱 مربع المستويات البارز (v10.71.6): عنوان + بلاطات كبيرة (أيقونة · اسم · عدد كبير · سطر شرح) — بيتستخدم في التطابق وفي الطلبات والعروض
 // items = [{ k, ic, t, d, n }] ، attr = اسم الـdata attribute اللي الضغط بيقراه (mcombo / pur)
@@ -893,104 +887,8 @@ function clsSignHtml(side, list, cur, attr, note) {
     <details class="cls-rules" ${state.clsOpen ? "open" : ""}><summary>📐 المعيار اللي بنقيس بيه كل واحد (دوس تشوف التفاصيل)</summary><div class="cls-rule-grid">${rules}</div></details>`;
 }
 document.addEventListener("toggle", (e) => { const d = e.target; if (d && d.classList && d.classList.contains("cls-rules")) state.clsOpen = d.open; }, true);
-const PURS = { all: "الكل", pure: "✅ صافي", suspect: "🟠 مشتبه", office: "🏢🤝 مكتب / سمسار" };
-const PUR_LBL = { request: { pure: "مشتري صافي", suspect: "مشتري مشتبه", office: "مكتب / سمسار" }, offer: { pure: "بائع صافي", suspect: "بائع مشتبه", office: "مكتب / سمسار" } };
-let purLeads = null, purSellers = null, purMaps = null, purMemo = new WeakMap();
-function purOf(p) {
-  if (typeof ROLE === "undefined") return "suspect";
-  if (purLeads !== leads || purSellers !== sellers || !purMaps) { purLeads = leads; purSellers = sellers; purMaps = { L: new Map(leads.map((L) => [L.key, L])), S: new Map(sellers.map((S) => [S.key, S])) }; purMemo = new WeakMap(); }
-  let g = purMemo.get(p);
-  if (g) return g;
-  const k = PH.personKey({ uid: p.uid, name: p.sender, source: p.source || "wa", text: p.text });
-  g = ROLE.postGroup(p, p.type === "offer" ? purMaps.S.get(k) : p.type === "request" ? purMaps.L.get(k) : null);
-  purMemo.set(p, g);
-  return g;
-}
-const purChip = (p) => { const k = purOf(p), l = (PUR_LBL[p.type] || PUR_LBL.request)[k], cls = k === "pure" ? "b-owner" : k === "suspect" ? "b-warn" : "b-cat", ic = k === "pure" ? "✅" : k === "suspect" ? "🟠" : "🏢"; return `<span class="badge ${cls} pur-chip" data-purk="${k}" title="${p.type === "offer" ? "تصنيف صاحب العرض (نفس تقدير خانة البايعين)" : "تصنيف صاحب الطلب (نفس تقدير خانة المشترين)"}">${ic} ${l}</span>`; };
-function filtered(ign = {}) {
-  const q = qNorm(state.q);
-  const fresh = state.onlyNew && autoLog ? new Set(autoLog.newIds || []) : null;
-  return items.filter((p) =>
-    (ign.src || state.src === "all" || p.srcs.includes(state.src)) &&
-    (ign.type || state.type === "all" || p.type === state.type) &&
-    (ign.cat || state.cat === "all" || p.category === state.cat) &&
-    (!state.region || (state.region.startsWith("z:") ? p.zone === state.region.slice(2) : p.region === state.region)) &&
-    (!state.onlyBS || inArea(p)) &&
-    (!state.group || p.groups.includes(state.group)) &&
-    (!state.hideDone || !p.done) &&
-    (!state.withPhone || p.phones.length) &&
-    (!state.withMatch || (matches.get(p.id) || []).length) &&
-    (!state.ownF || ownPassF(p, state.ownF)) &&
-    (ign.pur || state.pur === "all" || purOf(p) === state.pur) &&
-    (!fresh || fresh.has(p.id)) &&
-    (ign.days || !state.postDays || (p.ts || p.scannedAt) >= Date.now() - state.postDays * 864e5) &&
-    (!state.onlyDeals || deals.has(p.id)) &&
-    (!state.hideDups || !clusters.has(p.id) || clusters.get(p.id).cheapestId === p.id) &&
-    (!q || qOK(q, p.text + " " + p.sender + " " + (p.summary || "") + " " + (p.region || ""), p.phones, { cats: [p.category], types: [p.type] })));
-}
 const tabsHtml = (obj, cur, key, counts) => Object.entries(obj).map(([k, v]) =>
   `<button class="tab ${cur === k ? "on" : ""}" data-${key}="${k}">${v}<small>${counts(k)}</small></button>`).join("");
-
-function renderPosts() {
-  const req = items.filter((p) => p.type === "request").length;
-  const pending = Object.values(raw).filter((p) => !p.ai).length;
-  renderPostsOverview(req);
-
-  // شريط الذكاء الاصطناعي
-  const bar = $("aiBar");
-  if (aiCfg.enabled && aiCfg.key) {
-    bar.hidden = false;
-    if (aiLive(aiStatus)) bar.innerHTML = `🤖 بيحلل... ${aiStatus.done || 0} من ${aiStatus.total || "?"}`;
-    else if (aiStatus && aiStatus.error && Date.now() - aiStatus.at < 6e5) bar.innerHTML = `⚠️ التحليل وقف: ${esc(aiStatus.error)} <button class="btn sm" data-ai="run">جرّب تاني</button>`;
-    else if (pending) bar.innerHTML = `🤖 فيه ${pending} بوست لسه ما اتحللش بالذكاء الاصطناعي <button class="btn sm" data-ai="run">حلّلهم دلوقتي</button>`;
-    else bar.hidden = true;
-  } else bar.hidden = true;
-
-  const a = filtered({ src: true }); $("srcTabs").innerHTML = tabsHtml(SRCS, state.src, "src", (k) => k === "all" ? a.length : a.filter((p) => p.srcs.includes(k)).length);
-  const b = filtered({ type: true }); $("typeTabs").innerHTML = tabsHtml(TYPES, state.type, "type", (k) => k === "all" ? b.length : b.filter((p) => p.type === k).length);
-  const c = filtered({ cat: true }); $("catTabs").innerHTML = tabsHtml(catsTabs(), state.cat, "cat", (k) => k === "all" ? c.length : c.filter((p) => p.category === k).length);
-  { const d = filtered({ pur: true }); // 🧪 صافي / مشتبه / مكتب (العدّادات من غير فلتر الصافي نفسه)
-    const T0 = state.type, kk = ["all", "pure", "suspect", "office"], cn = (k) => (k === "all" ? d.length : d.filter((p) => purOf(p) === k).length);
-    // الطلبات بمستوى المشتري، والعروض بمستوى البايع، والكل: صاحب البوست
-    const PL = T0 === "request" ? { all: ["📋", "كل الطلبات", "من غير فرز"], pure: ["✅", "مشتري صافي", "كاتب طلبه بنفسه من غير علامة سمسرة"], suspect: ["🟡", "مشتري مشتبه", "مش واضح هو المشتري ولا بيجمع عروض"], office: ["🏢", "مكتب / سمسار", "تاجر أو مكتب بيطلب (أو قال إنه كده)"] }
-      : T0 === "offer" ? { all: ["📋", "كل العروض", "من غير فرز"], pure: ["✅", "بايع صافي (مالك)", "قال إنه المالك أو الأدلة بتقول كده"], suspect: ["🟡", "مالك ولا وسيط؟", "محتاج تأكيد قبل ما تتواصل"], office: ["🏢", "مكتب / سمسار", "سمسار أو مكتب أو وسيط"] }
-      : { all: ["📋", "الكل", "طلبات وعروض من غير فرز"], pure: ["✅", "صافي", "مشتري صافي أو بايع مالك"], suspect: ["🟡", "مشتبه", "مشتري مش واضح أو مالك ولا وسيط؟"], office: ["🏢", "مكتب / سمسار", "مكاتب وسماسرة وتجار"] };
-    $("purTabs").innerHTML = lvlHtml(T0 === "request" ? "🧪 الطلبات: صافي ولا مشتبه؟" : T0 === "offer" ? "🧪 العروض: صافي ولا مشتبه؟" : "🧪 صاحب الطلب / العرض: صافي ولا مشتبه؟", "دوس على المستوى اللي عايز تشوفه", kk.map((k) => ({ k, ic: PL[k][0], t: PL[k][1], d: PL[k][2], n: cn(k) })), state.pur, "pur");
-    const nk = (k) => d.filter((p) => purOf(p) === k).length;
-    $("purNote").innerHTML = `<span class="muted">${state.pur === "pure" ? "الطلب: مشتري صافي · العرض: مالك — الأنضف للتواصل." : state.pur === "suspect" ? "مشتري مش واضح هو ولا بيجمع عروض · أو مالك ولا وسيط؟ — اتأكد قبل ما تضيّع وقت." : state.pur === "office" ? "مكاتب وسماسرة وتجار (طلب أو عرض)." : "التصنيف من نفس تقدير خانتي المشترين والبايعين، ومفيش حاجة بتتمسح."}</span>` +
-      (state.pur !== "all" && !nk(state.pur) && d.length ? ` <b>مفيش هنا دلوقتي —</b> ${["pure", "suspect", "office"].filter((k) => k !== state.pur && nk(k)).map((k) => `<button class="btn sm" data-pur="${k}">${PURS[k]} (${ar(nk(k))})</button>`).join(" ")}` : ""); }
-
-  const regions = countBy(items, (p) => p.region);
-  if (state.region && !state.region.startsWith("z:") && !regions.has(state.region)) state.region = "";
-  $("regionSel").innerHTML = `<option value="">📍 كل المناطق (${regions.size})</option>` +
-    Object.entries(PH.zones()).map(([k, v]) => `<option ${state.region === "z:" + k ? "selected" : ""} value="z:${k}">${v} (${items.filter((p) => p.zone === k).length})</option>`).join("") +
-    [...regions].sort((x, y) => y[1] - x[1]).map(([r, n]) => `<option ${r === state.region ? "selected" : ""} value="${esc(r)}">${esc(r)} (${n})</option>`).join("");
-  const groups = [...new Set(items.flatMap((p) => p.groups))].sort();
-  if (state.group && !groups.includes(state.group)) state.group = "";
-  $("groupSel").innerHTML = `<option value="">👥 كل الجروبات (${groups.length})</option>` +
-    groups.map((g) => `<option ${g === state.group ? "selected" : ""} value="${esc(g)}">${esc(g)}</option>`).join("");
-  $("onlyNew").checked = state.onlyNew; $("onlyDeals").checked = state.onlyDeals;
-
-  const list = filtered();
-  const mc = (p) => (matches.get(p.id) || []).length;
-  const sorters = {
-    new: (x, y) => tOf(y) - tOf(x), old: (x, y) => tOf(x) - tOf(y),
-    priceAsc: (x, y) => (x.price || Infinity) - (y.price || Infinity), priceDesc: (x, y) => (y.price || 0) - (x.price || 0),
-    matches: (x, y) => mc(y) - mc(x) || tOf(y) - tOf(x),
-    deal: (x, y) => ((deals.get(y.id) || {}).pct || 0) - ((deals.get(x.id) || {}).pct || 0) || tOf(y) - tOf(x),
-  };
-  list.sort(sorters[state.sort]);
-  updatePostsScreen(list);
-  const hiddenOld = state.postDays ? filtered({ days: true }).length - list.length : 0;
-  $("oldNote").hidden = !hiddenOld;
-  $("oldNote").innerHTML = hiddenOld ? `📦 فيه <b>${hiddenOld}</b> طلب/عرض أقدم من ${state.postDays} يوم متخزنين ومستخبيين <button class="btn sm" data-showold>اعرضهم</button>` : "";
-  if (!items.length) $("list").innerHTML = `<div class="empty posts-empty"><span class="posts-empty-symbol" aria-hidden="true">▤</span><h3>لسه مفيش طلبات أو عروض</h3><p>البوستات اللي بتسحبها من مصادر العقارات هتظهر هنا، وتقدر تبحث فيها وتراجع تفاصيلها.</p></div>`;
-  else if (!list.length) $("list").innerHTML = `<div class="empty posts-empty"><span class="posts-empty-symbol" aria-hidden="true">⌕</span><h3>مفيش منشورات مطابقة للبحث</h3><p>جرّب كلمة تانية، أو وسّع المنطقة والفترة، أو شيل بعض الفلاتر.</p><div><button type="button" class="btn primary" data-post-reset>تصفير البحث</button><button type="button" class="btn" data-post-filters-open>راجع الفلاتر</button></div></div>`;
-  else $("list").innerHTML = list.slice(0, state.shown).map((p) => card(p, { sgn: true })).join("");
-  if (window.FBID) FBID.sec("posts", $("list"), [{ label: "الطالبين", items: list.filter((p) => p.type === "request") }, { label: "العارضين", items: list.filter((p) => p.type !== "request") }]); // 🆔 نسخ كل الآيديات
-  $("moreBtn").hidden = list.length <= state.shown;
-  $("moreBtn").textContent = `عرض المزيد (${list.length - state.shown} كمان)`;
-}
 
 function uniqBy(arr, f) { const s = new Set(), o = []; for (const x of arr) { const k = f(x); if (!x || s.has(k)) continue; s.add(k); o.push(x); } return o; }
 function countBy(arr, f) { const m = new Map(); for (const x of arr) { const k = f(x); if (k != null && k !== "") m.set(k, (m.get(k) || 0) + 1); } return m; }
@@ -1066,7 +964,7 @@ function card(p, opts = {}) {
   const open = state.open.has(p.id) || opts.forceOpen;
   const cl = clusters.get(p.id);
   const dupOpen = state.open.has("d:" + p.id);
-  if (opts.sgn) return postCard(p, opts, { more, ms, open, cl, dupOpen });
+  if (opts.sgn) return AQMPostsPage.card(p, opts, { more, ms, open, cl, dupOpen });
   return `<article class="card ${opts.sgn ? "sgn " : ""}${p.done ? "done" : ""} t-${p.type}" data-id="${p.id}">
     ${opts.sgn && window.FBID ? FBID.chip(p) : ""}${sgPlate(p)}<div class="c-top">${head(p)}${chips(p)}<span class="when">${fmtWhen(p)}</span></div>
     ${p.summary ? `<div class="summary">🤖 ${esc(p.summary)}</div>` : ""}
@@ -1983,32 +1881,6 @@ function sellerCard(S) {
 }
 
 // ================= 💬 تعليقات بوست بلينكه (أداة صغيرة جوه الطلبات والعروض) =================
-function renderPostTool() {
-  const el = $("postTool"); if (!el) return;
-  $("postJobMsg").textContent = postJob ? (postJob.result ? `✅ آخر سحب: ${postJob.result.people} معلّق من «${postJob.result.author}»` : "⏳ بيسحب في تاب البوست...") : "";
-  const posts = Object.values(adPosts).sort((x, y) => y.scrapedAt - x.scrapedAt);
-  $("postToolN").textContent = posts.length ? posts.length + " بوست" : "";
-  if (!el.open) { $("postToolBody").innerHTML = ""; return; }
-  $("postToolBody").innerHTML = posts.length ? `<div class="list">${posts.map((p) => {
-      const open = state.open.has("ap:" + p.key);
-      return `<article class="card" data-apkey="${esc(p.key)}">
-        <div class="c-top"><b>💬 ${esc(p.author || "بوست")}</b><span class="badge b-cat">${p.people.length} معلّق</span><span class="when">${relDay(p.scrapedAt)}</span></div>
-        <div class="text">${esc((p.text || "").slice(0, 300))}</div>
-        <div class="c-bot"><a class="open-link" href="${esc(p.url)}" target="_blank">🔗 افتح البوست</a><span class="acts">
-          <button class="btn sm" data-aptoggle>${open ? "▲ اخفي المعلّقين" : "👥 اعرض المعلّقين"}</button><button class="btn sm primary" data-apcsv>⬇️ المعلّقين Excel</button><button class="btn sm" data-aprerun>🔄 اسحب تاني</button></span></div>
-        ${open ? `<div class="tbl-wrap"><table class="learn-t"><tr><th>الاسم</th><th>ID / اليوزر</th><th>التعليق</th><th></th></tr>${p.people.map((c) => {
-          const it = c.text ? PH.interest(c.text, compiledG) : { w: 0, tags: [] };
-          return `<tr><td><b>${esc(c.name)}</b>${c.reply ? ' <span class="tag-c">رد</span>' : ""}</td><td class="ltr">${esc(c.uid || "—")}</td><td>${esc((c.text || "—").slice(0, 160))}${it.w >= 25 ? ` <span class="chip hot">🔥 ${esc(it.tags.join("، "))}</span>` : ""}</td>
-            <td>${c.profileUrl ? `<a class="btn sm" href="${esc(c.profileUrl)}" target="_blank">👤</a>` : ""}</td></tr>`; }).join("")}</table></div>` : ""}
-      </article>`; }).join("")}</div>` : `<div class="empty"><b>لسه ما سحبتش تعليقات بوست</b>حط لينك أي بوست فوق ودوس «💬 افتحه واسحب التعليقات».</div>`;
-}
-function adPostCsv(p) {
-  const q = csvQ;
-  const rows = [["الاسم", "ID / اليوزر", "لينك البروفايل", "التعليق", "رد؟", "مهتم؟", "البوست"].join(",")]
-    .concat(p.people.map((c) => { const it = c.text ? PH.interest(c.text, compiledG) : { w: 0, tags: [] }; return [c.name, c.uid ? "'" + c.uid : "", c.profileUrl, c.text, c.reply ? "رد" : "", it.w >= 25 ? it.tags.join(" · ") || "مهتم" : "", p.url].map(q).join(","); }));
-  download(`معلّقين_${(p.author || "بوست").replace(/[\\/:*?"<>|\s]+/g, "-").slice(0, 40)}_${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
-}
-
 // ================= 📍 إعدادات المنطقة =================
 function fillArea() {
   const gov = PH.govOf(settings);
@@ -2956,25 +2828,9 @@ document.addEventListener("click", async (e) => {
   const tx = t.closest(".text"); if (tx) return tx.classList.toggle("open");
   const act0 = t.closest("[data-act]"), act = act0 && act0.closest(".card") ? act0 : null; // 10.58: أزرار الشاشات التانية (جواز العقار…) ليها handler خاص ومش جوه كارت
   if (act) {
-    const id = act.closest(".card").dataset.id;
-    const p = byId.get(id);
-    if (act.dataset.act === "fix") return openFix(id);
-    if (act.dataset.act === "matches") { state.open.has(id) ? state.open.delete(id) : state.open.add(id); return render(); }
-    if (act.dataset.act === "toListing") return addSlotFromPost(p, p.type === "request" ? "want" : "offer");
-    if (act.dataset.act === "dups") { const k = "d:" + id; state.open.has(k) ? state.open.delete(k) : state.open.add(k); return render(); }
-    if (act.dataset.act === "tplPost") { state.tplFor = state.tplFor === "p:" + id ? "" : "p:" + id; return render(); }
-    if (act.dataset.act === "copyText") { await copyText(p.text); toast("اتنسخ النص"); }
-    if (act.dataset.act === "done") { const r = await chrome.runtime.sendMessage({ type: "phPost", id, op: "done" }).catch(() => null); if (!r || !r.ok) await updatePost(id, (x) => { x.done = !x.done; }); }
-    if (act.dataset.act === "del") { const r = await chrome.runtime.sendMessage({ type: "phPost", id, op: "del" }).catch(() => null); if (!r || !r.ok) await updatePost(id, () => null); }
+    return handlePostCardAction(act);
   }
 });
-$("q").addEventListener("input", (e) => { state.q = e.target.value; state.shown = PAGE; renderSoon(); });
-for (const [id, key] of [["regionSel", "region"], ["groupSel", "group"], ["sortSel", "sort"]])
-  $(id).addEventListener("change", (e) => { state[key] = e.target.value; state.shown = PAGE; render(); });
-$("ownF").addEventListener("change", (e) => { state.ownF = e.target.value; state.shown = PAGE; render(); });
-for (const [id, key] of [["onlyDeals", "onlyDeals"], ["hideDups", "hideDups"], ["hideDone", "hideDone"], ["withPhone", "withPhone"], ["withMatch", "withMatch"], ["onlyNew", "onlyNew"]])
-  $(id).addEventListener("change", (e) => { state[key] = e.target.checked; state.shown = PAGE; render(); });
-$("moreBtn").addEventListener("click", () => { state.shown += PAGE; render(); });
 $("lMore").addEventListener("click", () => { state.lShown += 60; render(); });
 $("lFiltersBtn").addEventListener("click", () => document.querySelector("#v-leads .bar").classList.toggle("show"));
 $("lq").addEventListener("input", (e) => { state.lq = e.target.value; state.lShown = 60; renderSoon(); });
@@ -3002,7 +2858,6 @@ $("newDay").addEventListener("click", async () => {
 });
 document.addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && !e.altKey && String(e.key).toLowerCase() === "s") { e.preventDefault(); doSaveAll(); } });
 $("autoPill").addEventListener("click", () => { state.view = "settings"; fillSettings(); render(); });
-$("onlyBS").addEventListener("change", (e) => { state.onlyBS = e.target.checked; setAreaOn(e.target.checked); syncAreaBoxes(); state.shown = PAGE; render(); });
 $("lOnlyBS").addEventListener("change", (e) => { state.lOnlyBS = e.target.checked; setAreaOn(e.target.checked); syncAreaBoxes(); state.lShown = 60; render(); });
 $("fileAuto").addEventListener("change", async (e) => { const { fileCfg = {} } = await chrome.storage.local.get("fileCfg"); await chrome.storage.local.set({ fileCfg: { ...fileCfg, auto: e.target.value } }); toast("اتحفظ"); });
 $("saveScope").addEventListener("change", async (e) => { const { fileCfg = {} } = await chrome.storage.local.get("fileCfg"); await chrome.storage.local.set({ fileCfg: { ...fileCfg, scope: e.target.value } }); toast(e.target.value === "all" ? "✅ «💾 حفظ» هيحفظ على كل الأجهزة المتصلة" : "✅ «💾 حفظ» هيحفظ على الجهاز ده بس"); });
@@ -3015,7 +2870,6 @@ $("guideCsv").addEventListener("click", () => {
     .concat(rows.map((r) => [r.region, PH.zones()[r.zone] || "", r.req, r.off, r.ratio, r.apt || "", r.aptN, r.trend == null ? "" : r.trend, r.land || ""].map(q).join(",")));
   download(`دليل-أسعار-${area.gov.replace(/\s+/g, "-")}_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + out.join("\r\n"), "text/csv;charset=utf-8");
 });
-$("postDays").addEventListener("change", (e) => { state.postDays = +e.target.value; state.shown = PAGE; render(); });
 $("snapNow").addEventListener("click", async () => { const r = await chrome.runtime.sendMessage({ type: "snapshotNow" }); toast(r && r.ok && r.r ? "اتاخدت نسخة احتياطية ✅" : "مفيش داتا لسه"); });
 $("lMoney").addEventListener("change", (e) => { state.lMoney = e.target.value; state.lShown = 60; render(); });
 $("lOwner").addEventListener("change", (e) => { state.lOwner = e.target.value; state.lShown = 60; render(); });
@@ -3070,25 +2924,8 @@ $("lExport").addEventListener("click", () => {
   download(`عملاء-مهتمين_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}.csv`, "\ufeff" + rows.join("\r\n"), "text/csv;charset=utf-8");
   toast(`اتصدر ${list.length} عميل`);
 });
-$("filtersBtn").addEventListener("click", () => togglePostsFilters());
 
-$("exportBtn").addEventListener("click", () => {
-  const list = filtered();
-  if (!list.length) return toast("مفيش حاجة تتصدر");
-  const q = csvQ;
-  const head = ["المصدر", "النوع", "التصنيف", "المنطقة", "السعر", "المقدم", "المساحة", "سعر المتر", "الغرف", "الدور", "التشطيب", "الدفع",
-    "المجاورة", "رقم القطعة", "الأوفر", "المدفوع", "الباقي", "نوع الأرض", "حالة الأرض", "مميزات",
-    "مطابقات", "لقطة %", "مكررة (ناشرين)", "الأرقام", "المرسل", "سمسار؟", "الجروبات", "التاريخ", "خلصت", "الرابط", "ملخص AI", "النص"];
-  const rows = [head.join(",")];
-  for (const p of list) rows.push([p.srcs.map((x) => SRC1[x]).join(" / "), TYPE1[p.type], CAT1[p.category], p.region || "",
-    p.price || "", p.down || "", p.area || "", PH.ppm(p) || "", p.rooms || "", p.floor || "", p.finishing || "", p.payment || "",
-    (p.land || {}).mugawra || "", (p.land || {}).plot || "", (p.land || {}).over || "", (p.land || {}).paid || ((p.land || {}).paidPct ? (p.land || {}).paidPct + "%" : ""), (p.land || {}).remaining || "", (p.land || {}).type || "", ((p.land || {}).status || []).join(" / "), ((p.land || {}).features || []).join(" / "),
-    (matches.get(p.id) || []).length, (deals.get(p.id) || {}).pct || "", (clusters.get(p.id) || {}).count || "", p.phones.map((n) => "'" + n).join(" / "), p.sender, p.isBroker === true ? "سمسار" : p.isBroker === false ? "مالك" : "",
-    p.groups.join(" / "), fmtWhen(p), p.done ? "نعم" : "", p.url || "", p.summary || "", p.text].map(q).join(","));
-  const d = new Date();
-  download(`طلبات-عقارية_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
-  toast(`اتصدر ${list.length} صف`);
-});
+
 
 // ===== 🌾 أنواع السحب والعرض + دليل الأراضي =====
 document.addEventListener("click", async (e) => {
@@ -3138,21 +2975,8 @@ document.addEventListener("click", async (e) => {
   const sl = t.closest("[data-stolist]");
   if (sl) { const p = byId.get(sl.dataset.stolist); if (!p) return; return addSlotFromPost(p, "offer"); }
   const acm = t.closest("[data-adcomments]"); if (acm) return startPostJob(acm.dataset.adcomments);
-  const ap = t.closest("[data-apkey]");
-  if (ap && t.closest("[data-aptoggle]")) { const k = "ap:" + ap.dataset.apkey; state.open.has(k) ? state.open.delete(k) : state.open.add(k); return render(); }
-  if (ap && t.closest("[data-apcsv]")) return adPostCsv(adPosts[ap.dataset.apkey]);
-  if (ap && t.closest("[data-aprerun]")) return startPostJob(adPosts[ap.dataset.apkey].url);
   if (t.closest("#areaPill")) { state.view = "settings"; fillSettings(); render(); return setTimeout(() => document.querySelector(".area-panel").scrollIntoView({ behavior: "smooth" }), 50); }
 });
-async function startPostJob(url) {
-  if (!/^https?:\/\/(www\.|web\.|m\.)?facebook\.com\//i.test(url || "")) return toast("حط لينك بوست فيسبوك صحيح");
-  url = url.replace("://m.facebook.com", "://www.facebook.com");
-  await chrome.storage.local.set({ postJob: { url, at: Date.now(), done: false } });
-  if (WEB) { try { await WEB.openOnServer(url); toast("🖥 السيرفر بيفتح البوست ويسحب التعليقات… ارجع هنا بعد شوية"); } catch (e) { toast("❌ " + e.message); } return; }
-  (window.__AQM_KEEP && __AQM_KEEP.openBg ? __AQM_KEEP.openBg(url) : window.open(url, "_blank")); toast("بيسحب التعليقات في الخلفية من غير ما يفتح صفحة قدامك — ارجع هنا بعد شوية");
-}
-$("postGo").addEventListener("click", () => startPostJob($("postUrl").value.trim()));
-$("postTool").addEventListener("toggle", () => renderPostTool());
 $("sq").addEventListener("input", (e) => { state.sq = e.target.value; state.sShown = 60; renderSoon(); });
 
 $("tq").addEventListener("input", (e) => { state.tq = e.target.value; renderSoon(); });
@@ -3228,6 +3052,7 @@ window.addEventListener("hashchange", () => {
   const v = ({ "#leads": "leads", "#new": "posts", "#deals": "posts", "#today": "today", "#sellers": "sellers", "#matches": "matches", "#saved": "saved", "#pipe": "pipe", "#crm": "crm", "#pick": "pick", "#publish": "publish", "#spread": "spread", "#funnel": "funnel", "#wasend": "wasend", "#passport": "passport", "#atlas": "atlas", "#marketing": "marketing", "#extract": "extract" })[h];
   if (v) { if (v !== state.view && visitedViews.has(v)) { refreshInto(v, h); return; } state.view = v; render(); }
 });
+AQMPostsPage.init();
 initMatchControls();
 initFastMatches();
 load().then(() => { if (location.hash === "#settings-area") window.dispatchEvent(new HashChangeEvent("hashchange")); else if (VIEW_FROM_V === "settings") { try { fillSettings(); } catch {} } });

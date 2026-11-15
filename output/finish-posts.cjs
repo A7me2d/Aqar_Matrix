@@ -1,0 +1,21 @@
+// Finish source edits and the browser compatibility copy without running tools.
+const fs = require('node:fs');
+const root = require('node:path').resolve(__dirname,'../re-hunter');
+const read = p=>fs.readFileSync(root+'/'+p,'utf8');
+const write=(p,s)=>fs.writeFileSync(root+'/'+p,s);
+let runtime=read('posts/runtime/posts.js');
+const a=runtime.indexOf('// Page-only events bind after dashboard state has initialized.');
+const b=runtime.indexOf('\nwindow.AQMPostsPage =',a);
+if(a<0||b<0) throw Error('Missing controller edit boundary');
+runtime=runtime.slice(0,a)+read('posts/ts/controller.ts')+'\n'+runtime.slice(b);
+write('posts/runtime/posts.js',runtime);
+let dashboard=read('dashboard.js');
+dashboard=dashboard.replace('initPostsControls();','AQMPostsPage.init();');
+dashboard=dashboard.replace('if (opts.sgn) return postCard(p, opts,','if (opts.sgn) return AQMPostsPage.card(p, opts,');
+write('dashboard.js',dashboard);
+let screen=read('posts/ts/screen.ts');
+screen=screen.replace('// Posts-screen presentation and search controls. Filtering itself stays in dashboard.js.','// Page presentation and selected filters. Data filtering lives in model.ts.');
+write('posts/ts/screen.ts',screen);
+let cards=read('posts/ts/cards.ts');
+cards=cards.replace('// Presentation for the posts screen. Existing data-act handlers remain in dashboard.js.','// Post card presentation. Shared card actions are defined in actions.ts.');
+write('posts/ts/cards.ts',cards);

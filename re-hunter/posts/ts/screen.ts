@@ -1,5 +1,5 @@
 // © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة.
-// Posts-screen presentation and search controls. Filtering itself stays in dashboard.js.
+// Page presentation and selected filters. Data filtering lives in model.ts.
 function renderPostsOverview(requests) {
   const metrics = [
     [items.length, "كل المنشورات", "total"],
@@ -10,7 +10,7 @@ function renderPostsOverview(requests) {
   ];
   $("stats").innerHTML = metrics.map(([n, label, kind]) => `<div class="posts-metric ${kind}"><span>${label}</span><b>${ar(n)}</b></div>`).join("");
 }
-function togglePostsFilters(force) {
+function togglePostsFilters(force?: boolean): void {
   const panel = $("postsAdvancedFilters");
   const open = typeof force === "boolean" ? force : panel.hidden;
   panel.hidden = !open;
@@ -34,7 +34,7 @@ function postsChosenFilters() {
   if (!state.hideDone) add("hideDone", "المنتهي ظاهر");
   return chosen;
 }
-function updatePostsScreen(list) {
+function updatePostsScreen(list: PostRecord[]): void {
   $("countLine").textContent = ar(list.length) + " نتيجة من " + ar(items.length) + " منشور";
   if (document.activeElement !== $("q")) $("q").value = state.q || "";
   $("postDays").value = String(state.postDays);
@@ -51,7 +51,7 @@ function updatePostsScreen(list) {
   $("postsActiveCount").textContent = ar(count);
   document.querySelectorAll("#v-posts [data-post-reset]").forEach((button) => { button.disabled = !chosen.length; });
 }
-function resetPostsSearch(key) {
+function resetPostsSearch(key?: string): void {
   const defaults = { q: "", type: "all", cat: "all", src: "all", region: "", group: "", postDays: 60, pur: "all", ownF: "",
     onlyDeals: false, hideDups: false, withPhone: false, withMatch: false, onlyNew: false, hideDone: true };
   if (key) {
@@ -64,11 +64,3 @@ function resetPostsSearch(key) {
   state.shown = PAGE;
   render();
 }
-document.addEventListener("click", (event) => {
-  const target = event.target;
-  if (!target.closest || !target.closest("#v-posts")) return;
-  const clear = target.closest("[data-post-clear]");
-  if (clear) return resetPostsSearch(clear.dataset.postClear);
-  if (target.closest("[data-post-reset]")) return resetPostsSearch();
-  if (target.closest("[data-post-filters-open]")) { togglePostsFilters(true); $("filtersBtn").focus(); }
-});

@@ -1,0 +1,64 @@
+/* © 2026 علاء أحمد (Alaa Ahmed) — Aqar Matrix. جميع الحقوق محفوظة. */
+/* Scoped to the posts screen; the theme continues to supply colors and typography. */
+#v-posts { --posts-accent:var(--a2,var(--accent,#2f6db5)); }
+#v-posts #list { @apply tw-grid; grid-template-columns:minmax(0,1fr); gap:18px; }
+#v-posts #list>.post-card { display:flex!important; flex-direction:column!important; gap:0!important; padding:22px!important; margin:0!important; border:1px solid var(--border)!important; border-radius:16px!important; background:var(--surface)!important; box-shadow:none!important; @apply tw-min-w-0; overflow:visible; }
+#v-posts #list>.post-card::before,#v-posts #list>.post-card::after { display:none!important; }
+#v-posts #list>.post-card>* { margin-inline:0!important; order:initial; }
+#v-posts .post-card.done { opacity:.7; }
+#v-posts .post-card-head { @apply tw-flex tw-flex-wrap; @apply tw-justify-between; align-items:flex-start; gap:12px 24px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+#v-posts .post-card-heading { @apply tw-flex tw-flex-wrap; @apply tw-items-center; gap:10px; @apply tw-min-w-0; }
+#v-posts .post-card-heading h3 { @apply tw-flex tw-flex-wrap; gap:8px 12px; @apply tw-m-0; font-size:19px; line-height:1.5; font-weight:700; color:var(--text); }
+#v-posts .post-region { font-weight:500; color:var(--muted); }
+#v-posts .post-kind { display:inline-flex; @apply tw-items-center; padding:4px 11px; border-radius:8px; background:color-mix(in srgb,var(--req) 10%,var(--surface)); color:var(--req); font-size:13px; font-weight:700; }
+#v-posts .post-kind.offer { background:color-mix(in srgb,var(--off) 10%,var(--surface)); color:var(--off); }
+#v-posts .post-card-meta { @apply tw-flex tw-flex-wrap; @apply tw-items-center; gap:7px 12px; @apply tw-text-xs; color:var(--muted); }
+#v-posts .post-source { @apply tw-font-semibold; }
+#v-posts .post-card-meta .when { @apply tw-m-0; @apply tw-text-xs; }
+#v-posts .post-finished { @apply tw-text-xs; color:var(--muted); }
+#v-posts .post-facts { @apply tw-flex tw-flex-wrap; gap:14px 36px; padding:16px 0 0; @apply tw-m-0; }
+#v-posts .post-facts div { min-width:85px; }
+#v-posts .post-facts dt,#v-posts .post-eyebrow { @apply tw-text-xs; line-height:1.6; color:var(--muted); font-weight:400; }
+#v-posts .post-facts dd { margin:4px 0 0; font-size:18px; line-height:1.5; font-weight:700; font-variant-numeric:tabular-nums; }
+#v-posts .post-card-body { padding:18px 0; }
+#v-posts .post-preview,#v-posts .post-summary { @apply tw-m-0; max-width:72ch; white-space:pre-wrap; overflow-wrap:anywhere; font-size:16px; line-height:1.9; color:var(--text); }
+#v-posts .post-summary-label { display:block; margin-bottom:5px; color:var(--muted); @apply tw-text-xs; font-weight:400; }
+#v-posts .post-person { @apply tw-flex tw-flex-wrap; @apply tw-items-center; @apply tw-justify-between; gap:12px 24px; padding:14px 0; border-top:1px solid var(--border); }
+#v-posts .post-person-name { @apply tw-flex tw-flex-wrap; @apply tw-items-center; gap:6px 10px; @apply tw-min-w-0; }
+#v-posts .post-person-name>.post-eyebrow { flex-basis:100%; }
+#v-posts .post-person-name>b { font-size:15px; overflow-wrap:anywhere; }
+#v-posts .post-person-name .badge { font-size:11px; }
+#v-posts .post-person-contact { @apply tw-min-w-0; max-@apply tw-w-full; }
+#v-posts .post-person-contact .fbid-in { @apply tw-m-0; }
+#v-posts .post-person-contact .fbid-contact { @apply tw-flex-wrap; }
+#v-posts :is(.post-details,.post-more-actions) { border:0; padding:0; margin-block:0; @apply tw-min-w-0; }
+#v-posts :is(.post-details,.post-more-actions)>summary { cursor:pointer; width:fit-content; max-@apply tw-w-full; padding:8px 0; font-size:13px; line-height:1.5; @apply tw-font-semibold; color:var(--posts-accent); }
+#v-posts .post-detail-body { @apply tw-grid; gap:16px; padding:12px 0 18px; }
+#v-posts .post-classification { @apply tw-flex tw-flex-wrap; gap:6px; }
+#v-posts .post-original { @apply tw-grid; gap:5px; max-width:75ch; font-size:14px; line-height:1.9; white-space:pre-wrap; overflow-wrap:anywhere; }
+#v-posts .post-source-links { @apply tw-flex tw-flex-wrap; @apply tw-items-center; gap:10px 16px; font-size:13px; }
+#v-posts .post-card-footer { @apply tw-flex tw-flex-wrap; @apply tw-items-center; @apply tw-justify-between; gap:10px 20px; padding-top:14px; margin-top:8px; border-top:1px solid var(--border); }
+#v-posts .post-primary-actions,#v-posts .post-secondary-actions { @apply tw-flex tw-flex-wrap; gap:8px; }
+#v-posts .post-more-actions[open] { flex-basis:100%; }
+#v-posts .post-secondary-actions { padding:10px 0 0; }
+#v-posts .post-card .btn { min-height:36px; padding:8px 12px; font-size:13px; border-radius:8px; white-space:normal; }
+#v-posts .post-card .mbox { margin-top:16px; border:1px solid var(--border); border-radius:10px; padding:14px; }
+#v-posts .posts-filter-options { margin:10px 0; padding:0; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
+#v-posts .posts-filter-options>summary { padding:11px 14px; font-size:14px; @apply tw-font-semibold; cursor:pointer; }
+#v-posts .posts-filter-options[open]>summary { border-bottom:1px solid var(--border); }
+#v-posts .posts-filter-options>:not(summary) { margin:12px 14px; }
+#v-posts .bar .stats { @apply tw-flex tw-flex-wrap; gap:8px 20px; border:0; box-shadow:none; background:none; }
+#v-posts .bar .stats .stat { @apply tw-min-w-0; background:none; border:0; box-shadow:none; }
+#v-posts .bar .stats .stat b { font-size:22px; }
+#v-posts :is(summary,button,a):focus-visible { outline:2px solid var(--posts-accent); outline-offset:3px; }
+@media (max-width:600px) {
+  #v-posts #list>.post-card { padding:16px!important; border-radius:12px!important; }
+  #v-posts .post-card-head { gap:10px; }
+  #v-posts .post-card-heading h3 { font-size:17px; }
+  #v-posts .post-facts { gap:12px 24px; }
+  #v-posts .post-facts dd { font-size:16px; }
+  #v-posts .post-preview,#v-posts .post-summary { font-size:15px; }
+  #v-posts .post-person-contact { flex-basis:100%; }
+  #v-posts .post-primary-actions { flex:1 1 100%; }
+  #v-posts .post-primary-actions .btn { flex:1 1 auto; }
+}

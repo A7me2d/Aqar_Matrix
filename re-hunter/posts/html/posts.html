@@ -1,0 +1,54 @@
+<section class="view" id="v-posts">
+  <div class="bar posts-workspace">
+    <div class="wrap">
+      <header class="posts-page-header tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-5"><div>
+        <span class="posts-eyebrow">سجل المنشورات</span>
+        <h1>الطلبات والعروض</h1>
+        <p>كل طلب وعرض في مكان واحد. ابحث، صفّي النتائج، وراجع التفاصيل.</p>
+      </div>
+        <button type="button" class="btn" id="exportBtn">تصدير Excel</button>
+      </header>
+      <div class="posts-overview" id="stats" aria-label="ملخص الطلبات والعروض"></div>
+      <div class="aibar" id="aiBar" hidden></div>
+      <div class="posts-controls">
+      <div class="posts-control-heading tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3"><h2>ابحث عن الطلب أو العرض المناسب</h2><button type="button" class="posts-reset" data-post-reset>تصفير البحث</button></div>
+      <div class="tabs" id="typeTabs"></div>
+      <div class="posts-search-row tw-grid tw-gap-3">
+        <label class="posts-search"><span>البحث</span><input type="search" id="q" placeholder="اسم، منطقة، رقم تليفون، أو مواصفات العقار" autocomplete="off"></label>
+        <label><span>المنطقة</span><select id="regionSel"></select></label>
+        <label><span>الفترة</span><select id="postDays"><option value="7">آخر 7 أيام</option><option value="30">آخر 30 يوم</option><option value="60" selected>آخر 60 يوم</option><option value="90">آخر 3 شهور</option><option value="0">كل الداتا</option></select></label>
+      </div>
+      <div class="posts-filter-row tw-flex tw-flex-wrap tw-items-start tw-gap-3"><span class="posts-filter-label">نوع العقار</span><div class="tabs" id="catTabs"></div></div>
+      <div class="posts-filter-row posts-source-row"><span class="posts-filter-label">المصدر</span><div class="tabs" id="srcTabs"></div><button type="button" class="btn posts-filter-toggle" id="filtersBtn" aria-expanded="false" aria-controls="postsAdvancedFilters">فلاتر إضافية <span id="postsActiveCount" hidden></span></button></div>
+      <div class="posts-advanced" id="postsAdvancedFilters" hidden>
+        <div class="posts-advanced-fields"><label><span>الجروب</span><select id="groupSel"></select></label><label class="own-f"><span>تصنيف «المالك»</span><select id="ownF"><option value="">الكل</option><option value="mention">فيها «المالك»</option><option value="owner">مالك</option><option value="broker">سمسار / مكتب / وسيط</option><option value="unsure">مش متأكد</option><option value="wants">طلبات «من المالك»</option></select></label></div>
+        <div class="checks">
+          <label><input type="checkbox" id="onlyBS"> <span class="areaLbl">منطقتي بس</span></label>
+          <label><input type="checkbox" id="onlyDeals"> لقطات بس</label>
+          <label><input type="checkbox" id="hideDups"> إخفاء المكرر</label>
+          <label><input type="checkbox" id="hideDone" checked> إخفاء اللي خلصته</label>
+          <label><input type="checkbox" id="withPhone"> فيها رقم</label>
+          <label><input type="checkbox" id="withMatch"> ليها مطابقة</label>
+          <label><input type="checkbox" id="onlyNew"> آخر سحب بس</label>
+        </div>
+        <div class="posts-classification"><h3>تصنيف صاحب الطلب أو العرض</h3><div class="lvl-box lvl-pur" id="purTabs" role="tablist" aria-label="تصنيف صاحب الطلب أو العرض"></div><div class="tier-note" id="purNote"></div></div>
+      </div>
+      <div class="posts-active-filters tw-flex tw-flex-wrap tw-gap-2" id="postsFilterChips" aria-label="الفلاتر المختارة" hidden></div>
+      </div>
+      <details class="tool posts-import-tool" id="postTool">
+        <summary><span><b>تعليقات بوست محدد</b><small>إضافة رابط ومراجعة التعليقات المسحوبة</small></span><span class="posts-tool-count" id="postToolN"></span></summary>
+        <div class="tool-in">
+          <div class="posts-import-form tw-flex tw-flex-wrap tw-items-end tw-gap-3"><label>رابط البوست<input type="url" id="postUrl" placeholder="https://www.facebook.com/..." dir="ltr"></label><button type="button" class="btn primary" id="postGo">افتح واسحب التعليقات</button></div>
+          <div class="posts-job-status" id="postJobMsg" role="status"></div>
+          <div id="postToolBody"></div>
+        </div>
+      </details>
+    </div>
+  </div>
+  <main class="wrap posts-results">
+    <div class="posts-results-heading tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-4"><div><h2>المنشورات</h2><span id="countLine" role="status" aria-live="polite"></span></div><label><span>الترتيب</span><select id="sortSel"><option value="new">الأحدث الأول</option><option value="old">الأقدم الأول</option><option value="priceAsc">السعر: الأقل الأول</option><option value="priceDesc">السعر: الأعلى الأول</option><option value="matches">الأكتر مطابقات</option><option value="deal">أكبر خصم</option></select></label></div>
+    <div class="oldnote" id="oldNote" hidden></div>
+    <div class="list" id="list"></div>
+    <button class="btn more" id="moreBtn" hidden>عرض المزيد</button>
+  </main>
+</section>
