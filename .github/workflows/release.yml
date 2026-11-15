@@ -2,6 +2,7 @@ name: Publish Windows release
 
 on:
   push:
+    branches: [main]
     tags: ['v*.*.*']
   workflow_dispatch:
     inputs:
@@ -14,7 +15,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: release-${{ inputs.tag || github.ref_name }}
+  group: windows-release
   cancel-in-progress: false
 
 jobs:
@@ -32,17 +33,41 @@ jobs:
           cache-dependency-path: |
             alaa-deals-app/package-lock.json
             frontend/package-lock.json
-      - name: Verify tag matches the application version
+      - name: Select release version
+        id: release
         shell: pwsh
         env:
-          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+          REQUESTED_TAG: ${{ inputs.tag || (github.ref_type == 'tag' && github.ref_name) || '' }}
         run: |
-          $appVersion = (Get-Content alaa-deals-app/package.json -Raw | ConvertFrom-Json).version
-          if ($env:RELEASE_TAG -cnotmatch '^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$' -or $env:RELEASE_TAG -cne "v$appVersion") {
-            throw 'The release tag must exactly match alaa-deals-app/package.json version.'
+          $pattern = '^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$'
+          $appVersion = [version](Get-Content alaa-deals-app/package.json -Raw | ConvertFrom-Json).version
+          $tag = $env:REQUESTED_TAG
+          if ($tag) {
+            if ($tag -cnotmatch $pattern) { throw 'Expected a stable version tag such as v10.80.69.' }
+            git rev-parse --verify "refs/tags/$tag"
+            if ($LASTEXITCODE -ne 0) { throw 'The requested tag does not exist.' }
+          } else {
+            # Reuse the same version when retrying a published/tagged commit.
+            $tag = @(git tag --points-at HEAD | Where-Object { $_ -cmatch $pattern } |
+              Sort-Object { [version]$_.Substring(1) } -Descending) | Select-Object -First 1
+            if (!$tag) {
+              $latest = @(git tag --list | Where-Object { $_ -cmatch $pattern } |
+                ForEach-Object { [version]$_.Substring(1) } | Sort-Object -Descending) | Select-Object -First 1
+              $next = $appVersion
+              if ($latest -and $next -le $latest) {
+                $next = [version]::new($latest.Major, $latest.Minor, $latest.Build + 1)
+              }
+              $tag = "v$next"
+            }
           }
-          git rev-parse --verify "refs/tags/$env:RELEASE_TAG"
-          if ($LASTEXITCODE -ne 0) { throw 'Push the version tag before publishing.' }
+          # The release tag is authoritative; keep source version files untouched
+          # on main and stamp both manifests only in this packaging workspace.
+          $version = $tag.Substring(1)
+          Push-Location alaa-deals-app
+          npm version $version --no-git-tag-version --allow-same-version --ignore-scripts
+          if ($LASTEXITCODE -ne 0) { throw 'Could not stamp the release version.' }
+          Pop-Location
+          "tag=$tag" >> $env:GITHUB_OUTPUT
       - name: Install application dependencies
         working-directory: alaa-deals-app
         run: npm ci
@@ -65,7 +90,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: |
           $appVersion = (Get-Content alaa-deals-app/package.json -Raw | ConvertFrom-Json).version
           $installer = "alaa-deals-app/dist/AqarMatrix-Setup-$appVersion.exe"
@@ -76,6 +101,13 @@ jobs:
           }
           $assets = @($installer, $portable, $metadata)
           $assets += @(Get-ChildItem -LiteralPath alaa-deals-app/dist -Filter '*.blockmap' -File | ForEach-Object { $_.FullName })
+          git show-ref --verify --quiet "refs/tags/$env:RELEASE_TAG"
+          if ($LASTEXITCODE -ne 0) {
+            git tag $env:RELEASE_TAG $env:GITHUB_SHA
+            if ($LASTEXITCODE -ne 0) { throw 'Could not create the release tag.' }
+            git push origin "refs/tags/$env:RELEASE_TAG"
+            if ($LASTEXITCODE -ne 0) { throw 'Could not push the release tag.' }
+          }
           gh release view $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --clobber
