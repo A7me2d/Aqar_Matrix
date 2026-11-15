@@ -4,6 +4,7 @@ const { watch } = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const ts = require('typescript');
+if (typeof ts.transpileModule !== 'function') throw Error('build:posts requires the TypeScript 6 compiler API. Run npm ci in alaa-deals-app.');
 const sass = require('sass');
 const postcss = require('postcss');
 const tailwind = require('tailwindcss');

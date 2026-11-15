@@ -1,6 +1,6 @@
 {
   "name": "alaa-deals",
-  "version": "10.80.62",
+  "version": "10.80.63",
   "description": "Aqar Matrix — منصة العقارات (المؤسس Alaa Matrix)",
   "main": "app/main.js",
   "author": "Alaa Matrix",
@@ -26,7 +26,7 @@
     "postcss": "^8.5.33",
     "sass": "^1.108.2",
     "tailwindcss": "^3.4.19",
-    "typescript": "^7.0.2"
+    "typescript": "~6.0.0"
   },
   "build": {
     "appId": "com.alaa.deals",

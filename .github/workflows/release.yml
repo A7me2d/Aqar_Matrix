@@ -46,6 +46,9 @@ jobs:
       - name: Install application dependencies
         working-directory: alaa-deals-app
         run: npm ci
+      - name: Download packaged FFmpeg binary
+        working-directory: alaa-deals-app
+        run: node node_modules/ffmpeg-static/install.js
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
