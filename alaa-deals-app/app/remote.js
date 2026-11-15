@@ -19,13 +19,16 @@ const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
 
 const { isMap, mergeMap, dropArchived, pickEntries, syncable } = require("./delta.js");
 
-module.exports = function remote({ appDir, engineDir, getSettings, saveSettings, getDash, version, net, kv, rt, alarm, open, shot, status, chlog, mesh, device, files }) {
+module.exports = function remote({ appDir, engineDir, getSettings, saveSettings, getDash, version, net, kv, rt, alarm, open, shot, status, chlog, mesh, device, files, localOnly = false }) {
   const releaseUpdates = require('./release-updates')({version,fetch:(...args)=>net.fetch(...args)});
   let server = null, lastErr = "", publicIp = "";
   const fails = new Map(); // ip → { t0, toks:Set, until } — بنعدّ التوكنات المختلفة بس (جهاز قديم بيعيد نفس الكود كل كام ثانية = محاولة واحدة)
   const clients = new Set(); // اتصالات اللوحة المفتوحة (SSE)
+  const localConfig = { enabled:true, port:0, code:newCode() };
+  const hasAngular = fs.existsSync(path.join(engineDir,'angular','index.html'));
 
   const cfg = () => {
+    if (localOnly) return localConfig;
     const s = getSettings();
     if (!s.remote) s.remote = { enabled: false, port: 8787, code: newCode() };
     if (!s.remote.code) s.remote.code = newCode();
@@ -123,6 +126,7 @@ button{width:100%;margin-top:14px;border:0;border-radius:12px;padding:13px;font:
 <input id="c" autocomplete="off" autofocus placeholder="K7Q2M9XA"><button>🔓 دخول</button>${msg ? `<div class="e">${msg}</div>` : ""}</form></body></html>`;
   }
   function serveDash(req, res, rel) {
+    if ((!rel || rel === '/') && hasAngular) return send(res,302,'','text/plain',{Location:'/d/angular/index.html'});
     rel = rel.replace(/^\/+/, "") || "dashboard.html";
     if (rel === "web-shim.js") return send(res, 200, fs.readFileSync(path.join(appDir, "web-shim.js")), TYPES[".js"]);
     const full = path.normalize(path.join(engineDir, rel));
@@ -312,9 +316,14 @@ button{width:100%;margin-top:14px;border:0;border-radius:12px;padding:13px;font:
     lastErr = "";
     server = http.createServer((req, res) => { handle(req, res).catch((e) => { try { send(res, 500, { error: String(e.message || e) }); } catch {} }); });
     server.requestTimeout = 0; server.keepAliveTimeout = 30000; // اتصالات اللوحة المفتوحة بتفضل شغالة
-    server.on("error", (e) => { lastErr = e.code === "EADDRINUSE" ? `البورت ${c.port} مستخدم — غيّره` : String(e.message || e); server = null; });
-    server.listen(+c.port, "0.0.0.0");
-    findPublicIp();
+    return new Promise(resolve => {
+      server.on("error", (e) => { lastErr = e.code === "EADDRINUSE" ? `البورت ${c.port} مستخدم — غيّره` : String(e.message || e); server = null; resolve(info()); });
+      server.listen(localOnly ? 0 : +c.port, localOnly ? '127.0.0.1' : '0.0.0.0', () => {
+        if (localOnly) localConfig.port = server.address().port;
+        resolve(info());
+      });
+      if (!localOnly) findPublicIp();
+    });
   }
   function stop() {
     for (const cl of clients) { try { clearInterval(cl.ka); cl.res.end(); } catch {} }

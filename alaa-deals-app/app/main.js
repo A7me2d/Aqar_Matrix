@@ -68,7 +68,8 @@ const CHROME_MAJOR = process.versions.chrome.split(".")[0];
 const UA = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_MAJOR}.0.0.0 Safari/537.36`;
 app.userAgentFallback = UA;
 
-let store, alarms, ses, mainWin, bgWin, tray, remoteSrv;
+let store, alarms, ses, mainWin, bgWin, tray, remoteSrv, workspaceSrv;
+let workspaceBase = '', workspaceCode = '';
 // ===== 🔄 التحديث التلقائي (من GitHub Releases) =====
 let autoUpdater = null;
 try { ({ autoUpdater } = require("electron-updater")); } catch {}
@@ -120,6 +121,7 @@ const tabs = new Map(); // id → tab
 let activeId = 1, nextId = 10;
 const listening = new Map(); // webContents.id → عدد مستقبلي الرسايل
 const DASH_FILE = path.join(ENGINE, "dashboard.html");
+const HAS_ANGULAR = fs.existsSync(path.join(ENGINE,'angular','index.html'));
 const HOME_FILE = path.join(APPDIR, "home.html");
 const PERM = {
   home: { id: 5, title: "🏠 البداية", file: HOME_FILE, role: "dash" },
@@ -222,6 +224,7 @@ function broadcast(changes) {
   for (const [k, v] of Object.entries(changes)) light[k] = BIG.has(k) || /^(waVD|pubVD):/.test(k) ? { big: true } : v; // 🎬 مفاتيح الفيديو (waVD:/pubVD:) كبيرة — مبنبثّش قيمتها
   for (const wc of allWC()) { try { wc.send("kv:changed", light); } catch {} }
   if (remoteSrv) { try { remoteSrv.changed(light); } catch {} } // الأجهزة التانية المفتوحة على السيرفر
+  if (workspaceSrv) { try { workspaceSrv.changed(light); } catch {} }
 }
 const toShell = (ch, ...a) => { if (mainWin && !mainWin.isDestroyed()) mainWin.webContents.send("app:" + ch, ...a); };
 
@@ -320,6 +323,7 @@ function setupIpc() {
   ipcMain.handle("notif:create", (e, id, o = {}) => {
     lastNotif = { id, title: o.title, message: o.message, at: Date.now() };
     if (remoteSrv) { try { remoteSrv.notify(lastNotif); } catch {} } // 🔔 يوصل لكل الأجهزة المربوطة
+    if (workspaceSrv) { try { workspaceSrv.notify(lastNotif); } catch {} }
     if (!Notification.isSupported()) return;
     const n = new Notification({ title: o.title || "Aqar Matrix", body: o.message || "", icon: ICON });
     n.on("click", () => { showMain(); if (bgWin) bgWin.webContents.send("notif:click", id); });
@@ -349,7 +353,11 @@ function setupIpc() {
   ipcMain.handle("app:tabs", () => tabList());
   ipcMain.handle("app:activate", (e, id) => { activate(id); });
   ipcMain.handle("app:openPerm", (e, kind) => { activate(ensurePerm(kind).id); });
-  ipcMain.handle("app:openDash", (e, hash) => { const t = ensurePerm("dash"); t.view.webContents.executeJavaScript(`location.hash=${JSON.stringify(hash || "")};window.dispatchEvent(new HashChangeEvent("hashchange"))`).catch(() => {}); activate(t.id); });
+  ipcMain.handle("app:openDash", async (e, hash) => {
+    const t = ensurePerm('dash'); activate(t.id);
+    const frame = await dashboardEngine();
+    return frame.executeJavaScript(`location.hash=${JSON.stringify(hash || '')};window.dispatchEvent(new HashChangeEvent('hashchange'))`).catch(() => {});
+  });
   ipcMain.handle("app:close", (e, id) => closeTab(id));
   // 📞 تليجرام: من البرنامج نفسه (من غير قيود المتصفح) — لـ api.telegram.org بس
   ipcMain.handle("app:tg", async (e, method, { token, data } = {}) => {
@@ -498,6 +506,7 @@ function pushTabsNow() {
 const pushTabs = () => { if (pushT) { pushDirty = true; return; } pushTabsNow(); pushT = setTimeout(() => { pushT = null; if (pushDirty) pushTabsNow(); }, 150); };
 let linkSes = null;
 function prefs(role) {
+  if (role === 'desktop-ui') return {session:ses,contextIsolation:true,sandbox:true,nodeIntegration:false,backgroundThrottling:false,spellcheck:false};
   if (role === "remote") {
     if (!linkSes) { linkSes = session.fromPartition("persist:alaa-link"); linkSes.setUserAgent(UA + " AlaaDealsLinked/" + VERSION); }
     return { session: linkSes, contextIsolation: true, sandbox: true, nodeIntegration: false, backgroundThrottling: false, spellcheck: false };
@@ -519,8 +528,12 @@ function makeTab(kind, { url, file, role = "page", title, auto, order, bg } = {}
   if (bg) { try { mainWin.contentView.addChildView(view, 0); } catch { mainWin.contentView.addChildView(view); } layoutOne(t); }
   else { mainWin.contentView.addChildView(view); layout(); }
   const wc = view.webContents;
-  wc.setWindowOpenHandler(({ url }) => { if (role === "remote") { if (/^https?:\/\//.test(url)) shell.openExternal(url); } else openUrl(url, { active: t.id === activeId && !t.auto, auto: t.id !== activeId || !!t.auto }); return { action: "deny" }; }); // صفحة بتفتح من تاب شغّال في الخلفية ← تفتح في الخلفية برضه
+  wc.setWindowOpenHandler(({ url }) => { if (role === "remote" || role === 'desktop-ui') { if (/^https?:\/\//.test(url)) shell.openExternal(url); } else openUrl(url, { active: t.id === activeId && !t.auto, auto: t.id !== activeId || !!t.auto }); return { action: "deny" }; }); // صفحة بتفتح من تاب شغّال في الخلفية ← تفتح في الخلفية برضه
   wc.on("will-navigate", (e, u) => {
+    if (role === 'desktop-ui') {
+      try { if (new URL(u).origin === workspaceBase) return; } catch {}
+      e.preventDefault(); if (/^https?:\/\//.test(u)) shell.openExternal(u); return;
+    }
     if (role === "remote") { const L = LINK(); if (!L || !u.startsWith(L.base)) { e.preventDefault(); if (/^https?:\/\//.test(u)) shell.openExternal(u); } return; }
     if (role !== "page" && !u.startsWith("file:")) { e.preventDefault(); openUrl(u, { active: true }); }
   });
@@ -546,8 +559,25 @@ function ensurePerm(kind, bg) {
   let t = tabs.get(p.id);
   const L = LINK();
   if (!t && kind === "dash" && L) t = makeTab(kind, { ...p, file: undefined, role: "remote", url: `${L.base}/d/?t=${encodeURIComponent(L.code)}`, order: ORDER.indexOf(kind), bg });
+  if (!t && kind === 'dash' && workspaceBase) t = makeTab(kind, {...p,file:undefined,role:'desktop-ui',url:`${workspaceBase}/d/?t=${encodeURIComponent(workspaceCode)}`,order:ORDER.indexOf(kind),bg});
   if (!t) t = makeTab(kind, { ...p, order: ORDER.indexOf(kind), bg });
   return t;
+}
+// Dashboard commands still belong to the embedded engine, not the Angular shell.
+async function dashboardEngine() {
+  const t = ensurePerm('dash'), wc = t.view.webContents;
+  for (let i=0; i<100; i++) {
+    if (wc.isDestroyed()) throw Error('Dashboard was closed');
+    if (!wc.isLoading() && t.loaded) {
+      const frame = wc.mainFrame.framesInSubtree.find(frame => {
+        try { return new URL(frame.url).pathname === '/d/dashboard.html'; } catch { return false; }
+      });
+      if (frame) return frame;
+      if (wc.getURL().startsWith('file:') || /\/d\/(?:dashboard\.html)?(?:[?#]|$)/.test(wc.getURL())) return wc;
+    }
+    await new Promise(resolve=>setTimeout(resolve,250));
+  }
+  throw Error('Dashboard engine is not ready');
 }
 function activate(id, keepPop) {
   const t = tabs.get(id); if (!t) return;
