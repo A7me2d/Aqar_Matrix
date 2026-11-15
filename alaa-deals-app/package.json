@@ -84,8 +84,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "YOUR_GITHUB_USER",
-        "repo": "alaa-deals-releases",
+        "owner": "A7me2d",
+        "repo": "Aqar_Matrix",
         "releaseType": "release"
       }
     ]

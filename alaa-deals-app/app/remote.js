@@ -20,6 +20,7 @@ const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
 const { isMap, mergeMap, dropArchived, pickEntries, syncable } = require("./delta.js");
 
 module.exports = function remote({ appDir, engineDir, getSettings, saveSettings, getDash, version, net, kv, rt, alarm, open, shot, status, chlog, mesh, device, files }) {
+  const releaseUpdates = require('./release-updates')({version,fetch:(...args)=>net.fetch(...args)});
   let server = null, lastErr = "", publicIp = "";
   const fails = new Map(); // ip → { t0, toks:Set, until } — بنعدّ التوكنات المختلفة بس (جهاز قديم بيعيد نفس الكود كل كام ثانية = محاولة واحدة)
   const clients = new Set(); // اتصالات اللوحة المفتوحة (SSE)
@@ -157,6 +158,14 @@ button{width:100%;margin-top:14px;border:0;border-radius:12px;padding:13px;font:
   }
   async function api(req, res, url) {
     const p = url.pathname;
+    if (p === '/api/updates' && req.method === 'GET') {
+      return send(res,200,await releaseUpdates.check(),'application/json; charset=utf-8',{'Cache-Control':'no-store'});
+    }
+    if (p === '/api/updates/download' && req.method === 'GET') {
+      const info = await releaseUpdates.check();
+      if (info.state !== 'available' || !releaseUpdates.trustedDownload(info.downloadUrl)) return send(res,409,{error:'لا يوجد ملف تحديث متاح للتنزيل.'});
+      return send(res,302,'','text/plain',{Location:info.downloadUrl,'Cache-Control':'no-store'});
+    }
     if (p === "/api/ping") { const d = device ? device() : {}; return send(res, 200, { ok: true, app: "Alaa Deals", version, boot: BOOT, dev: d.id || "", name: d.name || "" }); }
     if (p === "/api/call" && req.method === "POST") {
       try { const body = await readBody(req); const r = await callDash(body); return send(res, 200, r == null ? {} : r); }

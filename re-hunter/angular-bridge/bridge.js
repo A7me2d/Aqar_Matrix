@@ -22,6 +22,7 @@
     if (!window.__AQMDashboardReady || typeof window.AQMOpenView !== 'function') return;
     ready=true; context(true); send('ready',{view:document.body.dataset.pg});
     send('pagination',{pagination:window.AQMPagedViews?.state(document.body.dataset.pg)});
+    if(window.AQMReleaseUpdates) send('release',{release:window.AQMReleaseUpdates.state()});
   }
   window.addEventListener('aqm:dashboard-ready',announce);
   window.addEventListener('aqm:view',event=>{
@@ -31,6 +32,7 @@
     lastView=view; send('view',{view});
   });
   window.addEventListener('aqm:pagination',event=>{ if(ready) send('pagination',{pagination:event.detail}); });
+  window.addEventListener('aqm:update',event=>{ if(ready) send('release',{release:event.detail}); });
   window.addEventListener('message',event=>{
     if(event.source!==window.parent || event.origin!==location.origin) return;
     const message=event.data;
@@ -43,6 +45,7 @@
       const ids={save:'saveAll',area:'areaPill',theme:'modeBtn'};
       if(Object.prototype.hasOwnProperty.call(ids,message.action)) document.getElementById(ids[message.action])?.click();
       else if(message.action==='tools') window.AQMOpenView('workspace-tools');
+      else if(message.action==='release') window.AQMReleaseUpdates?.activate();
       context(); return;
     }
     if(message.type!=='navigate' || !allowedView(message.view) || !ready) return;

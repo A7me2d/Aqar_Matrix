@@ -1,8 +1,9 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Feature, FEATURES, LegacyView, featureFor } from '../models/feature';
 import type { PageState } from '../../../../../re-hunter/shared/pagination/pagination';
+import type { ReleaseUpdate } from '../models/release-update';
 
-interface BridgeReply { channel:'aqm:bridge:v1'; type:'ready'|'view'|'error'|'context'|'pagination'; view?:string; message?:string; area?:string; theme?:string; palette?:Record<string,string>; pagination?:PageState|null; tools?:readonly {id:string;name:string}[]; }
+interface BridgeReply { channel:'aqm:bridge:v1'; type:'ready'|'view'|'error'|'context'|'pagination'|'release'; release?:ReleaseUpdate; view?:string; message?:string; area?:string; theme?:string; palette?:Record<string,string>; pagination?:PageState|null; tools?:readonly {id:string;name:string}[]; }
 const CHANNEL = 'aqm:bridge:v1';
 
 /** Temporary integration boundary. No frame recreation when a route changes. */
@@ -17,6 +18,7 @@ export class LegacyEngineService {
   readonly theme = signal<'light'|'dark'>('light');
   readonly palette = signal<Record<string,string>>({});
   readonly pagination = signal<PageState|null>(null);
+  readonly releaseUpdate = signal<ReleaseUpdate>({state:'checking',message:'جاري الاتصال لفحص التحديثات…'});
   readonly customTools=signal<readonly Feature[]>([]);
   private frame: HTMLIFrameElement|null = null;
   private timeout: ReturnType<typeof setTimeout>|undefined;
@@ -27,6 +29,11 @@ export class LegacyEngineService {
       if (!this.frame || event.source !== this.frame.contentWindow || event.origin !== location.origin) return;
       const reply = event.data;
       if (!reply || reply.channel !== CHANNEL) return;
+      if(reply.type === 'release') {
+        const info=reply.release;
+        if(info && ['checking','latest','available','unpublished','error'].includes(info.state) && typeof info.message==='string') this.releaseUpdate.set(info);
+        return;
+      }
       if (reply.type === 'pagination') { this.pagination.set(reply.pagination || null); return; }
       if (reply.type === 'context') {
         if (typeof reply.area === 'string') this.area.set(reply.area);
@@ -67,7 +74,7 @@ export class LegacyEngineService {
       this.error.set('افتح لوحة التحكم وسجّل الدخول، ثم اضغط إعادة الاتصال.');
     }, 15000);
   }
-  action(action:'save'|'area'|'theme'|'tools'): void {
+  action(action:'save'|'area'|'theme'|'tools'|'release'): void {
     if (this.status() !== 'ready') return;
     this.frame?.contentWindow?.postMessage({channel:CHANNEL,type:'action',action},location.origin);
   }

@@ -1,0 +1,82 @@
+name: Publish Windows release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing version tag, for example v10.80.63'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            alaa-deals-app/package-lock.json
+            frontend/package-lock.json
+      - name: Verify tag matches the application version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          $appVersion = (Get-Content alaa-deals-app/package.json -Raw | ConvertFrom-Json).version
+          if ($env:RELEASE_TAG -cnotmatch '^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$' -or $env:RELEASE_TAG -cne "v$appVersion") {
+            throw 'The release tag must exactly match alaa-deals-app/package.json version.'
+          }
+          git rev-parse --verify "refs/tags/$env:RELEASE_TAG"
+          if ($LASTEXITCODE -ne 0) { throw 'Push the version tag before publishing.' }
+      - name: Install application dependencies
+        working-directory: alaa-deals-app
+        run: npm ci
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Prepare page assets
+        working-directory: alaa-deals-app
+        run: npm run build:posts
+      - name: Package the Angular interface
+        working-directory: alaa-deals-app
+        run: npm run build:ui
+      - name: Package Windows installer and portable application
+        working-directory: alaa-deals-app
+        run: npm run dist
+      - name: Publish release files
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          $appVersion = (Get-Content alaa-deals-app/package.json -Raw | ConvertFrom-Json).version
+          $installer = "alaa-deals-app/dist/AqarMatrix-Setup-$appVersion.exe"
+          $portable = "alaa-deals-app/dist/AqarMatrix-Portable-$appVersion.exe"
+          $metadata = 'alaa-deals-app/dist/latest.yml'
+          foreach ($artifact in @($installer, $portable, $metadata)) {
+            if (!(Test-Path -LiteralPath $artifact)) { throw "Missing release file: $artifact" }
+          }
+          $assets = @($installer, $portable, $metadata)
+          $assets += @(Get-ChildItem -LiteralPath alaa-deals-app/dist -Filter '*.blockmap' -File | ForEach-Object { $_.FullName })
+          gh release view $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --clobber
+          } else {
+            gh release create $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --verify-tag --title "Aqar Matrix $appVersion" --generate-notes --latest
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Release upload failed.' }

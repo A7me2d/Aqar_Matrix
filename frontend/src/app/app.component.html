@@ -35,6 +35,7 @@
         <button type="button" class="icon-button sidebar-toggle" (click)="toggleSidebar()" aria-controls="workspaceSidebar" [attr.aria-expanded]="isMobile() ? mobileMenuOpen() : !sidebarCollapsed()" aria-label="فتح أو تصغير قائمة الأقسام" title="قائمة الأقسام"><aqm-icon name="menu" /></button>
         <div class="page-heading"><h1>{{ engine.selected().title }}</h1></div>
       </div>
+      <aqm-update-status />
     </header>
     <router-outlet />
     @if (engine.status() === 'error') {

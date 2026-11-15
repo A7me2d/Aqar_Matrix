@@ -22,6 +22,7 @@ try {
   app.commandLine.appendSwitch("disable-features", "CalculateNativeWinOcclusion,IntensiveWakeUpThrottling");
 } catch {}
 const VERSION = app.getVersion();
+const releaseUpdates = require('./release-updates')({version:VERSION,fetch:(...args)=>net.fetch(...args)});
 const APPDIR = __dirname;
 const ENGINE = path.join(APPDIR, "engine");
 // 📇 دليل الموظفين (المصدر المرخّص لأرقام التواصل) — ممكن يتغيّر لـlocalhost/self-hosted في الاختبارات
@@ -85,17 +86,17 @@ function setupUpdates() {
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) return setUpd("off", "حط اسم مستودع GitHub (owner/repo) عشان التحديث التلقائي يشتغل");
   const [owner, name] = repo.split("/");
   autoUpdater.setFeedURL({ provider: "github", owner, repo: name });
-  autoUpdater.autoDownload = true;
-  autoUpdater.autoInstallOnAppQuit = true; // بيتثبّت لوحده لما تقفل البرنامج — والداتا بتفضل زي ما هي
+  autoUpdater.autoDownload = false; // Downloads start only when the user requests one.
+  autoUpdater.autoInstallOnAppQuit = false;
   if (!setupUpdates.wired) {
     setupUpdates.wired = true;
     autoUpdater.on("checking-for-update", () => setUpd("checking", "بيدوّر على تحديث..."));
-    autoUpdater.on("update-available", (i) => setUpd("downloading", `فيه نسخة جديدة ${i.version} — بتنزل...`, { version: i.version }));
+    autoUpdater.on("update-available", (i) => setUpd("available", `يوجد تحديث ${i.version} جاهز للتنزيل`, { latestVersion: i.version }));
     autoUpdater.on("update-not-available", () => setUpd("latest", `معاك آخر نسخة (${VERSION})`));
     autoUpdater.on("download-progress", (p) => setUpd("downloading", `بينزّل التحديث ${Math.round(p.percent || 0)}%`));
     autoUpdater.on("update-downloaded", (i) => {
-      setUpd("ready", `النسخة ${i.version} جاهزة — هتتثبّت لما تقفل البرنامج، أو دوس «ثبّت دلوقتي»`, { version: i.version });
-      if (Notification.isSupported()) new Notification({ title: "🔄 تحديث Aqar Matrix جاهز", body: `النسخة ${i.version} نزلت وهتتثبّت لما تقفل البرنامج.`, icon: ICON }).show();
+      setUpd("ready", `النسخة ${i.version} جاهزة — دوس «ثبّت دلوقتي» لتطبيق التحديث`, { latestVersion: i.version });
+      if (Notification.isSupported()) new Notification({ title: "🔄 تحديث Aqar Matrix جاهز", body: `النسخة ${i.version} نزلت وجاهزة للتثبيت.`, icon: ICON }).show();
     });
     autoUpdater.on("error", (e) => setUpd("error", "ما قدرش يدوّر على تحديث: " + String((e && e.message) || e).slice(0, 140)));
   }
@@ -427,6 +428,14 @@ function setupIpc() {
   ipcMain.handle("app:link", (e, o) => (o ? ((o.off || o.mode === "remote") ? setLink(o) : peersApi("add", o)) : linkInfo()));
   ipcMain.handle("app:firewall", () => openFirewall(remoteSrv ? remoteSrv.info().port : 8787));
   ipcMain.handle("app:remote", (e, patch) => (remoteSrv ? (patch ? remoteSrv.set(patch) : remoteSrv.info()) : null));
+  ipcMain.handle('app:release', async (event, action) => {
+    const info = await releaseUpdates.check();
+    if (action === 'download' && info.state === 'available' && releaseUpdates.trustedDownload(info.downloadUrl)) {
+      // Download to this Electron client's download manager. Never run the installer silently.
+      event.sender.downloadURL(info.downloadUrl);
+    }
+    return info;
+  });
   ipcMain.handle("app:update", (e, action, repo) => {
     if (action === "setRepo") {
       const nr = String(repo || "").trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$|\/$/g, "");
@@ -437,6 +446,10 @@ function setupIpc() {
       if (okGo) { appSettings.updateRepo = nr; saveSettings(); setupUpdates(); checkUpdates(); }
     }
     if (action === "check") checkUpdates();
+    if (action === 'download' && autoUpdater && updState.state === 'available') {
+      setUpd('downloading','جاري تنزيل التحديث…');
+      autoUpdater.downloadUpdate().catch(() => {});
+    }
     if (action === "install" && updState.state === "ready") { quitting = true; setImmediate(() => autoUpdater.quitAndInstall(true, true)); }
     return { ...updState, repo: appSettings.updateRepo || "", version: VERSION, portable: IS_PORTABLE };
   });

@@ -8,10 +8,11 @@ import { LegacyView } from './core/models/feature';
 import { WorkspaceActionsComponent } from './shared/workspace-actions/workspace-actions.component';
 import { PaginationComponent } from './shared/pagination/pagination.component';
 import { SidebarMoreComponent } from './shared/sidebar-more/sidebar-more.component';
+import { UpdateStatusComponent } from './shared/update-status/update-status.component';
 
 @Component({
   selector:'aqm-root', standalone:true,
-  imports:[RouterLink,RouterLinkActive,RouterOutlet,IconComponent,WorkspaceActionsComponent,PaginationComponent,SidebarMoreComponent],
+  imports:[RouterLink,RouterLinkActive,RouterOutlet,IconComponent,WorkspaceActionsComponent,PaginationComponent,SidebarMoreComponent,UpdateStatusComponent],
   templateUrl:'./app.component.html', styleUrl:'./app.component.scss',
 })
 export class AppComponent implements AfterViewInit {
